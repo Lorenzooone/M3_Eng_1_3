@@ -178,6 +178,62 @@ pop  {pc}
 
 //--------------------------------------------------------------------------------------------
 
+.cc_it_articles:
+push {r1-r2}
+
+sub  r0,#0x10
+mov  r2,r0                   // r2 will be an offset into the extra item data slot
+ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
+cmp r2,#0x06                 // check if this is EF 16
+bne +
+sub r2,#0x03                 // if it is, change it to EF 13
+ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
++
+ldrh r0,[r0,#0]              // load the current item #
+mov  r1,#6
+mul  r0,r1                   // offset = item ID * 6 bytes
+ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
+add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
+ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
+mov  r1,#40
+mul  r0,r1                   // calculate the offset into custom_text.bin
+ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
+add  r0,r0,r1                // r0 now has the address of the string we want
+pop  {r1-r2}
+
+bl   custom_strlen           // count the length of our special string, store its length in r2
+b    .main_loop_next         // now jump back to the part of the main loop that increments and such
+
+//--------------------------------------------------------------------------------------------
+
+.cc_enemy_name:
+push {r1-r2}
+mov r2,r0
+ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
+ldrh r0,[r0,#0]              // load the current #
+cmp r2,#0x14                 // is this the pigmask code?
+bne +
+cmp r0,#6                    // is the actor the Pork Tank?
+bne +
+mov r0,#149                  // if it is, then change it to the Pigmask
++
+mov  r1,#50
+mul  r0,r1                   // offset = enemy ID * 50 bytes
+ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
+cmp r2,#0x14                 // Is this the pigmask code?
+bne +
+cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
+bne +
+ldr  r1,=#0x200439A
++
+add  r0,r0,r1                // r0 now has the address of the enemy's name
+pop  {r1-r2}
+
+.count_and_inc:
+bl   custom_strlen           // count the length of our special string, store its length in r2
+b    .main_loop_next         // now jump back to the part of the main loop that increments and such
+
+//--------------------------------------------------------------------------------------------
 .custom_cc:
 sub  r2,#1                   // need to subtract 1 to counter the raw custom control code itself
 
@@ -227,35 +283,6 @@ beq  .cc_it_articles
 
 mov  r0,#0                   // if this executes, it's an unknown control code, so treat it normally
 b    .main_loop_next         // jump back to the part of the main loop that increments and such
-
-//--------------------------------------------------------------------------------------------
-
-.cc_enemy_name:
-push {r1-r2}
-mov r2,r0
-ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
-ldrh r0,[r0,#0]              // load the current #
-cmp r2,#0x14                 // is this the pigmask code?
-bne +
-cmp r0,#6                    // is the actor the Pork Tank?
-bne +
-mov r0,#149                  // if it is, then change it to the Pigmask
-+
-mov  r1,#50
-mul  r0,r1                   // offset = enemy ID * 50 bytes
-ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-cmp r2,#0x14                 // Is this the pigmask code?
-bne +
-cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
-bne +
-ldr  r1,=#0x200439A
-+
-add  r0,r0,r1                // r0 now has the address of the enemy's name
-pop  {r1-r2}
-
-.count_and_inc:
-bl   custom_strlen           // count the length of our special string, store its length in r2
-b    .main_loop_next         // now jump back to the part of the main loop that increments and such
 
 //--------------------------------------------------------------------------------------------
 
@@ -330,34 +357,6 @@ mul  r0,r1                   // offset = enemy ID * 5 bytes
 ldr  r1,=#0x8D08A6C          // this is the base address of our extra enemy data table in ROM
 add  r0,r0,r1                // r0 now has address of this enemy's extra data entry
 ldrb r0,[r0,r2]              // r0 now has the proper line # to use from custom_text.bin
-mov  r1,#40
-mul  r0,r1                   // calculate the offset into custom_text.bin
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
-add  r0,r0,r1                // r0 now has the address of the string we want
-pop  {r1-r2}
-
-bl   custom_strlen           // count the length of our special string, store its length in r2
-b    .main_loop_next         // now jump back to the part of the main loop that increments and such
-
-//--------------------------------------------------------------------------------------------
-
-.cc_it_articles:
-push {r1-r2}
-
-sub  r0,#0x10
-mov  r2,r0                   // r2 will be an offset into the extra item data slot
-ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
-cmp r2,#0x06                 // check if this is EF 16
-bne +
-sub r2,#0x03                 // if it is, change it to EF 13
-ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
-+
-ldrh r0,[r0,#0]              // load the current item #
-mov  r1,#6
-mul  r0,r1                   // offset = item ID * 6 bytes
-ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
-add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
-ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
 mov  r1,#40
 mul  r0,r1                   // calculate the offset into custom_text.bin
 ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
@@ -1189,6 +1188,62 @@ pop  {r6-r7,pc}              // restore registers and exit
 
 //--------------------------------------------------------------------------------------------
 
+.ecc_it_articles:
+push {r1-r2}
+
+sub  r0,#0x10
+mov  r2,r0                   // r2 will be an offset into the extra item data slot
+ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
+cmp r2,#0x06                 // check if this is EF 16
+bne +
+sub r2,#0x03                 // if it is, change it to EF 13
+ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
++
+ldrh r0,[r0,#0]              // load the current item #
+mov  r1,#6
+mul  r0,r1                   // offset = item ID * 6 bytes
+ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
+add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
+ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
+mov  r1,#40
+mul  r0,r1                   // calculate the offset into custom_text.bin
+ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
+add  r0,r0,r1                // r0 now has the address of the string we want
+pop  {r1-r2}
+
+bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
+b    .customcc_inc           // go to the common custom CC incrementing, etc. code
+
+//--------------------------------------------------------------------------------------------
+
+.ecc_enemy_name:
+push {r1-r2}
+mov r2,r0
+ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
+ldrh r0,[r0,#0]              // load the current #
+cmp r2,#0x14                 // is this the pigmask code?
+bne +
+cmp r0,#6                    // is the actor the Pork Tank?
+bne +
+mov r0,#149                  // if it is, then change it to the Pigmask
++
+mov  r1,#50
+mul  r0,r1                   // offset = enemy ID * 50 bytes
+ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
+cmp r2,#0x14                 // Is this the pigmask code?
+bne +
+cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
+bne +
+ldr  r1,=#0x200439A
++
+add  r0,r0,r1                // r0 now has the address of the enemy's name
+pop  {r1-r2}
+
+bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
+b    .customcc_inc           // go to the common custom CC incrementing, etc. code
+
+//--------------------------------------------------------------------------------------------
+
 .check_custom_cc:
 ldrb r0,[r0,#0]              // load the current character
 
@@ -1248,34 +1303,6 @@ add  r0,#1
 strh r0,[r3,#0x6]
 
 b    .ecc_len_check
-
-//--------------------------------------------------------------------------------------------
-
-.ecc_enemy_name:
-push {r1-r2}
-mov r2,r0
-ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
-ldrh r0,[r0,#0]              // load the current #
-cmp r2,#0x14                 // is this the pigmask code?
-bne +
-cmp r0,#6                    // is the actor the Pork Tank?
-bne +
-mov r0,#149                  // if it is, then change it to the Pigmask
-+
-mov  r1,#50
-mul  r0,r1                   // offset = enemy ID * 50 bytes
-ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-cmp r2,#0x14                 // Is this the pigmask code?
-bne +
-cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
-bne +
-ldr  r1,=#0x200439A
-+
-add  r0,r0,r1                // r0 now has the address of the enemy's name
-pop  {r1-r2}
-
-bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
-b    .customcc_inc           // go to the common custom CC incrementing, etc. code
 
 //--------------------------------------------------------------------------------------------
 
@@ -1361,33 +1388,6 @@ pop  {r1-r2}
 bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
 b    .customcc_inc           // go to the common custom CC incrementing, etc. code
 
-//--------------------------------------------------------------------------------------------
-
-.ecc_it_articles:
-push {r1-r2}
-
-sub  r0,#0x10
-mov  r2,r0                   // r2 will be an offset into the extra item data slot
-ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
-cmp r2,#0x06                 // check if this is EF 16
-bne +
-sub r2,#0x03                 // if it is, change it to EF 13
-ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
-+
-ldrh r0,[r0,#0]              // load the current item #
-mov  r1,#6
-mul  r0,r1                   // offset = item ID * 6 bytes
-ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
-add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
-ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
-mov  r1,#40
-mul  r0,r1                   // calculate the offset into custom_text.bin
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
-add  r0,r0,r1                // r0 now has the address of the string we want
-pop  {r1-r2}
-
-bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
-b    .customcc_inc           // go to the common custom CC incrementing, etc. code
 
 //--------------------------------------------------------------------------------------------
 
