@@ -1,4 +1,4 @@
-﻿[Container 0]
+[Container 0]
 0-0:１２３４５６７８９０１２３４５[BREAK]１２３４５６７８９０１２３４５６[BREAK]１２３４５６７８９０１２３４５６７[BREAK]１２３４５６７８９０１２３４５６７８[BREAK]１２３４５６７８９０１２３４５６７８９[BREAK]１２３４５６７８９０１２３４５６７８９０[BREAK]１２３４５６７８９０１２３４５６７８９０[BREAK]１２３４５６７８９０１２３４５６７８９０[BREAK][END]
 0-0E:123456789012345[BREAK]1234567890123456[BREAK]12345678901234567[BREAK]123456789012345678[BREAK]1234567890123456789[BREAK]12345678901234567890[BREAK]12345678901234567890[BREAK]12345678901234567890[BREAK][END]
 0-1:[CENTER]１[BREAK]１２３[BREAK]１２３４５[BREAK]１２３４５６７[BREAK]１２３４５６７８９[BREAK]１２３４５６７８９０１[BREAK]１２３４５６７８９０１２３[BREAK]１２３４５６７８９０１２３４５[BREAK]１２３４５６７８９０１２３４５６[BREAK]１２３４５６７８９０１２３４５６７[BREAK]１２３４５６７８９０１２３４５６７８[BREAK]１２３４５６７８９０１２３４５６７８９[BREAK]１２３４５６７８９０１２３４５６７８９０[BREAK][END]
@@ -189,7 +189,7 @@
 0-81:◇ハコには[BREAK]　[81 FF]がはいっていた。[WAIT]◇しかし　[81 FF]は[BREAK]　もう　もてなかった。[END]
 0-81E:@Inside the present, there was[BREAK]  [EF 11][81 FF].[WAIT]@But you can't carry any more stuff.[END]
 0-82:◇ハコには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[ITEM F0 FF]は[BREAK]　もう　もてなかった。[END]
-0-82E:@Inside the present, there was[BREAK]  [EF 11][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
+0-82E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
 // Repeats: 0-82, 836-5, 839-6
 0-83:◇じどうばいばいきが　ある。[WAIT]◇ごりように　なりますか？[BREAK][MENU 02 00]　　　はい　　　いいえ[BREAK][ENDCHOICES][END]
 0-83E:@There's a vending machine here.[WAIT]@Would you like to use it? [WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[BREAK][ENDCHOICES][END]
@@ -378,7 +378,7 @@
 0-162:◇ちずに　しるしを[BREAK]　つけてもらった！[PAUSE 40 00][END]
 0-162E:@Your map's been marked![PAUSE 40 00][END]
 0-163:◇[ITEM F0 FF]を　もらった！[PAUSE 40 00][END]
-0-163E:@Received [EF 11][ITEM F0 FF]![PAUSE 40 00][END]
+0-163E:@Received [EF 91][ITEM F0 FF]![PAUSE 40 00][END]
 // Repeats: 0-47, 0-163
 0-164:◆みんなのレベルを　９９にする？[WAIT][MENU 02 00]　　　いいえ　　　はい[ENDCHOICES][END]
 0-164E:@Set everyone to Level 99?[WAIT][MENU 02 00][MENUSPACEYES]No[MENUSPACENO]Yes[ENDCHOICES][END]
@@ -550,11 +550,11 @@
 0-242:◆んじゃ　オレはここで。[WAIT]◆なまえも　ないけど[BREAK]　なかなか　いいやつだったと[WAIT]　たまに　おもいだしてね。[END]
 0-242E:@Well, I guess this is where we part ways.[WAIT]@I don't have a name, but remember me[BREAK]  sometimes as being a pretty cool guy, okay?[END]
 0-243:◇ジャン！[WAIT]◇ゴミばこの　なかには[BREAK]　[ITEM F0 FF]が　はいっていた！[END]
-0-243E:@TAAAAAH-DAAAAAH![WAIT]@Inside the trash can, there was[BREAK]  [EF 11][ITEM F0 FF]![END]
+0-243E:@TAAAAAH-DAAAAAH![WAIT]@Inside the trash can, there was[BREAK]  [EF 91][ITEM F0 FF]![END]
 0-244:◇[42 FF F1 FF]は[BREAK]　[ITEM F0 FF]を　てにいれた！[END]
-0-244E:@[42 FF F1 FF] got [EF 13][ITEM F0 FF]![END]
+0-244E:@[42 FF F1 FF] got [EF 93][ITEM F0 FF]![END]
 0-245:◇[42 FF F1 FF]は[BREAK]　[ITEM F0 FF]を　てにいれた！[WAIT]◇たぶん。[END]
-0-245E:@[42 FF F1 FF] got [EF 13][ITEM F0 FF]![WAIT]@Maybe.[END]
+0-245E:@[42 FF F1 FF] got [EF 93][ITEM F0 FF]![WAIT]@Maybe.[END]
 0-246:◇からっぽだ・・・。[END]
 0-246E:@It's empty...[END]
 // Repeats: 0-54, 0-62, 0-246
@@ -1433,7 +1433,7 @@
 11-21E:@Go how far into Snowcap Mountain?[BREAK][MENU 05 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Lydia's House[RIGHT][BREAK]  [LEFT]Uninv. Guest[RIGHT][BREAK]  [LEFT]Riding Sled[RIGHT][BREAK]  [LEFT]Cemetery[RIGHT][BREAK][ENDCHOICES][END]
 // Repeats: 11-21, 212-21, 213-21
 11-22:◇どせい谷どこまで進める？[BREAK][MENU 09 00]　　←選択終了　　　　　　　　　　→[BREAK]　　←どせいさんビーン：どせい谷　→[BREAK]　　←どせい谷到着：どせい谷　　　→[BREAK]　　←どせいさんハシゴ：どせい谷　→[BREAK]　　←眠れるマジプシー：フリギア〜→[BREAK]　　←帰ってきたヨクバ：火山洞窟　→[BREAK]　　←トンネル破壊：どせい谷　　　→[BREAK]　　←鳥かご完成：どせいさんの家　→[BREAK]　　←クリア：オオウロコ海岸　　　→[BREAK][ENDCHOICES][END]
-11-22E:@Go how far into Saturn Valley?[BREAK][MENU 09 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Saturn Bean[RIGHT][BREAK]  [LEFT]Saturn Valley[RIGHT][BREAK]  [LEFT]Phrygia[RIGHT][BREAK]  [LEFT]Volcano[RIGHT][BREAK]  [LEFT]Tunnel Destr.[RIGHT][BREAK]  [LEFT]Birdcage[RIGHT][BREAK]  [LEFT]Ceru. Beach[RIGHT][BREAK][ENDCHOICES][END]
+11-22E:@Go how far into Saturn Valley?[BREAK][MENU 09 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Saturn Bean[RIGHT][BREAK]  [LEFT]Saturn Valley[RIGHT][BREAK]  [LEFT]Saturn Ladder[RIGHT][BREAK]  [LEFT]Phrygia[RIGHT][BREAK]  [LEFT]Volcano[RIGHT][BREAK]  [LEFT]Tunnel Destr.[RIGHT][BREAK]  [LEFT]Birdcage[RIGHT][BREAK]  [LEFT]Ceru. Beach[RIGHT][BREAK][ENDCHOICES][END]
 // Repeats: 11-22, 212-22, 213-22
 11-23:◇タネタネ島どこまで進める？[BREAK][MENU 08 00]　　←選択終了　　　　　　　　　　→[BREAK]　　←タネタネ到着：タネタネ海岸　→[BREAK]　　←幻覚キノコ：幻覚タネタネ海岸→[BREAK]　　←ミッシー：ミッシー宅外観　　→[BREAK]　　←結界さん：タネタネ島丘陵　　→[BREAK]　　←手痛い敗北：ミッシー宅外観　→[BREAK]　　←タコに乗って：タネタネ島海岸→[BREAK]　　←クリア：オオウロコ海岸　　　→[BREAK][ENDCHOICES][END]
 11-23E:@Go how far into Tanetane Island?[BREAK][MENU 08 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Tanetane Beach[RIGHT][BREAK]  [LEFT]Funky Beach[RIGHT][BREAK]  [LEFT]Missy's House[RIGHT][BREAK]  [LEFT]Island Hill[RIGHT][BREAK]  [LEFT]Defeated[RIGHT][BREAK]  [LEFT]Octopus Ride[RIGHT][BREAK]  [LEFT]Ceru. Beach[RIGHT][BREAK][ENDCHOICES][END]
@@ -3910,7 +3910,7 @@
 39-1E:@But it was empty.[END]
 // Repeats: 39-1, 509-1
 39-2:◇[ITEM F0 FF]を　てにいれた！[END]
-39-2E:@Got [EF 11][ITEM F0 FF]![END]
+39-2E:@Got [EF 91][ITEM F0 FF]![END]
 // Repeats: 39-2, 478-1, 509-2
 39-3:◇うすぐらい　くうかんが[BREAK]　ひろがっている。[WAIT]◇どこにつうじているのか[BREAK]　わからない。[END]
 39-3E:@A dim passage can be seen beyond this[BREAK]  chain-link shutter.[WAIT]@Where it leads to is anyone's guess.[END]
@@ -3922,7 +3922,7 @@
 39-5E:@It doesn't look like you can get through this[BREAK]  chain-link shutter.[END]
 // Repeats: 39-5, 509-5
 39-6:◇はこには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[81 FF]は[BREAK]　もう　もてなかった。[END]
-39-6E:@Inside the present, there was[BREAK]  [EF 11][ITEM F0 FF].[WAIT]@But [81 FF] can't carry any more stuff.[END]
+39-6E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But [81 FF] can't carry any more stuff.[END]
 // Repeats: 39-6, 509-6
 39-7:◇うすぐらい　くうかんが[BREAK]　ひろがっている。[WAIT]◇どこにつうじているのか[BREAK]　わからない。[END]
 39-7E:@A dim passage can be seen beyond this[BREAK]  chain-link shutter.[WAIT]@Where it leads to is anyone's guess.[END]
@@ -9777,7 +9777,7 @@
 212-21E:@Go how far into Snowcap Mountain?[BREAK][MENU 05 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Lydia's House[RIGHT][BREAK]  [LEFT]Uninv. Guest[RIGHT][BREAK]  [LEFT]Riding Sled[RIGHT][BREAK]  [LEFT]Cemetery[RIGHT][BREAK][ENDCHOICES][END]
 // Repeats: 11-21, 212-21, 213-21
 212-22:◇どせい谷どこまで進める？[BREAK][MENU 09 00]　　←選択終了　　　　　　　　　　→[BREAK]　　←どせいさんビーン：どせい谷　→[BREAK]　　←どせい谷到着：どせい谷　　　→[BREAK]　　←どせいさんハシゴ：どせい谷　→[BREAK]　　←眠れるマジプシー：フリギア〜→[BREAK]　　←帰ってきたヨクバ：火山洞窟　→[BREAK]　　←トンネル破壊：どせい谷　　　→[BREAK]　　←鳥かご完成：どせいさんの家　→[BREAK]　　←クリア：オオウロコ海岸　　　→[BREAK][ENDCHOICES][END]
-212-22E:@Go how far into Saturn Valley?[BREAK][MENU 09 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Saturn Bean[RIGHT][BREAK]  [LEFT]Saturn Valley[RIGHT][BREAK]  [LEFT]Phrygia[RIGHT][BREAK]  [LEFT]Volcano[RIGHT][BREAK]  [LEFT]Tunnel Destr.[RIGHT][BREAK]  [LEFT]Birdcage[RIGHT][BREAK]  [LEFT]Ceru. Beach[RIGHT][BREAK][ENDCHOICES][END]
+212-22E:@Go how far into Saturn Valley?[BREAK][MENU 09 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Saturn Bean[RIGHT][BREAK]  [LEFT]Saturn Valley[RIGHT][BREAK]  [LEFT]Saturn Ladder[RIGHT][BREAK]  [LEFT]Phrygia[RIGHT][BREAK]  [LEFT]Volcano[RIGHT][BREAK]  [LEFT]Tunnel Destr.[RIGHT][BREAK]  [LEFT]Birdcage[RIGHT][BREAK]  [LEFT]Ceru. Beach[RIGHT][BREAK][ENDCHOICES][END]
 // Repeats: 11-22, 212-22, 213-22
 212-23:◇タネタネ島どこまで進める？[BREAK][MENU 08 00]　　←選択終了　　　　　　　　　　→[BREAK]　　←タネタネ到着：タネタネ海岸　→[BREAK]　　←幻覚キノコ：幻覚タネタネ海岸→[BREAK]　　←ミッシー：ミッシー宅外観　　→[BREAK]　　←結界さん：タネタネ島丘陵　　→[BREAK]　　←手痛い敗北：ミッシー宅外観　→[BREAK]　　←タコに乗って：タネタネ島海岸→[BREAK]　　←クリア：オオウロコ海岸　　　→[BREAK][ENDCHOICES][END]
 212-23E:@Go how far into Tanetane Island?[BREAK][MENU 08 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Tanetane Beach[RIGHT][BREAK]  [LEFT]Funky Beach[RIGHT][BREAK]  [LEFT]Missy's House[RIGHT][BREAK]  [LEFT]Island Hill[RIGHT][BREAK]  [LEFT]Defeated[RIGHT][BREAK]  [LEFT]Octopus Ride[RIGHT][BREAK]  [LEFT]Ceru. Beach[RIGHT][BREAK][ENDCHOICES][END]
@@ -9873,7 +9873,7 @@
 213-21E:@Go how far into Snowcap Mountain?[BREAK][MENU 05 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Lydia's House[RIGHT][BREAK]  [LEFT]Uninv. Guest[RIGHT][BREAK]  [LEFT]Riding Sled[RIGHT][BREAK]  [LEFT]Cemetery[RIGHT][BREAK][ENDCHOICES][END]
 // Repeats: 11-21, 212-21, 213-21
 213-22:◇どせい谷どこまで進める？[BREAK][MENU 09 00]　　←選択終了　　　　　　　　　　→[BREAK]　　←どせいさんビーン：どせい谷　→[BREAK]　　←どせい谷到着：どせい谷　　　→[BREAK]　　←どせいさんハシゴ：どせい谷　→[BREAK]　　←眠れるマジプシー：フリギア〜→[BREAK]　　←帰ってきたヨクバ：火山洞窟　→[BREAK]　　←トンネル破壊：どせい谷　　　→[BREAK]　　←鳥かご完成：どせいさんの家　→[BREAK]　　←クリア：オオウロコ海岸　　　→[BREAK][ENDCHOICES][END]
-213-22E:@Go how far into Saturn Valley?[BREAK][MENU 09 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Saturn Bean[RIGHT][BREAK]  [LEFT]Saturn Valley[RIGHT][BREAK]  [LEFT]Phrygia[RIGHT][BREAK]  [LEFT]Volcano[RIGHT][BREAK]  [LEFT]Tunnel Destr.[RIGHT][BREAK]  [LEFT]Birdcage[RIGHT][BREAK]  [LEFT]Ceru. Beach[RIGHT][BREAK][ENDCHOICES][END]
+213-22E:@Go how far into Saturn Valley?[BREAK][MENU 09 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Saturn Bean[RIGHT][BREAK]  [LEFT]Saturn Valley[RIGHT][BREAK]  [LEFT]Saturn Ladder[RIGHT][BREAK]  [LEFT]Phrygia[RIGHT][BREAK]  [LEFT]Volcano[RIGHT][BREAK]  [LEFT]Tunnel Destr.[RIGHT][BREAK]  [LEFT]Birdcage[RIGHT][BREAK]  [LEFT]Ceru. Beach[RIGHT][BREAK][ENDCHOICES][END]
 // Repeats: 11-22, 212-22, 213-22
 213-23:◇タネタネ島どこまで進める？[BREAK][MENU 08 00]　　←選択終了　　　　　　　　　　→[BREAK]　　←タネタネ到着：タネタネ海岸　→[BREAK]　　←幻覚キノコ：幻覚タネタネ海岸→[BREAK]　　←ミッシー：ミッシー宅外観　　→[BREAK]　　←結界さん：タネタネ島丘陵　　→[BREAK]　　←手痛い敗北：ミッシー宅外観　→[BREAK]　　←タコに乗って：タネタネ島海岸→[BREAK]　　←クリア：オオウロコ海岸　　　→[BREAK][ENDCHOICES][END]
 213-23E:@Go how far into Tanetane Island?[BREAK][MENU 08 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Tanetane Beach[RIGHT][BREAK]  [LEFT]Funky Beach[RIGHT][BREAK]  [LEFT]Missy's House[RIGHT][BREAK]  [LEFT]Island Hill[RIGHT][BREAK]  [LEFT]Defeated[RIGHT][BREAK]  [LEFT]Octopus Ride[RIGHT][BREAK]  [LEFT]Ceru. Beach[RIGHT][BREAK][ENDCHOICES][END]
@@ -11947,7 +11947,7 @@
 263-74E:@That's what I thought, but amigo, you have no[BREAK]  more room.[WAIT]@I'm sorry, but the deal's off.[WAIT]@Your pay off took the day off, amigo.[END]
 // eb quote, keep the same
 263-75:◇けいひんとして[BREAK]　[ITEM F0 FF]を　もらった。[END]
-263-75E:@You won [EF 11][ITEM F0 FF]![END]
+263-75E:@You won [EF 91][ITEM F0 FF]![END]
 263-76:◆みんなに　つられて　トカイに[BREAK]　きたけれど　めが　まわりそう。[END]
 263-76E:@Everyone convinced me to come to the city,[BREAK]  but I feel more dizzy than anything, really.[END]
 263-77:◆このまちって　なんだか[BREAK]　こどもっぽい　かんじ。[END]
@@ -16694,10 +16694,10 @@
 478-0:◇[42 FF 00 00]は[BREAK]　ゴミばこを　あけた。[EVENT][END]
 478-0E:@[42 FF 00 00] opened the garbage can.[EVENT][END]
 478-1:◇[ITEM F0 FF]を　てにいれた！[END]
-478-1E:@Got [EF 11][ITEM F0 FF]![END]
+478-1E:@Got [EF 91][ITEM F0 FF]![END]
 // Repeats: 39-2, 478-1, 509-2
 478-2:◇ゴミばこには[BREAK]　[ITEM F0 FF]が　はいっていた。[WAIT]◇しかし　[ITEM F0 FF]は[BREAK]　もう　もてなかった。[END]
-478-2E:@There was [EF 11][ITEM F0 FF] inside.[WAIT]@But you couldn't hold any more stuff.[END]
+478-2E:@There was [EF 91][ITEM F0 FF] inside.[WAIT]@But you couldn't hold any more stuff.[END]
 478-3:[END]
 478-3E:[END]
 
@@ -17026,7 +17026,7 @@
 509-1E:@But it was empty.[END]
 // Repeats: 39-1, 509-1
 509-2:◇[ITEM F0 FF]を　てにいれた！[END]
-509-2E:@Got [EF 11][ITEM F0 FF]![END]
+509-2E:@Got [EF 91][ITEM F0 FF]![END]
 // Repeats: 39-2, 478-1, 509-2
 509-3:◇うすぐらい　くうかんが[BREAK]　ひろがっている。[WAIT]◇どこにつうじているのか[BREAK]　わからない。[END]
 509-3E:@A dim passage can be seen beyond this[BREAK]  chain-link shutter.[WAIT]@Where it leads to is anyone's guess.[END]
@@ -17038,7 +17038,7 @@
 509-5E:@It doesn't look like you can get through this[BREAK]  chain-link shutter.[END]
 // Repeats: 39-5, 509-5
 509-6:◇はこには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[81 FF]は[BREAK]　もう　もてなかった。[END]
-509-6E:@Inside the present, there was[BREAK]  [EF 11][ITEM F0 FF].[WAIT]@But [81 FF] can't carry any more stuff.[END]
+509-6E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But [81 FF] can't carry any more stuff.[END]
 // Repeats: 39-6, 509-6
 509-7:[END]
 509-7E:[END]
@@ -17499,7 +17499,7 @@
 627-1:◆それは　いまはやりの[BREAK]　[ITEM E4 00]です。[WAIT]◆[ITEM 67 00][80 FF 01 00]こ　と[BREAK]　こうかんするよ〜。[WAIT]◆さ〜どうする　こうかんするかい？[BREAK][MENU 02 00]　　　はい　　　いいえ[BREAK][ENDCHOICES][END]
 627-1E:@That's the [ITEM E4 00].[BREAK]  He's incredibly popular these days![WAIT]@I'll trade him for one [ITEM 67 00]![WAIT]@What do you say? Do we have a deal?[WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[BREAK][ENDCHOICES][END]
 627-2:◆それは　[ITEM F0 FF]。[WAIT]◆[ITEM 67 00][80 FF F1 FF]こ　と[BREAK]　こうかんするよ〜。[WAIT][MENU 02 00]　　　はい　　　いいえ[BREAK][ENDCHOICES][END]
-627-2E:@That's a [ITEM F0 FF].[WAIT]@If you have any [ITEM 67 00]s, I'll trade this[BREAK]  for [80 FF F1 FF] of them![WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[BREAK][ENDCHOICES][END]
+627-2E:@That's [EF 91][ITEM F0 FF].[WAIT]@If you have any [ITEM 67 00]s, I'll trade this[BREAK]  for [80 FF F1 FF] of them![WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[BREAK][ENDCHOICES][END]
 627-3:◆それは　あんまり　おいしくない[BREAK]　[ITEM F0 FF]です。[WAIT]◆[ITEM 67 00][80 FF F1 FF]こ　と[BREAK]　こうかんするよ〜。[WAIT][MENU 02 00]　　　はい　　　いいえ[BREAK][ENDCHOICES][END]
 627-3E:@That's a not-very-tasty [ITEM F0 FF].[WAIT]@I'll trade it for [80 FF F1 FF] [ITEM 67 00]![WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[BREAK][ENDCHOICES][END]
 // I think this is a Nut Cookie, but I'm not sure
@@ -19179,10 +19179,10 @@
 836-3E:@[42 FF F1 FF] opened the present.[EVENT][END]
 // Repeats: 836-3, 839-4
 836-4:◇[ITEM F0 FF]を　てにいれた！[PAUSE 40 00][END]
-836-4E:@Got [EF 11][ITEM F0 FF]![PAUSE 40 00][END]
+836-4E:@Got [EF 91][ITEM F0 FF]![PAUSE 40 00][END]
 // Repeats: 0-45, 836-4, 839-5
 836-5:◇ハコには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[ITEM F0 FF]は[BREAK]　もう　もてなかった。[END]
-836-5E:@Inside the present, there was[BREAK]  [EF 11][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
+836-5E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
 // Repeats: 0-82, 836-5, 839-6
 
 [Container 837]
@@ -19224,10 +19224,10 @@
 839-4E:@[42 FF F1 FF] opened the present.[EVENT][END]
 // Repeats: 836-3, 839-4
 839-5:◇[ITEM F0 FF]を　てにいれた！[PAUSE 40 00][END]
-839-5E:@Got [EF 11][ITEM F0 FF]![PAUSE 40 00][END]
+839-5E:@Got [EF 91][ITEM F0 FF]![PAUSE 40 00][END]
 // Repeats: 0-45, 836-4, 839-5
 839-6:◇ハコには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[ITEM F0 FF]は[BREAK]　もう　もてなかった。[END]
-839-6E:@Inside the present, there was[BREAK]  [EF 11][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
+839-6E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
 // Repeats: 0-82, 836-5, 839-6
 839-7:[END]
 839-7E:[END]
