@@ -216,20 +216,42 @@ beq  .cc_it_articles
 cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
 beq  .cc_it_articles
 
+cmp  r0,#0x14                // check for 0xEF14, which will fix the "The Pigmask threw a cannonball!" glitch
+beq  .cc_enemy_name
+
+cmp  r0,#0x15                // check for 0xEF15, which will print the Pigmask's uppercase article if need be
+beq  .cc_en_articles
+
+cmp  r0,#0x16                // check for 0xEF16, which will print the second last item lowercase article
+beq  .cc_it_articles
+
 mov  r0,#0                   // if this executes, it's an unknown control code, so treat it normally
 b    .main_loop_next         // jump back to the part of the main loop that increments and such
 
 //--------------------------------------------------------------------------------------------
 
 .cc_enemy_name:
-push {r1}
+push {r1-r2}
+mov r2,r0
 ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
+cmp r2,#0x14                 // is this the pigmask code?
+bne +
+cmp r0,#6                    // is the actor the Pork Tank?
+bne +
+mov r0,#149                  // if it is, then change it to the Pigmask
++
 mov  r1,#50
 mul  r0,r1                   // offset = enemy ID * 50 bytes
 ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
+cmp r2,#0x14                 // Is this the pigmask code?
+bne +
+cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
+bne +
+ldr  r1,=#0x200439A
++
 add  r0,r0,r1                // r0 now has the address of the enemy's name
-pop  {r1}
+pop  {r1-r2}
 
 .count_and_inc:
 bl   custom_strlen           // count the length of our special string, store its length in r2
@@ -297,6 +319,13 @@ sub  r2,r0,#2                // r2 will be an offset into the extra enemy data s
 ldr  r0,=#0x2014320          // this is where current_enemy_save saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
 mov  r1,#5
+cmp r2,#0x13                 // is this the pigmask's article code?
+bne +
+mov r2,#2                    // Change the code so it makes sense
+cmp r0,#6                    // is the actor the Pork Tank?
+bne +
+mov r0,#149                  // if it is, then change it to the Pigmask
++
 mul  r0,r1                   // offset = enemy ID * 5 bytes
 ldr  r1,=#0x8D08A6C          // this is the base address of our extra enemy data table in ROM
 add  r0,r0,r1                // r0 now has address of this enemy's extra data entry
@@ -318,6 +347,11 @@ push {r1-r2}
 sub  r0,#0x10
 mov  r2,r0                   // r2 will be an offset into the extra item data slot
 ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
+cmp r2,#0x06                 // check if this is EF 16
+bne +
+sub r2,#0x03                 // if it is, change it to EF 13
+ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
++
 ldrh r0,[r0,#0]              // load the current item #
 mov  r1,#6
 mul  r0,r1                   // offset = item ID * 6 bytes
@@ -1071,8 +1105,14 @@ bx   lr
 //=============================================================================================
 
 .save_current_item:
-ldr  r0,=#0x2014324
+push {r3}
+ldr  r0,=#0x2014324 //Get ex current item
+ldrh r3,[r0,#0]
+ldr  r0,=#0x2014724 //Write it in this location of the RAM
+strh r3,[r0,#0]
+ldr  r0,=#0x2014324 //Save the new current item
 strh r1,[r0,#0]
+pop {r3}
 bx   lr
 
 
@@ -1185,6 +1225,15 @@ beq  .ecc_it_articles
 cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
 beq  .ecc_it_articles
 
+cmp  r0,#0x14                // check for 0xEF14, which will fix the "The Pigmask threw a cannonball!" glitch
+beq  .ecc_enemy_name
+
+cmp  r0,#0x15                // check for 0xEF15, which will print the Pigmask's uppercase article if need be
+beq  .ecc_en_articles
+
+cmp  r0,#0x16                // check for 0xEF16, which will print the second last item lowercase article
+beq  .ecc_it_articles
+
 b    .ecc_inc                // treat this code normally if it's not a valid custom control code
 
 //--------------------------------------------------------------------------------------------
@@ -1203,14 +1252,27 @@ b    .ecc_len_check
 //--------------------------------------------------------------------------------------------
 
 .ecc_enemy_name:
-push {r1}
+push {r1-r2}
+mov r2,r0
 ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
+cmp r2,#0x14                 // is this the pigmask code?
+bne +
+cmp r0,#6                    // is the actor the Pork Tank?
+bne +
+mov r0,#149                  // if it is, then change it to the Pigmask
++
 mov  r1,#50
 mul  r0,r1                   // offset = enemy ID * 50 bytes
 ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
+cmp r2,#0x14                 // Is this the pigmask code?
+bne +
+cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
+bne +
+ldr  r1,=#0x200439A
++
 add  r0,r0,r1                // r0 now has the address of the enemy's name
-pop  {r1}
+pop  {r1-r2}
 
 bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
 b    .customcc_inc           // go to the common custom CC incrementing, etc. code
@@ -1278,6 +1340,13 @@ sub  r2,r0,#2                // r2 will be an offset into the extra enemy data s
 
 ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
+cmp r2,#0x13                 // is this the pigmask's article code?
+bne +
+mov r2,#2                    // Change the code so it makes sense
+cmp r0,#6                    // is the actor the Pork Tank?
+bne +
+mov r0,#149                  // if it is, then change it to the Pigmask
++
 mov  r1,#5
 mul  r0,r1                   // offset = enemy ID * 5 bytes
 ldr  r1,=#0x8D08A6C          // this is the base address of our extra enemy data table in ROM
@@ -1300,6 +1369,11 @@ push {r1-r2}
 sub  r0,#0x10
 mov  r2,r0                   // r2 will be an offset into the extra item data slot
 ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
+cmp r2,#0x06                 // check if this is EF 16
+bne +
+sub r2,#0x03                 // if it is, change it to EF 13
+ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
++
 ldrh r0,[r0,#0]              // load the current item #
 mov  r1,#6
 mul  r0,r1                   // offset = item ID * 6 bytes
