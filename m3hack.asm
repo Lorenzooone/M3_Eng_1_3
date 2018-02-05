@@ -430,9 +430,6 @@ org $9BA2DBC; incbin gfx_namingscreen.bin
 org $9B8FF74; incbin data_namingscreen1.bin
 org $80C6AAC; incbin data_namingscreen2.bin
 
-// Make the incorrect tile on the text speed/window flavour screen go away
-org $9BC04AA; db $97
-
 // Fully covers/erases "Don't Care" on the player naming screens
 org $804A3C4; db $06
 
@@ -1223,17 +1220,12 @@ org $80C7004; incbin data_memo_flags.bin
 
 //OAM hacks for the summary
 
-org $804A380; dd $09FD0001 //Change address loaded
-org $804A2EA; dd $00004925 //Load the address that we want to go to
-org $804A2EC; bx r1 //Go to it
-org $804A2F0; mov r5,#0 //Reset r5
+//Set/Reset the flag, so everything works
+org $804A2EA; bl summary_hacks.flag_reset
 
-org $803E6EC; ldr r0,=#0x9FD0101; bx r0 //Go to this too
+//Stop the refreshing of the OAM if the flag is set
+org $803E6F0; bl summary_hacks.impede_refresh_oam
 
-org $9FD0000
-incsrc testArr2.asm
-org $9FD0100
-incsrc test_Arr3.asm
 //============================================================================================
 //                                    NEW HACK CODE
 //============================================================================================
