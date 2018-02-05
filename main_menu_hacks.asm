@@ -1130,7 +1130,7 @@ str  r5,[sp,#0x08]           // Store it over the previous one
 pop  {r5}                    // Get back r5 
 add  sp,#0x04                // Get the un-needed value off the stack 
 
-ldr  r0,=#0x8D1CF78          // load r0 with the address of our 8x8 font width table
+ldr  r0,=#0x8D1CE78          // load r0 with the address of our 16x16 font width table (FIX : that was 8x8)
 ldrb r0,[r0,r1]
 pop  {pc}
 

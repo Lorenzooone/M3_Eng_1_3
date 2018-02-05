@@ -434,6 +434,7 @@ pop  {pc}
 // Call from 8049466.
 //============================================================================================
 
+
 .store_letter:
 push {r0,lr}
 ldr  r1,=#0x2014320      // r1 has RAM block address
@@ -442,14 +443,32 @@ lsl  r0,r0,#0x18
 lsr  r0,r0,#0x18
 strh r0,[r1,#0x8]        // store r0 (current letter value) in RAM block
 
-push {r2,r3}
+push {r2-r4}
 lsl  r3,r0,#0x18
 lsr  r3,r3,#0x18
 
-ldr  r2,=#0x8D1CE78      // will need to modify this later to work with the 8x8 font too!
+
+// 20225C4 holds a pointer to the current font
+// It can be either 8CE39F8 (main) or 8D0B010 (small)
+// From that we want to get the widths pointer, which is 8D1CE78 (main) or 8D1CF78 (small)
+// I'm assuming we only ever use this for main and small fonts...
+ldr  r2,=#0x20225C4
+ldr  r4,[r2,#0]
+ldr  r2,=#0x8CE39F8
+cmp  r2,r4
+bne  +
+// We're using main font
+ldr  r2,=#0x8D1CE78
+b    .store_letter_next
++
+ldr  r2,=#0x8D1CF78
+
+
+
+.store_letter_next:
 ldrb r2,[r2,r3]          // get the current letter's width
 strb r2,[r1,#0x6]        // store the current letter's width in the RAM block
-pop  {r2,r3}
+pop  {r2-r4}
 
 ldrb r1,[r6,#0x10]       // code we clobbered
 mov  r0,#0x80
@@ -870,17 +889,34 @@ pop  {r0-r1,pc}
 //============================================================================================
 
 .get_sprite_total:
-push {r2,r5}
+push {r2,r4,r5}
 ldr  r5,=#0x2014320      // r1 has RAM block address
 
-ldr  r0,[sp,#0x8]
+ldr  r0,[sp,#0xC]
 ldrh r0,[r0,#0x0]
 strh r0,[r5,#0x8]        // store r0 (current letter value) in RAM block
 
-ldr  r2,=#0x8D1CE78      // will need to modify this later to work with the 8x8 font too!
+
+// 20225C4 holds a pointer to the current font
+// It can be either 8CE39F8 (main) or 8D0B010 (small)
+// From that we want to get the widths pointer, which is 8D1CE78 (main) or 8D1CF78 (small)
+// I'm assuming we only ever use this for main and small fonts...
+ldr  r2,=#0x20225C4
+ldr  r4,[r2,#0]
+ldr  r2,=#0x8CE39F8
+cmp  r2,r4
+bne  +
+// We're using main font
+ldr  r2,=#0x8D1CE78
+b    .get_sprite_total_next
++
+ldr  r2,=#0x8D1CF78
+
+
+.get_sprite_total_next:			   
 ldrb r2,[r2,r0]          // get the current letter's width
 strb r2,[r5,#0x6]        // store the current letter's width in the RAM block
-pop  {r2,r5}
+pop  {r2,r4,r5}
 
 ldr  r0,=#0x2014320
 ldrb r0,[r0,#0x4]
