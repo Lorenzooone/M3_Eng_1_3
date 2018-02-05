@@ -1191,6 +1191,10 @@ org $80C4148; db $00 // Theater projector room
 org $80C4178; db $00 // Upstairs hallway (outside Leder's room)
 org $80C4184; db $00 // Leder's room  
 
+//Changes the text of Jumbo Shrimp Soup and Rich Kid Pork Stew to "eat"
+org $80E8548; db $46
+org $80E8914; db $46
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
