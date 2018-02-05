@@ -1216,6 +1216,23 @@ org $8049298; bl extra_hacks.memo_iconfix; nop; nop
 org $80C7004; incbin data_memo_flags.bin
 
 //============================================================================================
+//									SUMMARY FIXING
+//============================================================================================
+
+//OAM hacks for the summary
+
+org $804A380; dd $09FD0001 //Change address loaded
+org $804A2EA; dd $00004925 //Load the address that we want to go to
+org $804A2EC; bx r1 //Go to it
+org $804A2F0; mov r5,#0 //Reset r5
+
+org $803E6EC; ldr r0,=#0x9FD0101; bx r0 //Go to this too
+
+org $9FD0000
+incsrc testArr2.asm
+org $9FD0100
+incsrc test_Arr3.asm
+//============================================================================================
 //                                    NEW HACK CODE
 //============================================================================================
 

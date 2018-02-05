@@ -1233,8 +1233,10 @@ pop  {r0-r7}
 ldr  r2,=#0x2018CC0     // code we clobbered
 pop  {pc}
 
-
-
+.way_out:
+pop {r4-r7}
+pop {r0} //We're not printing the text 99 times, thanks!
+bx r0
 
 
 
@@ -1256,6 +1258,10 @@ pop  {pc}
 
 .main_routine:
 push {r4-r7,lr}
+ldr r4,=#0x2003F04
+ldrb r7,[r4,#0]
+cmp r7,#2
+beq .way_out
 mov  r7,r10
 mov  r6,r9
 mov  r5,r8
