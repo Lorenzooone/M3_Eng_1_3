@@ -507,6 +507,8 @@ org $804DCB2; db $10
 // Change the sanctuary screen arrangement to match the factory screen one
 org $804A0F8; db $48
 org $9BBB7BC; incbin gfx_factory_arrangement.bin
+org $9BBEFBC; incbin gfx_summary_arrangement.bin
+org $9BBFFBC; incbin gfx_flavours_arrangement.bin
 
 // Change the sanctuary graphics to include the custom window border tiles
 org $9BB69FC; incbin gfx_sanctuaryborders.bin
