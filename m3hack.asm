@@ -1001,6 +1001,22 @@ org $9F92000; incbin gfx_monotoli_[c].bin
 // silver star sprite for the battle memory star hack
 org $9F86120; incbin gfx_starsprite.bin
 
+//Ver 1.3 stuff after this
+
+//Fixes TaneTane Island's glitched tileset
+
+org $8FC8CA8; incbin gfx_tanetane_layer1_arrangement_[c].bin
+org $9FAA450; incbin gfx_tanetane_layer2_arrangement_[c].bin
+org $8F904B8; dd $0101A414 //Layer 2's pointer
+org $9F89F40; incbin gfx_tanetane_layer3_arrangement_[c].bin
+org $8F904BC; dd $00FF9F04 //Layer 3's pointer
+
+//Fixes the unused cutscene's tileset
+
+org $8FF423C; incbin gfx_cutscene_layer2_arrangement_[c].bin
+org $8FF44CC; incbin gfx_cutscene_layer3_arrangement_[c].bin
+org $90A596C; incbin gfx_cutscene_[c].bin
+
 //============================================================================================
 //                                    SOUND HACKS
 //============================================================================================
