@@ -209,7 +209,6 @@ pop  {r3-r7,pc}
 
 
 //--------------------------------------------------------
-//
 //                 New summary hacks!
 //--------------------------------------------------------
 
@@ -220,50 +219,50 @@ summary_hacks:
 .impede_refresh_oam:
 push {r4-r5,lr}
 mov r5,r1
-ldr r1,=#0x2003F04					//Let's check in our flag what's happening
+ldr r1,=#0x2003F04                  //Let's check in our flag what's happening
 ldrb r0,[r1,#0]
-cmp r0,#1							//If the value is one, then we need to print the text ONE time and set it to - not printing
+cmp r0,#1                           //If the value is one, then we need to print the text ONE time and set it to - not printing
 bne .keep_going
 mov r0,#2
-strb r0,[r1,#0]						//Sets the flag to - not printing
+strb r0,[r1,#0]                     //Sets the flag to - not printing
 b .keep_keep
 
 
 .keep_going:
-cmp r0,#2							//Is this 2? If it is, we don't print, but we need to make some checks to avoid some stuff...
+cmp r0,#2                           //Is this 2? If it is, we don't print, but we need to make some checks to avoid some stuff...
 beq .partially
 
 .keep_keep:
-bl $8050EED
+bl $8050EED                         //This is the standard OAM refreshing routine, call it in case it's 1 or 0, since we need to print
 
 .rest:
 pop {r4-r5,pc}
 
 .partially:
-ldr r4,=#0x2003F08					//This cicle, we don't print a thing...
+ldr r4,=#0x2003F08                  //This cicle, we don't print a thing...
 ldrb r0,[r4,#0]
-cmp r0,r12							//Do we need to print the cursor/New text? If we do, r12 will have changed! What a handy register!
+cmp r0,r12                          //Do we need to print the cursor/New text? If we do, r12 will have changed! What a handy register!
 beq .keep_partially
-ldr r4,=#0x2015D98					//Address that tells us if we're still in the yes/no portion of the summary screen, if we aren't, we don't need to print anything!
+ldr r4,=#0x2015D98                  //Address that tells us if we're still in the yes/no portion of the summary screen, if we aren't, we don't need to print anything!
 ldrb r0,[r4,#0]
 mov r4,#2
-cmp r0,#2							//If this is 2, the cursor still needs to be printed!
+cmp r0,#2                           //If this is 2, the cursor still needs to be printed!
 bne +
-mov r4,#1							//Reset the flag
+mov r4,#1                           //Reset the flag
 +
-cmp r0,#0							//The same address goes to 0 every time we enter a new menu, resetting for us and avoiding a lot of problems!
+cmp r0,#0                           //The same address goes to 0 every time we enter a new menu, resetting for us and avoiding a lot of problems!
 bne +
-mov r4,#0							//If this is not 0 or 2, then just keep it 2 and avoid printing!
+mov r4,#0                           //If this is not 0 or 2, then just keep it 2 and avoid printing!
 +
 mov r0,r4
 ldr r4,=#0x2003F08
 sub r4,#4
-strb r0,[r4,#0]
+strb r0,[r4,#0]                     //Let's store the updated status of the printing flag!
 add r4,#4
 mov r0,r12
 
 .keep_partially:
-strb r0,[r4,#0]
+strb r0,[r4,#0]                     //Let's store the cursor's current status, to see if we have to update the next time or not
 b .rest
 
 //--------------------------------------------------------------------------------------------------
@@ -272,21 +271,21 @@ b .rest
 
 .flag_reset:
 push {lr}
-cmp r0,#0x4F
+cmp r0,#0x4F                                    //Summary's arrangement is being loaded?
 bne .NotCycle
-ldr r1,=#0x2003F04 								//Flag
+ldr r1,=#0x2003F04                              //Flag
 mov r5,#1
-strb r5,[r1,#0]									//Set the flag
+strb r5,[r1,#0]                                 //Set the flag
 mov r5,#0
 b .ending
 
 .NotCycle:
-ldr r1,=#0x2003F04 								//Reset the Flag
+ldr r1,=#0x2003F04                              //Reset the Flag
 mov r5,#0
 strb r5,[r1,#0]
 b .ending
 
 .ending:
 mov r1,r0
-lsl r1,r1,#0x10 //Stuff the game does
-pop {pc}											//Return to the cycle
+lsl r1,r1,#0x10                                 //Stuff the game does
+pop {pc}                                        //Return to the cycle
