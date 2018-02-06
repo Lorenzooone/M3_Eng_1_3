@@ -1191,9 +1191,18 @@ org $80C4148; db $00 // Theater projector room
 org $80C4178; db $00 // Upstairs hallway (outside Leder's room)
 org $80C4184; db $00 // Leder's room  
 
+//After this line is v1.3 stuff!
+
 //Changes the text of Jumbo Shrimp Soup and Rich Kid Pork Stew to "eat"
 org $80E8548; db $46
 org $80E8914; db $46
+
+//Changes sheep's position in scene F6
+org $914DEF7; db $1D
+
+//Fixes Thunder Tower's Frog
+org $9157CE9; dd $E0001450
+org $9157CF2; db $1B
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
