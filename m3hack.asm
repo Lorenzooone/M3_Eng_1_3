@@ -1005,11 +1005,11 @@ org $9F86120; incbin gfx_starsprite.bin
 
 //Fixes TaneTane Island's glitched tileset
 
-org $8FC8CA8; incbin gfx_tanetane_layer1_arrangement_[c].bin
-org $9FAA450; incbin gfx_tanetane_layer2_arrangement_[c].bin
-org $8F904B8; dd $0101A414 //Layer 2's pointer
-org $9F89F40; incbin gfx_tanetane_layer3_arrangement_[c].bin
-org $8F904BC; dd $00FF9F04 //Layer 3's pointer
+org $9FAA450; incbin gfx_tanetane_layer1_arrangement_[c].bin
+org $8F904B4; dd $0101A414 //Layer 1's pointer
+org $8FC9004; incbin gfx_tanetane_layer2_arrangement_[c].bin
+org $9FAA7B0; incbin gfx_tanetane_layer3_arrangement_[c].bin
+org $8F904BC; dd $0101A774 //Layer 3's pointer
 
 //Fixes the unused cutscene's tileset
 
