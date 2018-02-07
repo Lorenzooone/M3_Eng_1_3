@@ -1250,13 +1250,16 @@ org $804EF30; dd $09FAAB3A //Same thing as before
 org $8052ADA; db $52 //Increments the number of loaded memos, so the last one is loaded too
 
 //============================================================================================
-//									SUMMARY FIXING
+//                                   SUMMARY FIXING
 //============================================================================================
 
 //OAM hacks for the summary
 
 //Set/Reset the flag, so everything works
 org $804A2EA; bl summary_hacks.flag_reset
+
+//If the cursor's position changes, refresh the OAM
+org $8042F30; bl summary_hacks.check_change
 
 //Stop the refreshing of the OAM if the flag is set
 org $803E6F0; bl summary_hacks.impede_refresh_oam

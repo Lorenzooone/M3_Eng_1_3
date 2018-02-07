@@ -242,7 +242,7 @@ pop {r4-r5,pc}
 ldr r4,=#0x2003F08                  //This cicle, we don't print a thing...
 ldrb r0,[r4,#0]
 cmp r0,r12                          //Do we need to print the cursor/New text? If we do, r12 will have changed! What a handy register!
-beq .keep_partially
+beq .rest
 ldr r4,=#0x2015D98                  //Address that tells us if we're still in the yes/no portion of the summary screen, if we aren't, we don't need to print anything!
 ldrb r0,[r4,#0]
 mov r4,#2
@@ -260,8 +260,6 @@ sub r4,#4
 strb r0,[r4,#0]                     //Let's store the updated status of the printing flag!
 add r4,#4
 mov r0,r12
-
-.keep_partially:
 strb r0,[r4,#0]                     //Let's store the cursor's current status, to see if we have to update the next time or not
 b .rest
 
@@ -289,3 +287,25 @@ b .ending
 mov r1,r0
 lsl r1,r1,#0x10                                 //Stuff the game does
 pop {pc}                                        //Return to the cycle
+
+//---------------------------------------------------------------------------------------------------
+
+//Third part of the new hacks
+
+.check_change:
+push {lr}
+ldr r1,=#0x2003F00
+ldrb r3,[r1,#0]
+cmp r3,r2
+beq .check_ending
+ldrb r3,[r1,#4]                      //Load our flag
+cmp r3,#2                            //Is it set to -not printing?
+bne +
+mov r3,#1                            //If it is, set it to printing, the cursor just changed position!
+strb r3,[r1,#4]
++
+strb r2,[r1,#0]                      //Store the new position of the cursor
+.check_ending:
+mov r1,#3                            //Normal OAM setting the game does
+mov r3,#0x92
+pop {pc}
