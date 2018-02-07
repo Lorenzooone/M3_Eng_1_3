@@ -242,7 +242,7 @@ pop {r4-r5,pc}
 ldr r4,=#0x2003F08                  //This cicle, we don't print a thing...
 ldrb r0,[r4,#0]
 cmp r0,r12                          //Do we need to print the cursor/New text? If we do, r12 will have changed! What a handy register!
-beq .rest
+beq .handy_check
 ldr r4,=#0x2015D98                  //Address that tells us if we're still in the yes/no portion of the summary screen, if we aren't, we don't need to print anything!
 ldrb r0,[r4,#0]
 mov r4,#2
@@ -261,6 +261,16 @@ strb r0,[r4,#0]                     //Let's store the updated status of the prin
 add r4,#4
 mov r0,r12
 strb r0,[r4,#0]                     //Let's store the cursor's current status, to see if we have to update the next time or not
+
+.handy_check:
+cmp r0,#1
+beq +
+cmp r0,#0x1A                       //If this isn't 0x1A or 0x1, we're not in the summary screen! Let's store 0. This is to prevent some possible glitches.
+beq +
+mov r0,#0
+sub r4,#4
+strb r0,[r4,#0]
++
 b .rest
 
 //--------------------------------------------------------------------------------------------------
