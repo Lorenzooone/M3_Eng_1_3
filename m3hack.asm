@@ -1017,6 +1017,89 @@ org $8FF423C; incbin gfx_cutscene_layer2_arrangement_[c].bin
 org $8FF44CC; incbin gfx_cutscene_layer3_arrangement_[c].bin
 org $90A596C; incbin gfx_cutscene_[c].bin
 
+//Stuff for other translations
+
+// - Chimera Lab
+org $8D5CC7C; incbin gfx_lab_movie_[c].bin
+org $8D5D0A8; incbin gfx_lab_elevator1_[c].bin
+org $8D5E7E4; incbin gfx_lab_elevator_animation_[c].bin
+org $8D70DCC; incbin gfx_lab_elevator_animation2_[c].bin
+org $8D85B00; incbin gfx_lab_elevator_floors_[c].bin
+org $8E7D800; incbin gfx_lab_box1_[c].bin
+org $8D767F0; incbin gfx_lab_box2_[c].bin
+org $8E79DA8; incbin gfx_lab_box3_[c].bin
+org $8D70764; incbin gfx_lab_elevator2_[c].bin
+//These are just in case you really need them
+org $90B9198; incbin gfx_lab_arrangement_b1f_[c].bin
+org $90C16DC; incbin gfx_lab_arrangement_2f_room2_[c].bin
+org $90BCF68; incbin gfx_lab_arrangement_1f_[c].bin
+org $90BE970; incbin gfx_lab_arrangement_1f_room_[c].bin
+org $90C0078; incbin gfx_lab_arrangement_2f_[c].bin
+org $90C2A54; incbin gfx_lab_arrangement_2f_room_[c].bin
+org $90C4768; incbin gfx_lab_arrangement_3f_room1_[c].bin
+org $90C4DC8; incbin gfx_lab_arrangement_3f_room2_[c].bin
+
+// - Thunder Tower
+org $8D5FE3C; incbin gfx_thunder_elevator_extern_[c].bin
+org $8D530BC; incbin gfx_thunder_elevator_intern_[c].bin
+
+// - Club Titiboo
+org $8D50A00; incbin gfx_club_keepout_[c].bin
+org $8DBA730; incbin gfx_ropeway_bottom_[c].bin
+org $8E1444C; incbin gfx_ropeway_top_[c].bin
+
+// - Debug Room
+org $8DB555C; incbin gfx_debug_[c].bin
+
+// - Tazmily
+org $8DD2260; incbin gfx_bazar1_[c].bin
+org $8DD1ECC; incbin gfx_bazar2_[c].bin
+org $9C68724; incbin gfx_bazar_credits.bin
+org $8DD6054; incbin gfx_sheriff1_[c].bin
+org $8DD5D60; incbin gfx_sheriff2_[c].bin
+org $9640AD0; incbin gfx_knock.bin
+org $9692350; incbin gfx_ice.bin
+
+// - General
+org $8E5D270; incbin gfx_end0_[c].bin
+org $8EEDE28; incbin gfx_end1_[c].bin
+org $8EEE358; incbin gfx_end2_[c].bin
+org $9AF4EA0; incbin gfx_currency.bin
+org $9AF6480; incbin gfx_hp_pp_battle.bin
+org $9C9B108; incbin gfx_hp_pp.bin
+org $9B9C364; incbin gfx_various_menu1.bin
+org $9B9D564; incbin gfx_various_menu2_[c].bin
+org $9B9D808; incbin gfx_start_battle_[c].bin
+org $9C97CE8; incbin gfx_exit_battle.bin
+org $9C926C8; incbin gfx_combo.bin
+org $9C5F340; incbin gfx_main_menu_[c].bin
+org $9CA6928; incbin gfx_music.bin
+org $967A0D0; incbin gfx_happy_end.bin
+org $993F270; incbin gfx_sprays.bin
+
+// - New Pork City
+org $8E8DBAC; incbin gfx_ticket_[c].bin
+org $8E9CB2C; incbin gfx_beauty_intern1_[c].bin
+org $8E9CEF0; incbin gfx_beauty_intern2_[c].bin
+org $8F15E9C; incbin gfx_beauty_extern_[c].bin
+org $8F0A464; incbin gfx_heli_[c].bin
+org $8F0CE20; incbin gfx_arcade_top_[c].bin
+org $8F0D144; incbin gfx_arcade_bottom_[c].bin
+org $8F0D480; incbin gfx_welcome_[c].bin
+org $8F1E0BC; incbin gfx_vikings_[c].bin
+org $8F1EA7C; incbin gfx_park_[c].bin
+org $8F15360; incbin gfx_amusement_[c].bin
+org $8F17844; incbin gfx_theater_[c].bin
+org $98EDAD0; incbin gfx_police.bin
+org $8F217FC; incbin gfx_porky_empire_[c].bin
+
+// - Highway
+org $8E748D0; incbin gfx_charge0_[c].bin
+org $8E2539C; incbin gfx_charge1_[c].bin
+org $8EEC604; incbin gfx_charge2_[c].bin
+org $8ED4C38; incbin gfx_cafe_top_[c].bin
+org $8ED4930; incbin gfx_cafe_bottom_[c].bin
+
 //============================================================================================
 //                                    SOUND HACKS
 //============================================================================================
