@@ -288,7 +288,7 @@
 008D: @That of the Dark Dragon is in[BREAK]  the anithesis.[BREAK]@Darkness and light.[BREAK]@Despair and hope. [BREAK]@Destruction and creation.[BREAK][BREAK]@That is what it is.[END]
 008D-E: @That of the Dark Dragon is in[BREAK]  the anithesis.[BREAK]@Darkness and light.[BREAK]@Despair and hope. [BREAK]@Destruction and creation.[BREAK][BREAK]@That is what it is.[END]
 008E: @Magical dolls crafted by the[BREAK]  Magypies.[END]
-008E-E: @Magical dolls crafted by the[BREAK]  Magypies.[END]
+008E-E: @Magical dolls crafted by the[BREAK]  Magypsies.[END]
 008F: @Deep, deep inside Mt. Oriander[BREAK]  sits this temple with the[BREAK]  unpronouncable name that[BREAK]  not even the residents of[BREAK]  Tazmily know about.[END]
 008F-E: @Deep, deep inside Mt. Oriander[BREAK]  sits this temple with the[BREAK]  unpronouncable name that[BREAK]  not even the residents of[BREAK]  Tazmily know about.[END]
 0090: @According to the person at the[BREAK]  Chimera Lab, far to the east of[BREAK]  the highway live creatures who[BREAK]  go by the name of Mr. Saturn.[END]
