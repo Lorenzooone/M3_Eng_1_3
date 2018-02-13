@@ -1017,6 +1017,10 @@ org $8FF423C; incbin gfx_cutscene_layer2_arrangement_[c].bin
 org $8FF44CC; incbin gfx_cutscene_layer3_arrangement_[c].bin
 org $90A596C; incbin gfx_cutscene_[c].bin
 
+//Changes Bom to Boom
+org $98202D0; incbin gfx_bom.bin
+org $8E8ECEC; incbin gfx_bom_npc_[c].bin
+
 //Stuff for other translations
 
 // - Chimera Lab
