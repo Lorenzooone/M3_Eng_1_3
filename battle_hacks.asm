@@ -1493,8 +1493,8 @@ strh r0,[r6,#0x4]            // start x = 12
 mov  r0,#6
 strh r0,[r6,#0x6]            // start y = 6
 
-mov  r0,r8
-ldrb r0,[r0,#0x8]            // [r8 + 8] has the total string length?
+mov  r0,r10
+ldrb r0,[r0,#0x6]            // [r10 + 6] has the total string length
 strb r0,[r6,#0xE]            // store total length in our RAM block
 
 bl   .word_wrap_setup        // add any newlines if text gets too long in the current string
