@@ -1310,6 +1310,40 @@ org $9157CF2; db $1B
 //Fixes Lucas talking in chapter 5
 org $92F561C; dd $FFFFFF01
 
+//Fix gift boxes issues in room 1D9 and 058 using room 346 as a reference - 346's sprite table = 1162428
+
+//Insert new sprites
+org $9FD2000; incbin GiftBoxGlitch058Table1.bin
+org $9FD21E0; incbin GiftBoxGlitch058Table4.bin
+//org $9FD23C0; incbin GiftBoxGlitch1D9Table1.bin
+org $913323C; dd $00E9F4A8
+org $9133248; dd $00E9F688
+//org $9135050; dd $00E9F868
+
+//Insert new game logic for 058, we'll also move the one after it, since it's much smaller
+org $921DE88; incbin logic_pointer_058.bin
+org $921DEB4; incbin logic_code_058.bin
+org $9198EE4; dd $00E39948
+org $9198EE8; dd $00E3995C
+org $9FD2558; incbin logic_059.bin
+
+//Remove original gift box's collision
+org $8FC547C; incbin gfx_forest_layer3_[c].bin
+
+//Remove High Road's entry
+//org $916612C; dd $00000000
+//org $9166130; dd $00000000
+//org $9166134; dd $00000000
+//org $9166138; dd $00000000
+
+//Remove Forest's entry
+org $916638C; dd $00000000
+org $9166390; dd $00000000
+org $9166394; dd $00000000
+org $9166398; dd $00000000
+
+
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
