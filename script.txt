@@ -5685,7 +5685,7 @@
 89-17:◆オーマイポーク！！[WAIT]◆なんで　こんなところに[BREAK]　ドラゴのこどもが？[WAIT]◆ドラゴのこども！[BREAK]　あっちへ　いってろ！[END]
 89-17E:@OH[PAUSE 10 00] MY[PAUSE 10 00] PORK!![PAUSE 10 00][WAIT]@What is a baby Drago doing here?![WAIT]@You! Baby Drago! Get outta here![END]
 89-18:[END]
-89-18E:[END]
+89-18E:@[42 FF F1 FF] got [EF 91][ITEM F0 FF]![END]
 89-19:◆コラ！[WAIT]◆おまえたち　にげるんじゃない！[END]
 89-19E:@Hey![WAIT]@Get back here, you![END]
 89-20:◆あ・・・[PAUSE 1E 00]　やめ・・・[PAUSE 1E 00][WAIT]　やめてっ　よしてっ　おねがいっ！[END]
