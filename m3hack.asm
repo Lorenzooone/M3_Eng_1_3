@@ -1310,6 +1310,16 @@ org $9157CF2; db $1B
 //Fixes Lucas talking in chapter 5
 org $92F561C; dd $FFFFFF01
 
+//Fix issue in which Lucas' sprite would become Boney's because of missing ifs, we're also shuffling other stuff to save space
+org $934E4A4; incbin logic_pointer_36C.bin
+org $934E4B4; incbin logic_code_36C.bin
+org $919A784; dd $001B8338
+org $919A788; dd $001B8354
+org $919A78C; dd $00E383F0
+org $919A790; dd $00E38400
+org $9350F48; incbin logic_36D.bin
+org $9FD1000; incbin logic_36E.bin
+
 //Fix gift boxes issues in room 1D9 and 058 using room 346 as a reference - 346's sprite table = 1162428
 
 //Insert new sprites
