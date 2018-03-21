@@ -1325,10 +1325,10 @@ org $9FD1000; incbin logic_36E.bin
 //Insert new sprites
 org $9FD2000; incbin GiftBoxGlitch058Table1.bin
 org $9FD21E0; incbin GiftBoxGlitch058Table4.bin
-//org $9FD23C0; incbin GiftBoxGlitch1D9Table1.bin
+org $9FD23C0; incbin GiftBoxGlitch1D9Table1.bin
 org $913323C; dd $00E9F4A8
 org $9133248; dd $00E9F688
-//org $9135050; dd $00E9F868
+org $9135050; dd $00E9F868
 
 //Insert new game logic for 058, we'll also move the one after it, since it's much smaller
 org $921DE88; incbin logic_pointer_058.bin
@@ -1337,14 +1337,36 @@ org $9198EE4; dd $00E39948
 org $9198EE8; dd $00E3995C
 org $9FD2558; incbin logic_059.bin
 
-//Remove original gift box's collision
+//Remove original gift box's collision of 058
 org $8FC547C; incbin gfx_forest_layer3_[c].bin
 
+//Remove overflows from 1D9
+org $8F77A3C; incbin gfx_ice_highroad_palette.bin
+//Tileset graphics
+org $8D3CD38; dd $01297290
+org $9FD2770; incbin gfx_highroad_ice_1_[c].bin
+org $8D3D92C; dd $01297520
+org $9FD2A00; incbin gfx_highroad_ice_2_[c].bin
+org $8D3D934; dd $01297860
+org $9FD2D40; incbin gfx_highroad_ice_3_[c].bin
+org $8D3D938; dd $01297D90
+org $9FD3270; incbin gfx_highroad_ice_4_[c].bin
+
+//Map Tile Data
+org $904E134; dd $00F85BB4
+org $9FD3580; incbin gfx_highroad_ice_tiledata_[c].bin
+
+//Layers info
+//org $8F91670; dd $01043E24
+//org $9FD3E60; incbin gfx_highroad_layer2_[c].bin
+org $8F91674; dd $010442C4
+org $9FD4300; incbin gfx_highroad_layer3_[c].bin
+
 //Remove High Road's entry
-//org $916612C; dd $00000000
-//org $9166130; dd $00000000
-//org $9166134; dd $00000000
-//org $9166138; dd $00000000
+org $916612C; dd $00000000
+org $9166130; dd $00000000
+org $9166134; dd $00000000
+org $9166138; dd $00000000
 
 //Remove Forest's entry
 org $916638C; dd $00000000
