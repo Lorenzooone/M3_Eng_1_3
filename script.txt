@@ -16491,7 +16491,7 @@
 474-50:◇１００ＤＰ　もらった。[END]
 474-50E:@Received 100 DP.[END]
 474-51:[END]
-474-51E:[END]
+474-51E:@[42 FF F1 FF] got [EF 91][ITEM F0 FF]![END]
 
 [Container 475]
 475-0:◆カウンターの　なかまで[BREAK]　はいって　こないでね。[WAIT]◆カビが　まいあがるから。[END]
