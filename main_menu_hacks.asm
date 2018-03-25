@@ -1478,3 +1478,132 @@ beq  +
 mov  r3,r0
 +
 pop  {r0,pc}
+
+//=============================================================================================
+// This set of hacks cleans the writing stack
+//=============================================================================================
+
+refreshes:
+.main:
+push {lr}
+ldr r1,=#0x2013040 //Address of the stack
+mov r0,#0
+str r0,[r1,#0] //Set the first byte, the one we'll use, to 0
+mov r0,r1
+ldr r2,=#0x1000200 //We want it to fill with the first byte the stack.
+swi #0xC //Let's clear the stack
+pop {pc}
+
+.lr:
+push {lr}
+bl .main
+ldrh r1,[r5,#0xA] //Normal stuff the game expects from us
+ldr r2,=#0x4264
+pop {pc}
+
+.select:
+push {lr}
+bl .main
+mov r0,#0xD2 //Normal stuff the game expects from us
+bl $800399C
+pop {pc}
+
+.b:
+push {lr}
+bl .main
+mov r0,#0xD3 //Normal stuff the game expects from us
+bl $800399C
+pop {pc}
+
+.up_and_down:
+push {lr}
+bl .main
+bl $8046D90 //Normal stuff the game expects from us
+pop {pc}
+
+.status_a:
+push {lr}
+bl .main
+mov r0,r4 //Normal stuff the game expects from us
+bl  $804EDFC
+pop {pc}
+
+.inv_spec_a:
+push {lr}
+bl .main
+ldr r1,=#0x426A //Normal stuff the game expects from us
+add r0,r1,r7
+pop {pc}
+
+.memo_a:
+push {lr}
+bl .main
+mov r0,r5 //Normal stuff the game expects from us
+bl $804EEE8
+pop {pc}
+
+.sell_a:
+push {r2,lr} //Let's save r2, since the game needs it
+bl .main
+pop {r2}
+mov r0,r2 //Normal stuff the game expects from us
+bl $804F0D4
+pop {pc}
+
+.equip_a:
+push {lr}
+bl .main
+mov r0,r4 //Normal stuff the game expects from us
+bl  $804EB68
+pop {pc}
+
+.deposit_a:
+push {lr}
+bl .main
+mov r0,r4 //Normal stuff the game expects from us
+bl  $804F1D8
+pop {pc}
+
+.withdraw_a:
+push {lr}
+ldr r1,=#0x201A294 //Check if the inventory is full. If it is, then the game won't print again and we need to let it do its thing. We need to manually increment this, as the original devs forgot to do it.
+mov r0,r1
+ldrh r1,[r1,#0]
+cmp r1,#0x10
+bge +
+add r1,#1
+strh r1,[r0,#0]
+bl .main
++
+mov r0,r5 //Normal stuff the game expects from us
+bl $804F294
+pop {pc}
+
+.inner_memo_scroll:
+push {r1,lr} //Let's save r1, since the game needs it
+bl .main
+pop {r1}
+mov r0,r1 //Normal stuff the game expects from us
+bl $804EF38
+pop {pc}
+
+.buy_lr:
+push {lr}
+bl .main
+ldrh r0,[r6,#4] //Normal stuff the game expects from us
+bl $8053E98
+pop {pc}
+
+.switch_lr:
+push {lr}
+bl .main
+ldrh r0,[r4,#4] //Normal stuff the game expects from us
+bl $8053E98
+pop {pc}
+
+.status_lr:
+push {lr}
+bl .main
+ldrh r1,[r4,#0xA] //Normal stuff the game expects from us
+ldr r2,=#0x4264
+pop {pc}
