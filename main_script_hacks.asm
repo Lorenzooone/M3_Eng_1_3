@@ -624,6 +624,10 @@ lsr  r4,r4,#6              // r4 now has speed, 0 = fast, 1 = medium, 2 = slow
 cmp  r4,#0                 // if it's not 0, skip all this
 bne  +
 
+ldr r4,=#0x201AB25		   //Refresh the speed. Prevents glitch in which the main script's text slows down
+mov r0,#2
+strb r0,[r4,#0]
+
 ldr  r4,=#0x2027CB3
 ldrb r0,[r4,#0]            // load the # of passes that are scheduled
 cmp  r0,#1                 // if it's not 1, then skip all this extra junk
@@ -804,7 +808,7 @@ bx   lr
 //lsr  r0,r0,#0x18
 //b    .dend
 
-+
+//+
 
 // Determine if it's even or odd
 //lsl  r1,r5,#0x1F
