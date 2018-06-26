@@ -1488,10 +1488,10 @@ refreshes:
 push {lr}
 ldr r1,=#0x2013040 //Address of the stack
 mov r0,#0
-str r0,[r1,#0] //Set the first byte, the one we'll use, to 0
-mov r0,r1
-ldr r2,=#0x1000400 //We want it to fill with the first byte the stack.
-swi #0xC //Let's clear the stack
+str r0,[r1,#0x10] //Clean the words' lengths so it won't print
+str r0,[r1,#0x14]
+str r0,[r1,#0x18]
+str r0,[r1,#0x1C]
 pop {pc}
 
 .lr:
