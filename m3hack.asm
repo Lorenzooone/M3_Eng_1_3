@@ -1445,6 +1445,8 @@ org $9166390; dd $00000000
 org $9166394; dd $00000000
 org $9166398; dd $00000000
 
+//Fix issue with sound at Lydia's House (Map 0x4F), the Mechorilla's sounds are all late normally
+org $8C9505A; db $A1
 
 
 //============================================================================================
