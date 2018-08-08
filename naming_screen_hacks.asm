@@ -281,6 +281,41 @@ b .rest
 push {lr}
 cmp r0,#0x4F                                    //Summary's arrangement is being loaded?
 bne .NotCycle
+
+.Fix_Copy_Bug:                                 //Let's manually fix the save coping bug while we're at it
+ldr r1,=#0x2004F80
+mov r5,#0
+str r5,[r1,#0]
+str r5,[r1,#4]
+str r5,[r1,#0x1C]
+strh r5,[r1,#0x20]
+ldr r5,=#0x880                                   //Reset PSI flags
+add r1,#0x1A
+strh r5,[r1,#0]
+//ldr r1,=#0x2004947
+//mov r5,#0
+//strb r5,[r1,#0]
+//str r5,[r1,#4]                                  //Reset Duster's items
+ldr r1,=#0x20041B0                              //Reset Equipments, Flint
+ldr r5,=#0x0410000
+str r5,[r1,#0]
+add r1,#0x6C                                    //Next character, Lucas
+mov r5,#0
+str r5,[r1,#0]
+add r1,#0x6C                                    //Next character, Duster
+ldr r5,=#0x4E002516
+str r5,[r1,#0]
+add r1,#0x6C                                    //Next character, Kumatora
+ldr r5,=#0x4F46B50D
+str r5,[r1,#0]
+add r1,#0x6C                                    //Next character, Boney
+ldr r5,=#0x2E00
+str r5,[r1,#0]
+add r1,#0x6C                                    //Next character, Salsa
+mov r5,#0
+str r5,[r1,#0]
+
+.Flag_Stuff:
 ldr r1,=#0x2003F04                              //Flag
 mov r5,#1
 strb r5,[r1,#0]                                 //Set the flag
