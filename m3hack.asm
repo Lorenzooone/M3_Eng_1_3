@@ -1446,7 +1446,7 @@ org $9166394; dd $00000000
 org $9166398; dd $00000000
 
 //Fix issue with sound at Lydia's House (Map 0x4F), the Mechorilla's sounds are all late normally
-org $8C9505A; db $A1
+org $8C9505A; db $A0
 
 //Fix issue with mirrors at Flint's house and Alec's house. Didn't do it in the end, seems to be hardcoded how the mirrors don't spawn if there's only one character and that's what makes it impossible to fix the issue
 //Pointers to Alec's house logic
