@@ -1448,6 +1448,17 @@ org $9166398; dd $00000000
 //Fix issue with sound at Lydia's House (Map 0x4F), the Mechorilla's sounds are all late normally
 org $8C9505A; db $A1
 
+//Fix issue with mirrors at Flint's house and Alec's house. Didn't do it in the end, seems to be hardcoded how the mirrors don't spawn if there's only one character and that's what makes it impossible to fix the issue
+//Pointers to Alec's house logic
+//org $9199084;
+//org $9199088;
+//Logic of Alec's house
+//org $92496A4;
+
+//Alec's house object table pointer
+//org $9133660;
+//Alec's house object table
+//org $9146EB0;
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
