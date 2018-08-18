@@ -992,6 +992,16 @@ org $807A746; bl battle_hacks.clear_current_enemy  // clears current enemy #, fi
 org $80809FC; bl battle_hacks.save_current_enemy   // saves current enemy #, needs improvement
 org $8062C26; bl battle_hacks.save_total_enemies   // saves total # of enemies
 org $8064984; bl battle_hacks.save_current_item    // saves current item #
+org $807B16C; bl battle_hacks.save_current_enemy_1       //General menus
+org $8073E40; bl battle_hacks.save_current_enemy_2
+org $8073740; bl battle_hacks.save_current_enemy_3       //Damage
+org $8073EEC; bl battle_hacks.save_current_enemy_4
+org $8074CE8; bl battle_hacks.save_current_enemy_1       //Paralysis - Sleep - Solidification
+org $80BABD4; bl battle_hacks.save_current_enemy_5       
+org $807B52C; bl battle_hacks.save_current_enemy_6; nop  //Death
+org $80BC068; bl battle_hacks.save_current_enemy_7       //Poison
+org $809D2A4; bl battle_hacks.save_current_enemy_8       //Feeling Strange
+org $80BBF5C; bl battle_hacks.save_current_enemy_7       //Fire
 
 // this code actually executes the custom control codes
 org $806E464; push {lr}; bl battle_hacks.execute_custom_cc; b $806E47A

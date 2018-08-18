@@ -2553,4 +2553,85 @@ pop     {r0-r3}
 // Clobbered code
 bl      $8072628
 
-pop     {pc} 
+pop     {pc}
+
+
+//=============================================================================================
+// New current enemy saving hacks. In m3hacks.asm there are descriptions about what is what
+//=============================================================================================
+.base_saving_enemy:
+push {lr}
+push {r1-r4}
+mov r1,r0                    // r0 has the base address of the main character in the phrase
+add r1,#0xFA
+ldrh r1,[r1,#0]
+ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
+strh r1,[r4,#0]              // store the value. How easy!
+pop {r1-r4}
+pop {pc}
+
+.base_saving_enemy_2:
+push {lr}
+push {r1-r4}
+add r1,#0xFA                 // r1 has the base address of the main character in the phrase
+ldrh r1,[r1,#0]
+ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
+strh r1,[r4,#0]              // store the value. How easy!
+pop {r1-r4}
+pop {pc}
+
+.save_current_enemy_1:
+push {lr}
+bl .base_saving_enemy
+mov r4,r0
+ldr r1,[r4,#0x1C]
+pop {pc}
+
+.save_current_enemy_2:
+push {lr}
+bl .base_saving_enemy
+mov r5,r0
+mov r4,r1
+pop {pc}
+
+.save_current_enemy_3:
+push {lr}
+bl .base_saving_enemy
+mov r7,r0
+mov r6,r1
+pop {pc}
+
+.save_current_enemy_4:
+push {lr}
+bl .base_saving_enemy
+mov r4,r0
+lsl r1,r1,#0x10
+pop {pc}
+
+.save_current_enemy_5:
+push {lr}
+bl .base_saving_enemy
+mov r6,r0
+mov r4,r1
+pop {pc}
+
+.save_current_enemy_6:
+push {lr}
+bl .base_saving_enemy
+mov r7,r0
+bl $8072778
+pop {pc}
+
+.save_current_enemy_7:
+push {lr}
+bl .base_saving_enemy_2
+mov r4,r0
+mov r5,r1
+pop {pc}
+
+.save_current_enemy_8:
+push {lr}
+bl .base_saving_enemy
+mov r7,r0
+mov r0,#0
+pop {pc}
