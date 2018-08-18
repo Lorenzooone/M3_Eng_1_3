@@ -281,6 +281,21 @@ beq  .cc_en_articles
 cmp  r0,#0x16                // check for 0xEF16, which will print the second last item lowercase article
 beq  .cc_it_articles
 
+cmp  r0,#0x22                // check for 0xEF22, which will print an initial uppercase article if need be
+beq  .cc_en_articles
+
+cmp  r0,#0x23                // check for 0xEF23, which will print an initial lowercase article if need be
+beq  .cc_en_articles
+
+cmp  r0,#0x24                // check for 0xEF24, which will print an uppercase article if need be
+beq  .cc_en_articles
+
+cmp  r0,#0x25                // check for 0xEF25, which will print a lowercase article if need be
+beq  .cc_en_articles
+
+cmp  r0,#0x26                // check for 0xEF26, which will print a lowercase possessive if need be
+beq  .cc_en_articles
+
 mov  r0,#0                   // if this executes, it's an unknown control code, so treat it normally
 b    .main_loop_next         // jump back to the part of the main loop that increments and such
 
@@ -352,6 +367,12 @@ mov r2,#2                    // Change the code so it makes sense
 cmp r0,#6                    // is the actor the Pork Tank?
 bne +
 mov r0,#149                  // if it is, then change it to the Pigmask
++
+cmp r2,#0x20
+blt +
+sub r2,#0x20
+ldr  r0,=#0x2014340          // this is where current_enemy_save saves the current enemy's ID #
+ldrh r0,[r0,#0]              // load the current #
 +
 mul  r0,r1                   // offset = enemy ID * 5 bytes
 ldr  r1,=#0x8D08A6C          // this is the base address of our extra enemy data table in ROM
@@ -1289,6 +1310,22 @@ beq  .ecc_en_articles
 cmp  r0,#0x16                // check for 0xEF16, which will print the second last item lowercase article
 beq  .ecc_it_articles
 
+cmp  r0,#0x22                // check for 0xEF22, which will print an initial uppercase article if need be
+beq  .ecc_en_articles
+
+cmp  r0,#0x23                // check for 0xEF23, which will print an initial lowercase article if need be
+beq  .ecc_en_articles
+
+cmp  r0,#0x24                // check for 0xEF24, which will print an uppercase article if need be
+beq  .ecc_en_articles
+
+cmp  r0,#0x25                // check for 0xEF25, which will print a lowercase article if need be
+beq  .ecc_en_articles
+
+cmp  r0,#0x26                // check for 0xEF26, which will print a lowercase possessive if need be
+beq  .ecc_en_articles
+
+
 b    .ecc_inc                // treat this code normally if it's not a valid custom control code
 
 //--------------------------------------------------------------------------------------------
@@ -1373,6 +1410,12 @@ mov r2,#2                    // Change the code so it makes sense
 cmp r0,#6                    // is the actor the Pork Tank?
 bne +
 mov r0,#149                  // if it is, then change it to the Pigmask
++
+cmp r2,#0x20
+blt +
+ldr  r0,=#0x2014340          // this is where current_enemy_save.asm saves the current enemy's ID #
+ldrh r0,[r0,#0]              // load the current #
+sub r2,#0x20
 +
 mov  r1,#5
 mul  r0,r1                   // offset = enemy ID * 5 bytes
@@ -2580,6 +2623,16 @@ strh r1,[r4,#0]              // store the value. How easy!
 pop {r1-r4}
 pop {pc}
 
+.base_saving_enemy_SP:
+push {lr}
+push {r1-r4}
+ldr  r4,=#0x2014320          // this is the address where we'll store the previous current enemy's value
+ldrh r1,[r4,#0]              // Load the value. How easy!
+add r4,#0x20                 // The new place for the value
+strh r1,[r4,#0]              // store the value. How easy!
+pop {r1-r4}
+pop {pc}
+
 .save_current_enemy_1:
 push {lr}
 bl .base_saving_enemy
@@ -2634,4 +2687,11 @@ push {lr}
 bl .base_saving_enemy
 mov r7,r0
 mov r0,#0
+pop {pc}
+
+.save_current_enemy_9:
+push {lr}
+bl .base_saving_enemy_SP
+mov r1,r0
+ldr r2,[r1,#0x1C]
 pop {pc}
