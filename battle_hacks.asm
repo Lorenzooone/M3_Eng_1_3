@@ -2633,6 +2633,18 @@ strh r1,[r4,#0]              // store the value. How easy!
 pop {r1-r4}
 pop {pc}
 
+.base_saving_enemy_2_Dual:
+push {lr}
+push {r1-r4}
+add r1,#0xFA                 // r1 has the base address of the main character in the phrase
+ldrh r1,[r1,#0]
+ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
+strh r1,[r4,#0]              // store the value. How easy!
+add r4,#0x20
+strh r1,[r4,#0]
+pop {r1-r4}
+pop {pc}
+
 .save_current_enemy_1:
 push {lr}
 bl .base_saving_enemy
@@ -2694,4 +2706,11 @@ push {lr}
 bl .base_saving_enemy_SP
 mov r1,r0
 ldr r2,[r1,#0x1C]
+pop {pc}
+
+.save_current_enemy_10:
+push {lr}
+bl .base_saving_enemy_2_Dual
+mov r7,r10
+mov r6,r9
 pop {pc}
