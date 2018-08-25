@@ -2715,10 +2715,17 @@ mov r7,r10
 mov r6,r9
 pop {pc}
 
-
 .save_current_enemy_11:
 push {lr}
 bl .base_saving_enemy_2_Dual
 mov r1,r0
 ldr r2,[r1,#0x1C]
+pop {pc}
+
+
+.save_current_enemy_12:
+push {lr}
+bl .base_saving_enemy_2_Dual
+mov r5,r0
+mov r0,r1
 pop {pc}
