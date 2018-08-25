@@ -1002,11 +1002,12 @@ org $807B52C; bl battle_hacks.save_current_enemy_6; nop  //Death
 org $80BC068; bl battle_hacks.save_current_enemy_7       //Poison
 org $809D2A4; bl battle_hacks.save_current_enemy_8       //Feeling Strange
 org $80BBF5C; bl battle_hacks.save_current_enemy_7       //Fire
-org $8078704; bl battle_hacks.save_current_enemy_9       //Stinking
+org $8078704; bl battle_hacks.save_current_enemy_9       //Generic action
 org $80BC4D2; bl battle_hacks.save_current_enemy_10      //No effect
 org $8078C40; bl battle_hacks.save_current_enemy_11      //No visible effect
 org $8079A4E; bl battle_hacks.save_current_enemy_10      //It didn't work
 org $80B3640; bl battle_hacks.save_current_enemy_12      //There was no effect (PK Flash on party)
+org $808208C; bl battle_hacks.save_current_enemy_13      //Can't act (No PP left)
 
 // this code actually executes the custom control codes
 org $806E464; push {lr}; bl battle_hacks.execute_custom_cc; b $806E47A
