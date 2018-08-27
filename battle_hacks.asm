@@ -184,9 +184,9 @@ push {r1-r2}
 sub  r0,#0x10
 mov  r2,r0                   // r2 will be an offset into the extra item data slot
 ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
-cmp r2,#0x06                 // check if this is EF 16
-bne +
-sub r2,#0x03                 // if it is, change it to EF 13
+cmp r2,#0x20                 // check if this is EF 30 or more
+blt +
+sub r2,#0x20                 // if it is, change it to EF 10 or more
 ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
 ldrh r0,[r0,#0]              // load the current item #
@@ -211,7 +211,7 @@ push {r1-r2}
 mov r2,r0
 ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
-cmp r2,#0x14                 // is this the pigmask code?
+cmp r2,#0x20                 // is this the pigmask code?
 bne +
 cmp r0,#6                    // is the actor the Pork Tank?
 bne +
@@ -220,7 +220,7 @@ mov r0,#149                  // if it is, then change it to the Pigmask
 mov  r1,#50
 mul  r0,r1                   // offset = enemy ID * 50 bytes
 ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-cmp r2,#0x14                 // Is this the pigmask code?
+cmp r2,#0x20                 // Is this the pigmask code?
 bne +
 cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
 bne +
@@ -272,14 +272,11 @@ beq  .cc_it_articles
 cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
 beq  .cc_it_articles
 
-cmp  r0,#0x14                // check for 0xEF14, which will fix the "The Pigmask threw a cannonball!" glitch
+cmp  r0,#0x20                // check for 0xEF20, which will fix the "The Pigmask threw a cannonball!" glitch
 beq  .cc_enemy_name
 
-cmp  r0,#0x15                // check for 0xEF15, which will print the Pigmask's uppercase article if need be
+cmp  r0,#0x21                // check for 0xEF21, which will print the Pigmask's uppercase article if need be
 beq  .cc_en_articles
-
-cmp  r0,#0x16                // check for 0xEF16, which will print the second last item lowercase article
-beq  .cc_it_articles
 
 cmp  r0,#0x22                // check for 0xEF22, which will print an initial uppercase article if need be
 beq  .cc_en_articles
@@ -295,6 +292,18 @@ beq  .cc_en_articles
 
 cmp  r0,#0x26                // check for 0xEF26, which will print a lowercase possessive if need be
 beq  .cc_en_articles
+
+cmp  r0,#0x30                // check for 0xEF30, which will print an initial uppercase article for the second last item
+beq  .cc_it_articles
+
+cmp  r0,#0x31                // check for 0xEF31, which will print an initial lowercase article for the second last item
+beq  .cc_it_articles
+
+cmp  r0,#0x32                // check for 0xEF32, which will print an uppercase article for the second last item
+beq  .cc_it_articles
+
+cmp  r0,#0x33                // check for 0xEF33, which will print a lowercase article for the second last item
+beq  .cc_it_articles
 
 mov  r0,#0                   // if this executes, it's an unknown control code, so treat it normally
 b    .main_loop_next         // jump back to the part of the main loop that increments and such
@@ -361,7 +370,7 @@ sub  r2,r0,#2                // r2 will be an offset into the extra enemy data s
 ldr  r0,=#0x2014320          // this is where current_enemy_save saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
 mov  r1,#5
-cmp r2,#0x13                 // is this the pigmask's article code?
+cmp r2,#0x1F                 // is this the pigmask's article code?
 bne +
 mov r2,#2                    // Change the code so it makes sense
 cmp r0,#6                    // is the actor the Pork Tank?
@@ -1215,9 +1224,9 @@ push {r1-r2}
 sub  r0,#0x10
 mov  r2,r0                   // r2 will be an offset into the extra item data slot
 ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
-cmp r2,#0x06                 // check if this is EF 16
-bne +
-sub r2,#0x03                 // if it is, change it to EF 13
+cmp r2,#0x20                 // check if this is > EF 30
+blt +
+sub r2,#0x20
 ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
 ldrh r0,[r0,#0]              // load the current item #
@@ -1242,7 +1251,7 @@ push {r1-r2}
 mov r2,r0
 ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
-cmp r2,#0x14                 // is this the pigmask code?
+cmp r2,#0x20                 // is this the pigmask code?
 bne +
 cmp r0,#6                    // is the actor the Pork Tank?
 bne +
@@ -1251,7 +1260,7 @@ mov r0,#149                  // if it is, then change it to the Pigmask
 mov  r1,#50
 mul  r0,r1                   // offset = enemy ID * 50 bytes
 ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-cmp r2,#0x14                 // Is this the pigmask code?
+cmp r2,#0x20                 // Is this the pigmask code?
 bne +
 cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
 bne +
@@ -1301,14 +1310,11 @@ beq  .ecc_it_articles
 cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
 beq  .ecc_it_articles
 
-cmp  r0,#0x14                // check for 0xEF14, which will fix the "The Pigmask threw a cannonball!" glitch
+cmp  r0,#0x20                // check for 0xEF20, which will fix the "The Pigmask threw a cannonball!" glitch
 beq  .ecc_enemy_name
 
-cmp  r0,#0x15                // check for 0xEF15, which will print the Pigmask's uppercase article if need be
+cmp  r0,#0x21                // check for 0xEF21, which will print the Pigmask's uppercase article if need be
 beq  .ecc_en_articles
-
-cmp  r0,#0x16                // check for 0xEF16, which will print the second last item lowercase article
-beq  .ecc_it_articles
 
 cmp  r0,#0x22                // check for 0xEF22, which will print an initial uppercase article if need be
 beq  .ecc_en_articles
@@ -1325,6 +1331,17 @@ beq  .ecc_en_articles
 cmp  r0,#0x26                // check for 0xEF26, which will print a lowercase possessive if need be
 beq  .ecc_en_articles
 
+cmp  r0,#0x30                // check for 0xEF30, which will print an initial uppercase article for the second last item
+beq  .ecc_it_articles
+
+cmp  r0,#0x31                // check for 0xEF31, which will print an initial lowercase article for the second last item
+beq  .ecc_it_articles
+
+cmp  r0,#0x32                // check for 0xEF32, which will print an uppercase article for the second last item
+beq  .ecc_it_articles
+
+cmp  r0,#0x33                // check for 0xEF33, which will print a lowercase article for the second last item
+beq  .ecc_it_articles
 
 b    .ecc_inc                // treat this code normally if it's not a valid custom control code
 
@@ -1404,7 +1421,7 @@ sub  r2,r0,#2                // r2 will be an offset into the extra enemy data s
 
 ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
-cmp r2,#0x13                 // is this the pigmask's article code?
+cmp r2,#0x1F                 // is this the pigmask's article code?
 bne +
 mov r2,#2                    // Change the code so it makes sense
 cmp r0,#6                    // is the actor the Pork Tank?
@@ -2602,25 +2619,26 @@ pop     {pc}
 //=============================================================================================
 // New current enemy saving hacks. In m3hacks.asm there are descriptions about what is what
 //=============================================================================================
+.costant_save:               // A piece of code every one of these hacks besides SP shares
+push {lr}
+add r1,#0xFA
+ldrh r1,[r1,#0]
+ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
+strh r1,[r4,#0]              // store the value. How easy!
+pop {pc}
 
 .base_saving_enemy:          // Saves the phrase protagonist. r0 has the address
 push {lr}
 push {r1-r4}
 mov r1,r0                    // r0 has the base address of the main character in the phrase
-add r1,#0xFA
-ldrh r1,[r1,#0]
-ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
-strh r1,[r4,#0]              // store the value. How easy!
+bl .costant_save
 pop {r1-r4}
 pop {pc}
 
 .base_saving_enemy_2:        // Saves the phrase protagonist. r1 already has the address
 push {lr}
 push {r1-r4}
-add r1,#0xFA
-ldrh r1,[r1,#0]
-ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
-strh r1,[r4,#0]              // store the value. How easy!
+bl .costant_save
 pop {r1-r4}
 pop {pc}
 
@@ -2637,10 +2655,7 @@ pop {pc}
 .base_saving_enemy_2_Dual:   // Saves both the new and the old phrase protagonists. r1 already contains the address
 push {lr}
 push {r1-r4}
-add r1,#0xFA
-ldrh r1,[r1,#0]
-ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
-strh r1,[r4,#0]              // store the value. How easy!
+bl .costant_save
 add r4,#0x20
 strh r1,[r4,#0]
 pop {r1-r4}
@@ -2650,10 +2665,7 @@ pop {pc}
 push {lr}
 push {r1-r4}
 mov r1,r7                    // r7 has the base address of the main character in the phrase
-add r1,#0xFA
-ldrh r1,[r1,#0]
-ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
-strh r1,[r4,#0]              // store the value. How easy!
+bl .costant_save
 add r4,#0x20
 strh r1,[r4,#0]
 pop {r1-r4}
