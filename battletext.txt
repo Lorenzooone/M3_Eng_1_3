@@ -2045,7 +2045,7 @@
 03FB-E: [04 EF][11 FF] fired a whole bunch of beams![END]
 03FC: [04 EF][11 FF] shot out mold spores![END]
 03FC-E: [04 EF][11 FF] shot out mold spores![END]
-03FD: The Pigmask threw a cannonball![END]
+03FD: [21 EF][20 EF] threw a cannonball![END]
 03FD-E: [21 EF][20 EF] threw a cannonball![END]
 03FE: [04 EF][11 FF] yawned lazily![END]
 03FE-E: [04 EF][11 FF] yawned lazily![END]
