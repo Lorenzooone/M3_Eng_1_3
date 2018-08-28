@@ -2642,6 +2642,14 @@ bl .costant_save
 pop {r1-r4}
 pop {pc}
 
+.base_saving_enemy_3:        // Saves the phrase protagonist. r7 has the address
+push {lr}
+push {r1-r4}
+mov r1,r7                    // r0 has the base address of the main character in the phrase
+bl .costant_save
+pop {r1-r4}
+pop {pc}
+
 .base_saving_enemy_SP:       // Saves the old phrase protagonist
 push {lr}
 push {r1-r4}
@@ -2649,6 +2657,16 @@ ldr  r4,=#0x2014320          // this is the address where we'll store the previo
 ldrh r1,[r4,#0]              // Load the value. How easy!
 add r4,#0x20                 // The new place for the value
 strh r1,[r4,#0]              // store the value. How easy!
+pop {r1-r4}
+pop {pc}
+
+.base_saving_enemy_Dual:   // Saves both the new and the old phrase protagonists. r1 already contains the address
+push {lr}
+push {r1-r4}
+mov r1,r0
+bl .costant_save
+add r4,#0x20
+strh r1,[r4,#0]
 pop {r1-r4}
 pop {pc}
 
@@ -2760,4 +2778,18 @@ push {lr}
 bl .base_saving_enemy_3_Dual
 mov r5,r0
 ldr r1,[r5,#0x1C]
+pop {pc}
+
+.save_current_enemy_14:
+push {lr}
+bl .base_saving_enemy_3
+mov r7,r0
+ldr r1,[r7,#0x1C]
+pop {pc}
+
+.save_current_enemy_15:
+push {lr}
+bl .base_saving_enemy_Dual
+mov r0,r1
+ldr r1,[r0,#0x1C]
 pop {pc}
