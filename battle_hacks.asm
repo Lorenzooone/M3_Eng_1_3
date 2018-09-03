@@ -2629,8 +2629,7 @@ mov r2,#0x1
 lsl r2,r2,#8
 cmp r1,r2
 blt +
-mov r1,#0
-strh r1,[r4,#0]              // The debug room can destroy this and we don't want that, right?
+mov r1,#0                    // The debug room can destroy this and we don't want that, right?
 +
 ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
 strh r1,[r4,#0]              // store the value. How easy!

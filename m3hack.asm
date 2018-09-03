@@ -1013,6 +1013,7 @@ org $8075012; bl battle_hacks.save_current_enemy_15      //No PPs
 org $80B2E24; bl battle_hacks.save_current_enemy_16      //Shield Killer
 org $80BEFEC; bl battle_hacks.save_current_enemy_17      //Shield Snatcher
 org $80AF0EC; bl battle_hacks.save_current_enemy_18      //Feeling strange enemy
+//org $806074C; //Getting revived from items
 
 // this code actually executes the custom control codes
 org $806E464; push {lr}; bl battle_hacks.execute_custom_cc; b $806E47A
