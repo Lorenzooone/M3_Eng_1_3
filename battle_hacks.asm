@@ -190,8 +190,8 @@ sub r2,#0x20                 // if it is, change it to EF 10 or more
 ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
 ldrh r0,[r0,#0]              // load the current item #
-mov  r1,#6
-mul  r0,r1                   // offset = item ID * 6 bytes
+mov  r1,#7
+mul  r0,r1                   // offset = item ID * 7 bytes
 ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
 add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
 ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
@@ -272,6 +272,9 @@ beq  .cc_it_articles
 cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
 beq  .cc_it_articles
 
+cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
+beq  .cc_it_articles
+
 cmp  r0,#0x20                // check for 0xEF20, which will fix the "The Pigmask threw a cannonball!" glitch
 beq  .cc_enemy_name
 
@@ -303,6 +306,9 @@ cmp  r0,#0x32                // check for 0xEF32, which will print an uppercase 
 beq  .cc_it_articles
 
 cmp  r0,#0x33                // check for 0xEF33, which will print a lowercase article for the second last item
+beq  .cc_it_articles
+
+cmp  r0,#0x36                // check for 0xEF36, which will print a lowercase reference for the second last item
 beq  .cc_it_articles
 
 mov  r0,#0                   // if this executes, it's an unknown control code, so treat it normally
@@ -1230,8 +1236,8 @@ sub r2,#0x20
 ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
 ldrh r0,[r0,#0]              // load the current item #
-mov  r1,#6
-mul  r0,r1                   // offset = item ID * 6 bytes
+mov  r1,#7
+mul  r0,r1                   // offset = item ID * 7 bytes
 ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
 add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
 ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
@@ -1310,6 +1316,9 @@ beq  .ecc_it_articles
 cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
 beq  .ecc_it_articles
 
+cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
+beq  .ecc_it_articles
+
 cmp  r0,#0x20                // check for 0xEF20, which will fix the "The Pigmask threw a cannonball!" glitch
 beq  .ecc_enemy_name
 
@@ -1341,6 +1350,9 @@ cmp  r0,#0x32                // check for 0xEF32, which will print an uppercase 
 beq  .ecc_it_articles
 
 cmp  r0,#0x33                // check for 0xEF33, which will print a lowercase article for the second last item
+beq  .ecc_it_articles
+
+cmp  r0,#0x36                // check for 0xEF36, which will print a lowercase reference for the second last item
 beq  .ecc_it_articles
 
 b    .ecc_inc                // treat this code normally if it's not a valid custom control code

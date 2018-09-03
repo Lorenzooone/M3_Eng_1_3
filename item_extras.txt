@@ -1,0 +1,2048 @@
+//EMPTY
+-
+-
+-
+-
+-
+-
+it
+//Lighter's Lumber
+-
+-
+-
+-
+-
+is 
+it
+//Fresh Lumber
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Better Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Easy-Grip Stick
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Good Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Very Good Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Funny Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Vigor Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Clever Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Master Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Mystical Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Gloves
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Durable Gloves
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Chic Gloves
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Strong Gloves
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Magic Gloves
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Sevolg
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Expensive Gloves
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Angel Gloves
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Mystical Gloves
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Ordinary Shoes
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Durable Shoes
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Sharp Shoes
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Ultimate Shoes
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Mystical Shoes
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Good Shoes
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Rubber Boots
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Barefoot Shoes
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Non-Slip Shoes
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Handy Yo-Yo
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Canine Weapon
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//DCMC Pamphlet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Fake Bat
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Fake Frying Pan
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Real Bat
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Mini-Mini Charm
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Flea Charm
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Mosquito Charm
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Fly Charm
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Bantam Charm
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Feather Charm
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Pumice Charm
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Heavy Charm
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Thud Charm
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//White Collar
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Brown Collar
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Black Collar
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Striped Collar
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Red Collar
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//DCMC Shirt
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Rubber Cape
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Aloha Coat
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Warm Sweater
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Goddess Bustier
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Awesome Cloak
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Manly Bandana
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Chick Bandana
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Sparrow Bandana
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Rail Bandana
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Swallow Bandana
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Crow Bandana
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Kite Bandana
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Horus Bandana
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Ordinary Hat
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Cow Hat
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Alligator Hat
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Bear Hat
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Otter Hat
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Scarlet Ribbon
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Azure Ribbon
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Boing Ribbon
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Fairy Ribbon
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Angel Ribbon
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Goddess Ribbon
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//DCMC Hat
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Awesome Crown
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Aries Bracelet
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Aquarius Bracelet
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Pisces Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Capricorn Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Taurus Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Gemini Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Cancer Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Leo Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Virgo Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Libra Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Scorpio Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Sagittarius Bracelet
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//DCMC Ring
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Awesome Ring
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Favorite Food
+-
+-
+The 
+the 
+your 
+-
+it
+//Nut
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Nut Bread
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Nut Cookie
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Fresh Milk
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Rotten Milk
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Yogurt
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Edible Mushroom
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Innit Tea
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Beef Jerky
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Fresh Egg
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Rotten Eclair
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Rotten Bavarois
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Peculiar Cheese
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Bag of Pork Chips
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Luxury Banana
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Bread Roll
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Fizzy Soda
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Big City Soda
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Big City Cola
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Big City Burger
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Bag of Big City Fries
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Doggy Biscuit
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Doggy Jerky
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//White Croissant
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Cup of Pork Noodles
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Pork Stew
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Sincerity Dumplings
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Strawberry Tofu
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Lucky Rice
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Lotto Meal
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Jumbo Shrimp Soup
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Giant Abalone Steak
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Double Jerky
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Grilled Chicken
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Grilled Fish
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Pasta with a Past
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Favorite Pizza
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//King Burger
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Beefsteak
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Rich Kid Stew
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Rich Parfait
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Hot Dog Sushi
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Magic Gelatin
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Magic Tart
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Magic Pudding
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Magic Cake
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Antidote
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Anti-Paralysis
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Alarm Cicada
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Fresh Mint
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Paper Fan
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Recollection Bell
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Eye Drops
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Flea Powder
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Secret Herb
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Cup of Lifenoodles
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Hot Spring Egg
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Thunder Bomb
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Running Bomb
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Sprinting Bomb
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Pencil Rocket
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Bomb
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Super Bomb
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//New Year's Eve Bomb
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Honey Shower
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Ancient Banana
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Doorknob
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Bug Spray
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Saltwater Gun
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Offense Spray
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Defense Spray
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Enemy Bufferizer
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Enemy Wimperizer
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Attack Attractor
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Made-You-Look
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Dragonfly
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Silver Dragonfly
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Chick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Chicken
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Pickled Veggie Plate
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Meteotite
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Friend's Yo-Yo
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Drago Fang
+The 
+the 
+The 
+the 
+this 
+is 
+it
+//Dung
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Dolphin Ossicle
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Spiky Weapon
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Knit Sweater
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//DCMC Boxers
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Magic Pendant
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Encouraging Words
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Baked Yam
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Mole Cricket Brother
+The 
+the 
+The 
+the 
+the 
+is 
+it
+//Hermit Crab Shell
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Suspicious Tea
+Some 
+some 
+The 
+the 
+this 
+is 
+it
+//Flame Pendant
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Ice Pendant
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Thunder Pendant
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Courage Badge
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Souvenir Dress
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Pencil Eraser
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Franklin Badge
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Kid's Shirt
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Good Kid's Shirt
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Kid's Hat
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Jar of Yummy Pickles
+A 
+a 
+The 
+the 
+these 
+are 
+them
+//Red Hat
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//White Ribbon
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Bird
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Memory Snake
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Waters of Time
+-
+-
+The 
+the 
+these 
+are 
+them
+//Stinkbug's Memory
+The 
+the 
+The 
+the 
+the 
+is 
+it
+//Phrygia's Notebook
+-
+-
+-
+-
+-
+is 
+it
+//Shield Snatcher
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Test
+-
+-
+-
+-
+-
+-
+it
+//EMPTY
+-
+-
+-
+-
+-
+-
+it
+//EMPTY
+-
+-
+-
+-
+-
+-
+it
+//EMPTY
+-
+-
+-
+-
+-
+-
+it
+//Trivia Card 1
+-
+-
+The 
+the 
+-
+is 
+it
+//Trivia Card 2
+-
+-
+The 
+the 
+-
+is 
+it
+//Trivia Card 3
+-
+-
+The 
+the 
+-
+is 
+it
+//Trivia Card 4
+-
+-
+The 
+the 
+-
+is 
+it
+//Wall Staples
+Some 
+some 
+The 
+the 
+these 
+are 
+them
+//Siren Beetle
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Smoke Bomb
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Hypno-Pendulum
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Scary Mask
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Tickle Stick
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Drawbridge Key
+The 
+the 
+The 
+the 
+the 
+is 
+it
+//Noble Spittoon
+The 
+the 
+The 
+the 
+the 
+is 
+it
+//Pendant
+A 
+a 
+The 
+the 
+the 
+is 
+it
+//Egg of Light
+The 
+the 
+The 
+the 
+the 
+is 
+it
+//Scrap of Cloth
+A 
+a 
+The 
+the 
+the 
+is 
+it
+//Pig Mark Notebook
+A 
+a 
+The 
+the 
+the 
+is 
+it
+//Child's Shoe
+A 
+a 
+The 
+the 
+the 
+is 
+it
+//Hand File
+A 
+a 
+The 
+the 
+the 
+is 
+it
+//Rope Snake
+The 
+the 
+The 
+the 
+the 
+is 
+it
+//Rope Snake DX
+The 
+the 
+The 
+the 
+the 
+is 
+it
+//Transceiver
+A 
+a 
+The 
+the 
+the 
+is 
+it
+//Ticket
+A 
+a 
+The 
+the 
+the 
+is 
+it
+//Battle Memory
+The 
+the 
+The 
+the 
+the 
+is 
+it
+//Carrier Pigeon
+A 
+a 
+The 
+the 
+the 
+is 
+it
+//Razor & Lipstick
+A 
+a 
+The 
+the 
+the 
+are 
+them
+//Ionia's Memento
+-
+-
+-
+-
+-
+is 
+it
+//Doria's Memento
+-
+-
+-
+-
+-
+is 
+it
+//Phrygia Memento
+-
+-
+-
+-
+-
+is 
+it
+//Lydia's Memento
+-
+-
+-
+-
+-
+is 
+it
+//Missy's Memento
+-
+-
+-
+-
+-
+is 
+it
+//Aeolia's Memento
+-
+-
+-
+-
+-
+is 
+it
+//Tazmily Map
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Osohe Sketch
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Underground Map
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Railway Map
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Area Map
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Attic Guide
+An 
+an 
+The 
+the 
+this 
+is 
+it
+//Saturn Valley Map
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Sea Floor Map
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Cave Map
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//City Map
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Tower Sketch
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Chimera Lab Map
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Cricket Hole Map
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Highway Map
+A 
+a 
+The 
+the 
+this 
+is 
+it
+//Factory Sketch
+A 
+a 
+The 
+the 
+this 
+is 
+it
