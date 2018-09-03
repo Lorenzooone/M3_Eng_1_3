@@ -1008,8 +1008,11 @@ org $8078C40; bl battle_hacks.save_current_enemy_11      //No visible effect
 org $8079A4E; bl battle_hacks.save_current_enemy_10      //It didn't work
 org $80B3640; bl battle_hacks.save_current_enemy_12      //There was no effect (PK Flash on party)
 //org $808208C; bl battle_hacks.save_current_enemy_13      //Can't act (No PP left)
-org $8074238; bl battle_hacks.save_current_enemy_14      //Feeling strange enemy
+//org $8074238; bl battle_hacks.save_current_enemy_14      //Feeling strange enemy
 org $8075012; bl battle_hacks.save_current_enemy_15      //No PPs
+org $80B2E24; bl battle_hacks.save_current_enemy_16      //Shield Killer
+org $80BEFEC; bl battle_hacks.save_current_enemy_17      //Shield Snatcher
+org $80AF0EC; bl battle_hacks.save_current_enemy_18      //Feeling strange enemy
 
 // this code actually executes the custom control codes
 org $806E464; push {lr}; bl battle_hacks.execute_custom_cc; b $806E47A

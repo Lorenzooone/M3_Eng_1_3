@@ -2621,10 +2621,20 @@ pop     {pc}
 //=============================================================================================
 .costant_save:               // A piece of code every one of these hacks besides SP shares
 push {lr}
+push {r2}
 add r1,#0xFA
+mov r4,r1
 ldrh r1,[r1,#0]
+mov r2,#0x1
+lsl r2,r2,#8
+cmp r1,r2
+blt +
+mov r1,#0
+strh r1,[r4,#0]              // The debug room can destroy this and we don't want that, right?
++
 ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
 strh r1,[r4,#0]              // store the value. How easy!
+pop {r2}
 pop {pc}
 
 .base_saving_enemy:          // Saves the phrase protagonist. r0 has the address
@@ -2792,4 +2802,24 @@ push {lr}
 bl .base_saving_enemy_Dual
 mov r0,r1
 ldr r1,[r0,#0x1C]
+pop {pc}
+
+.save_current_enemy_16:
+push {lr}
+bl .base_saving_enemy_2_Dual
+mov r6,r0
+mov r4,r1
+pop {pc}
+
+.save_current_enemy_17:
+push {lr}
+bl .base_saving_enemy_2_Dual
+mov r6,r0
+mov r5,r1
+pop {pc}
+
+.save_current_enemy_18:
+push {lr}
+bl $80741AC
+bl .base_saving_enemy_3
 pop {pc}
