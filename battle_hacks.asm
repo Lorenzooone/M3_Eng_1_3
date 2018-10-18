@@ -333,7 +333,7 @@ ldr  r0,=#0x2014320          // load our current enemy #
 ldrb r0,[r0,#0]
 mov  r2,#5
 mul  r0,r2
-ldr  r2,=#0x8D08A6C
+ldr  r2,=#0x9FD4930
 add  r0,r0,r2
 ldrb r0,[r0,#0x4]            // load the line # for this enemy's possessive pronoun
 mov  r2,#40
@@ -390,7 +390,7 @@ ldr  r0,=#0x2014340          // this is where current_enemy_save saves the curre
 ldrh r0,[r0,#0]              // load the current #
 +
 mul  r0,r1                   // offset = enemy ID * 5 bytes
-ldr  r1,=#0x8D08A6C          // this is the base address of our extra enemy data table in ROM
+ldr  r1,=#0x9FD4930          // this is the base address of our extra enemy data table in ROM
 add  r0,r0,r1                // r0 now has address of this enemy's extra data entry
 ldrb r0,[r0,r2]              // r0 now has the proper line # to use from custom_text.bin
 mov  r1,#40
@@ -1390,7 +1390,7 @@ ldr  r0,=#0x2014320          // load our current enemy #
 ldrb r0,[r0,#0]
 mov  r2,#5
 mul  r0,r2
-ldr  r2,=#0x8D08A6C
+ldr  r2,=#0x9FD4930
 add  r0,r0,r2
 ldrb r0,[r0,#0x4]            // load the line # for this enemy's possessive pronoun
 mov  r2,#40
@@ -1448,7 +1448,7 @@ sub r2,#0x20
 +
 mov  r1,#5
 mul  r0,r1                   // offset = enemy ID * 5 bytes
-ldr  r1,=#0x8D08A6C          // this is the base address of our extra enemy data table in ROM
+ldr  r1,=#0x9FD4930          // this is the base address of our extra enemy data table in ROM
 add  r0,r0,r1                // r0 now has address of this enemy's extra data entry
 ldrb r0,[r0,r2]              // r0 now has the proper line # to use from custom_text.bin
 mov  r1,#40
@@ -2634,15 +2634,17 @@ pop     {pc}
 .costant_save:               // A piece of code every one of these hacks besides SP shares
 push {lr}
 push {r2}
-add r1,#0xFA
-mov r4,r1
-ldrh r1,[r1,#0]
-mov r2,#0x1
-lsl r2,r2,#8
-cmp r1,r2
-blt +
-mov r1,#0                    // The debug room can destroy this and we don't want that, right?
+mov r4,#1
+lsl r4,r4,#27                // Is this an enemy? If they are, then they have their identifiers in the ROM
+add r1,#0xFC
+ldr r1,[r1,#0]
+ldrb r2,[r1,#0]
+cmp r1,r4
+bge +
+ldr r1,=#0x149
+add r2,r2,r1                 // Character's articles are at enemy_extras + 0x149
 +
+mov r1,r2                    // Keep this in r1 in case the other functions want to do stuff with it
 ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
 strh r1,[r4,#0]              // store the value. How easy!
 pop {r2}

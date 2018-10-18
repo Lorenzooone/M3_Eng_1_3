@@ -997,7 +997,7 @@ org $8073E40; bl battle_hacks.save_current_enemy_2
 org $8073740; bl battle_hacks.save_current_enemy_3       //Damage
 org $8073EEC; bl battle_hacks.save_current_enemy_4       //Shields - Refresh
 org $8074CE8; bl battle_hacks.save_current_enemy_1       //Paralysis - Sleep - Solidification
-org $80BABD4; bl battle_hacks.save_current_enemy_5       
+//org $80BABD4; bl battle_hacks.save_current_enemy_5       //Called by stat decrease/increase - Problem, evil
 org $807B52C; bl battle_hacks.save_current_enemy_6; nop  //Death
 org $80BC068; bl battle_hacks.save_current_enemy_7       //Poison
 org $809D2A4; bl battle_hacks.save_current_enemy_8       //Feeling Strange
@@ -1013,6 +1013,7 @@ org $8075012; bl battle_hacks.save_current_enemy_15      //No PPs
 org $80B2E24; bl battle_hacks.save_current_enemy_16      //Shield Killer
 org $80BEFEC; bl battle_hacks.save_current_enemy_17      //Shield Snatcher
 org $80AF0EC; bl battle_hacks.save_current_enemy_18      //Feeling strange enemy
+org $80755A4; bl battle_hacks.save_current_enemy_4       //Status affliction
 //org $806074C; //Getting revived from items
 
 // this code actually executes the custom control codes
@@ -1271,8 +1272,8 @@ org $9FB0400; incbin text_battletext.bin
 // insert special text used by custom control codes
 org $8D0829C; incbin text_custom_text.bin
 
-// insert a custom enemy data table, used by our custom control codes
-org $8D08A6C; incbin data_enemy_extras.bin
+// insert a custom enemy data table, used by our custom control codes Prev=8D08A6C
+org $9FD4930; incbin data_enemy_extras.bin
 
 // insert a custom item data table, used by our custom control codes
 org $8D090D9; incbin data_item_extras.bin
