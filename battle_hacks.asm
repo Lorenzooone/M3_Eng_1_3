@@ -217,15 +217,21 @@ cmp r0,#6                    // is the actor the Pork Tank?
 bne +
 mov r0,#149                  // if it is, then change it to the Pigmask
 +
+ldr r2,=#0x149
+cmp r0,r2                     // If the actor id is > 0x149, it's going to be a character. Let's call them properly
+blt +
+ldr  r1,=#0x2004110          // Character data address
+sub r0,r0,r2                 // Remove 0x149 to get their ID
+mov r2,#0x6C
+mul r0,r2                    // Multiply it by 0x6C, each character's data length
+add r0,#2                    // Add 2 to get their name
+b .end_cc_enemy_name
++
 mov  r1,#50
 mul  r0,r1                   // offset = enemy ID * 50 bytes
 ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-cmp r2,#0x20                 // Is this the pigmask code?
-bne +
-cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
-bne +
-ldr  r1,=#0x200439A
-+
+
+.end_cc_enemy_name:
 add  r0,r0,r1                // r0 now has the address of the enemy's name
 pop  {r1-r2}
 
@@ -383,10 +389,10 @@ cmp r0,#6                    // is the actor the Pork Tank?
 bne +
 mov r0,#149                  // if it is, then change it to the Pigmask
 +
-cmp r2,#0x20
+cmp r2,#0x20                 // is this one of the EF > 0x20? If it is then get the second saved ID (actor when the first saved ID is not)
 blt +
-sub r2,#0x20
-ldr  r0,=#0x2014340          // this is where current_enemy_save saves the current enemy's ID #
+sub r2,#0x20                 // normalize
+ldr  r0,=#0x2014340          // this is where the routines save the other ID #
 ldrh r0,[r0,#0]              // load the current #
 +
 mul  r0,r1                   // offset = enemy ID * 5 bytes
@@ -1263,15 +1269,21 @@ cmp r0,#6                    // is the actor the Pork Tank?
 bne +
 mov r0,#149                  // if it is, then change it to the Pigmask
 +
+ldr r2,=#0x149
+cmp r0,r2                     // If the actor id is > 0x149, it's going to be a character. Let's call them properly
+blt +
+ldr  r1,=#0x2004110          // Character data address
+sub r0,r0,r2                 // Remove 0x149 to get their ID
+mov r2,#0x6C
+mul r0,r2                    // Multiply it by 0x6C, each character's data length
+add r0,#2                    // Add 2 to get their name
+b .end_ecc_enemy_name
++
 mov  r1,#50
 mul  r0,r1                   // offset = enemy ID * 50 bytes
 ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-cmp r2,#0x20                 // Is this the pigmask code?
-bne +
-cmp r0,#0                    // If the actor id is 0, r0 will be 0... Let's call Salsa's name if it is
-bne +
-ldr  r1,=#0x200439A
-+
+
+.end_ecc_enemy_name:
 add  r0,r0,r1                // r0 now has the address of the enemy's name
 pop  {r1-r2}
 
@@ -1440,9 +1452,9 @@ cmp r0,#6                    // is the actor the Pork Tank?
 bne +
 mov r0,#149                  // if it is, then change it to the Pigmask
 +
-cmp r2,#0x20
+cmp r2,#0x20                 // are we in the second part of the EFs? (actor side when the normal ones are the target side)
 blt +
-ldr  r0,=#0x2014340          // this is where current_enemy_save.asm saves the current enemy's ID #
+ldr  r0,=#0x2014340          // this is where current_enemy_save.asm saves the second ID #
 ldrh r0,[r0,#0]              // load the current #
 sub r2,#0x20
 +
