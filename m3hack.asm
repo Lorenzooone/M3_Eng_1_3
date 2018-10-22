@@ -1014,6 +1014,7 @@ org $80B2E24; bl battle_hacks.save_current_enemy_16      //Shield Killer
 org $80BEFEC; bl battle_hacks.save_current_enemy_17      //Shield Snatcher
 org $80AF0EC; bl battle_hacks.save_current_enemy_18      //Feeling strange enemy
 org $80755A4; bl battle_hacks.save_current_enemy_4       //Status affliction
+org $809E3A8; bl battle_hacks.save_current_enemy_19      //Status father
 //org $806074C; //Getting revived from items
 
 // this code actually executes the custom control codes

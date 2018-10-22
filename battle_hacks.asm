@@ -2848,3 +2848,10 @@ push {lr}
 bl $80741AC
 bl .base_saving_enemy_3
 pop {pc}
+
+.save_current_enemy_19:
+push {lr}
+bl .base_saving_enemy_2_Dual
+mov r4,r0
+mov r6,r1
+pop {pc}
