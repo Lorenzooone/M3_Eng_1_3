@@ -1016,6 +1016,8 @@ org $80AF0EC; bl battle_hacks.save_current_enemy_18      //Feeling strange enemy
 org $80AF102; bl battle_hacks.save_current_enemy_18      //Feeling strange enemy (alone)
 org $80755A4; bl battle_hacks.save_current_enemy_4       //Status affliction
 org $809E3A8; bl battle_hacks.save_current_enemy_19      //Dancing
+org $809D47E; bl battle_hacks.save_current_enemy_20      //Feeling strange character (eating)
+org $809D48C; bl battle_hacks.save_current_enemy_21      //Feeling strange character (acting)
 //org $806074C; //Getting revived from items
 
 // this code actually executes the custom control codes

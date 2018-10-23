@@ -2855,3 +2855,16 @@ bl .base_saving_enemy_2_Dual
 mov r4,r0
 mov r6,r1
 pop {pc}
+
+.save_current_enemy_20:
+push {lr}
+bl .base_saving_enemy_3
+mov r1,r0
+mov r0,r4
+pop {pc}
+
+.save_current_enemy_21:
+push {lr}
+bl $8073F88
+bl .base_saving_enemy_3
+pop {pc}
