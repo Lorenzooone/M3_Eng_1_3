@@ -413,11 +413,19 @@ org $807A8DA; db $08    // fix Hinawa's name in final battle
 //These hacks fix the "scrolling menus" bug
 
 //804CA9C tells each menu where to go
+//804E374 if it's a submenu
 
 //Inventory
-org $804CAE0; bl refreshes.inv_spec_a
+//org $804CAE0; bl refreshes.inv_spec_a
 org $804CB52; bl refreshes.lr
 org $804CC24; bl refreshes.up_and_down
+
+//Inventory submenu
+//org $804E81C; bl refreshes.inv_submenu_a
+
+//Block A press if too soon
+org $804CAD4; bl refreshes.inv_block_a
+org $803E064; bl refreshes.inv_submenu_block_a
 
 //Equip
 org $804CC64; bl refreshes.equip_a; nop

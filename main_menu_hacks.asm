@@ -1536,6 +1536,34 @@ ldr r1,=#0x426A //Normal stuff the game expects from us
 add r0,r1,r7
 pop {pc}
 
+.inv_block_a:
+push {lr}
+ldr r0,=#0x2013040 //Have we finished printing?
+ldrh r0,[r0,#0]
+cmp r0,#0
+beq .inv_block_a_passed //Yes! Then let it do what it wants to do
+pop {r0}
+ldr r0,=#0x804CC35 //No! Prevent the game from opening stuff we don't want yet.
+bx r0
+
+.inv_block_a_passed:
+ldr r0,=#0x2DFA //Normal stuff the game expects from us
+add r1,r7,r0
+pop {pc}
+
+.inv_submenu_block_a:
+push {lr}
+ldr r0,=#0x2013040 //Have we finished printing?
+ldrh r0,[r0,#0]
+mov r1,#0
+cmp r0,#0
+bne +
+ldrh r1,[r4,#0]  //Normal input loading
++
+mov r0,#3
+pop {pc}
+
+
 .memo_a:
 push {lr}
 bl .main
@@ -1556,6 +1584,13 @@ push {lr}
 bl .main
 mov r0,r4 //Normal stuff the game expects from us
 bl  $804EB68
+pop {pc}
+
+.inv_submenu_a:
+ldr r0,=#0x804E84F //We have to return here instead of where the call happened
+push {r0}
+bl .main
+bl $804FCB0 //Normal stuff the game expects from us
 pop {pc}
 
 .deposit_a:
