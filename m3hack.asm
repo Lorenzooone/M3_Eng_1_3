@@ -316,7 +316,14 @@ org $804626C
   push {lr}
   bl main_menu_hacks.buy_text
   pop {pc}
-  
+
+// fixes the first frame when use is pressed
+//org $8044E36; bl main_menu_hacks.use_frame1; nop
+//org $8045E30; bl main_menu_hacks.print_normal_use_frame1; nop
+//org $8040446; bl main_menu_hacks.block_frame1_goods; nop
+//org $804FBAC; bl main_menu_hacks.setup_block_use_frame1
+//org $8045E14; bl main_menu_hacks.prevent_printing_maybe; nop
+
 // replaces the drop item text routine
 org $80460C8
   push {lr}
@@ -1026,6 +1033,7 @@ org $80755A4; bl battle_hacks.save_current_enemy_4       //Status affliction
 org $809E3A8; bl battle_hacks.save_current_enemy_19      //Dancing
 org $809D47E; bl battle_hacks.save_current_enemy_20      //Feeling strange character (eating)
 org $809D48C; bl battle_hacks.save_current_enemy_21      //Feeling strange character (acting)
+org $80BB916; bl battle_hacks.save_current_enemy_22      //Time bomb explodes
 //org $806074C; //Getting revived from items
 
 // this code actually executes the custom control codes

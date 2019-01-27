@@ -2724,6 +2724,16 @@ strh r1,[r4,#0]
 pop {r1-r4}
 pop {pc}
 
+.base_saving_enemy_4_Dual:   // Saves both the new and the old phrase protagonists. r5 has the address
+push {lr}
+push {r1-r4}
+mov r1,r5                    // r5 has the base address of the main character in the phrase
+bl .costant_save
+add r4,#0x20
+strh r1,[r4,#0]
+pop {r1-r4}
+pop {pc}
+
 .save_current_enemy_1:
 push {lr}
 bl .base_saving_enemy
@@ -2867,4 +2877,11 @@ pop {pc}
 push {lr}
 bl $8073F88
 bl .base_saving_enemy_3
+pop {pc}
+
+.save_current_enemy_22:
+push {lr}
+bl .base_saving_enemy_4_Dual
+ldr r2,[r4,#0x1C]
+mov r0,#0x94
 pop {pc}

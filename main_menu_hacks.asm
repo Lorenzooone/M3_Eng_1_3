@@ -581,6 +581,171 @@ mov  r8,r3
 pop  {r4-r6,pc}
 
 //=============================================================================================
+// This hack fixes the first frame that appears when you try to use an item.
+//=============================================================================================
+
+//.setup_block_use_frame1:
+//push    {lr}
+//ldr     r0,=#0x2003F08 //Don't print menu for the next frame
+//mov     r1,#1
+//strb    r1,[r0,#0]
+//mov     r1,r9
+//ldrb    r0,[r1,#0]
+//pop     {pc}
+
+//.prevent_printing_maybe:
+//push    {lr}
+//ldr     r1,=#0x2003F08 //Don't print menu for the next frame
+//ldrb    r2,[r1,#0]
+//cmp     r2,#1
+//bne +
+//mov     r2,#0
+//strb    r2,[r1,#0]
+//mov     r5,#1
+//b .end_prevent_printing_maybe
+//+
+//mov     r5,#0
+//.end_prevent_printing_maybe:
+//pop     {r1}
+//str     r4,[sp,#0]
+//str     r5,[sp,#4]
+//bx      r1
+
+//.block_normal_use_frame1:
+//push    {lr}
+//ldr     r0,=#0x2003F08 //Do we need to print this?
+//ldrb    r1,[r0,#0]
+//cmp     r1,#1
+//bne +
+//mov     r1,#2
+//strb    r1,[r0,#0]
+//pop     {r1}
+//ldr     r1,=#0x8045E6D //If not, then branch away, we'll have .use_frame1 print instead
+//bx      r1
+//+
+//mov      r0,#0x3E
+//bl       $80486A0
+//pop     {pc}
+
+//.print_normal_use_frame1:
+//push    {lr}
+//ldr     r0,=#0x2003F08 //Do we need to print this?
+//ldrb    r1,[r0,#0]
+//cmp     r1,#2
+//bne +
+//mov     r1,#1
+//strb    r1,[r0,#0]
+
+//push    {r0-r7}
+//push    {r5-r6}
+//add     sp,#-0x8
+//mov     r0,#0x41 // Goods
+//bl      $80486A0
+//mov     r7,#0x1
+//neg     r7,r7
+//mov     r6,#0xF
+//str     r6,[sp,#0]
+//mov     r4,#0x1
+//str     r4,[sp,#0x4]
+//mov     r1,#0xBF
+//mov     r2,#0x07
+//mov     r3,r7
+//bl      $8047CDC
+//add     sp,#0x8
+//pop     {r5-r6}
+//pop     {r0-r7}
+
+//+
+//mov      r0,#0x3E
+//bl       $80486A0
+//pop     {pc}
+
+//.block_frame1_goods:
+//push    {lr}
+//ldr     r0,=#0x2003F08 //Do we need to print this?
+//ldrb    r1,[r0,#0]
+//cmp     r1,#1
+//bne +
+//mov r1,#2
+//strb r1,[r0,#0]
+//pop {r1}
+//ldr r1,=#0x804045F
+//bx r1
+//+
+//mov      r0,#0x41
+//bl       $80486A0
+//pop     {pc}
+
+//.use_frame1:
+//push    {lr}
+//mov     r0,r2
+//bl      $8055594 // Call that sets the OAM entries for the text
+// Everything from here to the next comment loads the Menu/Use/Give/Drop sprites, so we skip those
+//push    {r0-r7}
+//push    {r5-r6}
+//ldr     r0,=#0x2003F08 //Do we need to print this?
+//ldrb    r7,[r0,#0]
+//cmp     r7,#1
+//bne     .end_use_frame1
+//add     sp,#-0x8
+//mov     r0,#0x41 // Goods
+//bl      $80486A0
+//mov     r7,#0x1
+//neg     r7,r7
+//mov     r6,#0xF
+//str     r6,[sp,#0]
+//mov     r4,#0x1
+//str     r4,[sp,#0x4]
+//mov     r1,#0xBF
+//mov     r2,#0x07
+//mov     r3,r7
+//bl      $8047CDC
+//mov     r0,#0x3C // Menu
+//bl      $80486A0
+//mov     r7,#0x1
+//neg     r7,r7
+//mov     r6,#0xF
+//str     r6,[sp,#0]
+//mov     r4,#0x0
+//str     r4,[sp,#0x4]
+//mov     r1,#0x1A
+//mov     r2,#0x30
+//mov     r3,r7
+//bl      $8047CDC
+//mov     r0,#0x3E // Use
+//bl      $80486A0
+//str     r6,[sp,#0]
+//str     r4,[sp,#0x4]
+//mov     r1,#0x1A
+//mov     r2,#0x3C
+//mov     r3,r7
+//bl      $8047CDC
+//mov     r0,#0x3F // Give
+//bl      $80486A0
+//str     r6,[sp,#0]
+//str     r4,[sp,#0x4]
+//mov     r1,#0x1A
+//mov     r2,#0x48
+//mov     r3,r7
+//bl      $8047CDC
+//mov     r0,#0x40 // Drop
+//bl      $80486A0
+//str     r6,[sp,#0]
+//str     r4,[sp,#0x4]
+//mov     r1,#0x1A
+//mov     r2,#0x54
+//mov     r3,r7
+//bl      $8047CDC
+//ldr     r0,=#0x2003F08    //If we printed this once, then it's not needed anymore
+//mov     r1,#0x0
+//strb    r1,[r0,#0]
+//add     sp,#0x8
+//.end_use_frame1:
+//pop     {r5-r6}
+//pop     {r0-r7}
+//pop     {pc}
+
+//=============================================================================================
 // This hack fixes the string used when you try to drop an item.
 //=============================================================================================
 
