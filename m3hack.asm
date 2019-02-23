@@ -1426,6 +1426,11 @@ org $919A790; dd $00E38400
 org $9350F48; incbin logic_36D.bin
 org $9FD1000; incbin logic_36E.bin
 
+//Fix wrong collision data for man in bathroom: http://archivededamien.blogspot.com/2019/02/petit-glitch-decouvert-recemment.html#links
+org $9163DD8; db $01
+org $9163DE4; db $70
+org $9163DE7; db $00
+
 //Fix gift boxes issues in room 1D9 and 058 using room 346 as a reference - 346's sprite table = 1162428
 
 //Insert new sprites
