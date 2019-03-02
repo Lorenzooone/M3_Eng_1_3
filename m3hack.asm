@@ -1494,7 +1494,7 @@ org $9166394; dd $00000000
 org $9166398; dd $00000000
 
 //Fix issue with sound at Lydia's House (Map 0x4F), the Mechorilla's sounds are all late normally
-org $8C9505A; db $A0
+org $8C9505A; db $A2
 
 //Add Multi Debug room: selected table = money on hand - 1'000'000 | money on hand address: 0x02004868
 org $9364430; incbin multi_debug.bin
