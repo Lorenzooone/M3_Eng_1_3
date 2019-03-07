@@ -1473,7 +1473,7 @@ org $9FD3580; incbin gfx_highroad_ice_tiledata_[c].bin
 org $8F91674; dd $010442C4
 org $9FD4300; incbin gfx_highroad_layer3_[c].bin
 
-//Insert new game logic for 1D0, we'll also move the one after it, since it's much smaller
+//Insert new game logic for 1D9, we'll also move the one after it, since it's much smaller
 org $9199AE8; dd $0016DFEC
 org $9306BC0; incbin logic_pointer_1D9.bin
 org $9306BFC; incbin logic_code_1D9.bin
