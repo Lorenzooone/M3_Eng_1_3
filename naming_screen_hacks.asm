@@ -374,7 +374,7 @@ pop {r4-r6} //Clear the stack
 pop {r4}
 bl $8042F43
 
-.oneBeforeEnd:
+.oneBeforeEnd: //Called during the Yes/No choice. Unless we need to print, let's only create the OAM entry we need for timing purposes: the cursor
 mov r7,r10
 mov r6,r9
 mov r5,r8
@@ -394,7 +394,7 @@ sub r7,#1
 mov r9,r7
 mov r7,#1
 
-bl $8042F17
+bl $8042F17 //Do the cursor's routine
 
 .normalEnd:
 mov r7,r10
