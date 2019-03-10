@@ -320,6 +320,7 @@ ldr r1,=#0x2003F04                              //Flag
 mov r5,#1
 strb r5,[r1,#0]                                 //Set the flag
 mov r5,#0
+strb r5,[r1,#8]
 b .ending
 
 .NotCycle:
@@ -339,7 +340,7 @@ pop {pc}                                        //Return to the cycle
 
 .check_change_and_stop_OAM:
 push {r1-r3, lr}
-mov r2,r0 //Load cursor's position
+mov r2,r0                             //Load cursor's position
 ldrh r1,[r2,#4]
 lsl r2,r1,#2
 add r2,r2,r1
@@ -347,7 +348,7 @@ lsl r2,r2,#0x13
 mov r1,#0xA0
 lsl r1,r1,#0xF
 add r2,r2,r1
-asr r2,r2,#0x10 //Cursor's position is loaded into r2
+asr r2,r2,#0x10                     //Cursor's position is loaded into r2
 
 ldr r1,=#0x2003F00
 ldrb r3,[r1,#0]
@@ -363,9 +364,12 @@ strb r2,[r1,#0]                      //Store the new position of the cursor
 
 .check_ending:
 ldrb r3,[r1,#4]
-cmp r3,#2 //If set to not printing, don't create the OAM entries if in a specific moment
+cmp r3,#2                             //If set to not printing, don't create the OAM entries if in a specific moment
 bne .normalEnd
-ldr r2,=#0x2015D98 //Do we need to print?
+ldrb r3,[r1,#0xC]
+cmp r3,#1
+bne .normalEnd                         //Are yes no out yet? If they're not, then keep going normally. Weird stuff happens otherwise
+ldr r2,=#0x2015D98                     //Do we need to print?
 ldrb r3,[r2,#0]
 cmp r3,#2
 beq .oneBeforeEnd
@@ -374,16 +378,16 @@ pop {r4-r6} //Clear the stack
 pop {r4}
 bl $8042F43
 
-.oneBeforeEnd: //Called during the Yes/No choice. Unless we need to print, let's only create the OAM entry we need for timing purposes: the cursor
+.oneBeforeEnd:                         //Called during the Yes/No choice. Unless we need to print, let's only create the OAM entry we need for timing purposes: the cursor
 mov r7,r10
 mov r6,r9
 mov r5,r8
-pop {r1-r3} //Normal stuff the game does
+pop {r1-r3}                         //Normal stuff the game does
 pop {r1}
 push {r5-r7}
 add sp,#-8
 mov r10,r0
-mov r4,#0x94 //Properly setup registers
+mov r4,#0x94                         //Properly setup registers
 ldr r5,=#0x201AB1A
 mov r6,#0xC0
 sub r6,r5,r6
@@ -394,12 +398,12 @@ sub r7,#1
 mov r9,r7
 mov r7,#1
 
-bl $8042F17 //Do the cursor's routine
+bl $8042F17                         //Do the cursor's routine
 
 .normalEnd:
 mov r7,r10
 mov r6,r9
-pop {r1-r3, pc} //Normal stuff the game does
+pop {r1-r3, pc}                     //Normal stuff the game does
 
 //--------------------------------------------------------------------------------------------------
 
@@ -407,12 +411,17 @@ pop {r1-r3, pc} //Normal stuff the game does
 
 .change_is_this_okay:
 push {lr}
-ldr r1, =#0x600F414 								//Arrangement bytes to change
+
+ldr r1, =#0x600F414                 //Arrangement bytes to change
 ldrb r2,[r1,#0]
 cmp r2,#0x3B
 beq +
 
-mov r2,#0x3B										//Top row of "Is this okay?"
+ldr r2,=#0x2003F00                     //Set flag to stop loading OAMs not needed
+mov r3,#1
+strb r3,[r2,#0xC]
+
+mov r2,#0x3B                        //Top row of "Is this okay?"
 mov r3,#33
 lsl r3,r3,#8
 add r2,r2,r3
@@ -427,7 +436,7 @@ strh r2,[r1,#0]
 sub r2,#0x42
 strh r2,[r1,#4]
 
-mov r2,#0x5B										//Bottom row of "Is this okay?"
+mov r2,#0x5B                        //Bottom row of "Is this okay?"
 add r2,r2,r3
 ldr r1,=#0x600F454
 strh r2,[r1,#0]
@@ -445,7 +454,7 @@ strh r2,[r1,#2]
 sub r2,#0x21
 strh r2,[r1,#4]
 
-mov r2,#0x4A										//Top row of "Yes No"
+mov r2,#0x4A                        //Top row of "Yes No"
 add r2,r2,r3
 ldr r1,=#0x600F496
 strh r2,[r1,#0]
@@ -457,7 +466,7 @@ strh r2,[r1,#0]
 sub r2,#0x25
 strh r2,[r1,#2]
 
-mov r2,#0x6A										//Bottom row of "Yes No"
+mov r2,#0x6A                        //Bottom row of "Yes No"
 add r2,r2,r3
 ldr r1,=#0x600F4D6
 strh r2,[r1,#0]
@@ -472,4 +481,4 @@ sub r2,#0x25
 strh r2,[r1,#2]
 
 +
-pop {pc}								//Return to normal cycle
+pop {pc}                            //Return to normal cycle

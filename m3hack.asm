@@ -1553,6 +1553,15 @@ org $804A2EA; bl summary_hacks.flag_reset
 //If the cursor's position changes, refresh the OAM. If Yes has been pressed, do not refresh OAM at all.
 org $8042D4A; bl summary_hacks.check_change_and_stop_OAM
 
+//Remove the OAM entry for Favorite Food
+org $8042DDC; mov r1,#1; neg r1,r1; mov r9,r1; add r2,#0x14; b $8042DFF
+
+//Remove the OAM entry for Favorite Thing
+org $8042E2E; add r2,#0x14; b $8042E4B
+
+//Remove the OAM entry for Text Speed
+org $8042E76; b $8042E93
+
 //Improve performances: use graphics for "Is This Okay? Yes No"
 org $8042EEC; bl summary_hacks.change_is_this_okay; b $8042F17
 
