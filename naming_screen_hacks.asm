@@ -368,11 +368,33 @@ bne .normalEnd
 ldr r2,=#0x2015D98 //Do we need to print?
 ldrb r3,[r2,#0]
 cmp r3,#2
-beq .normalEnd
+beq .oneBeforeEnd
 .gotoEnd:
 pop {r4-r6} //Clear the stack
 pop {r4}
 bl $8042F43
+
+.oneBeforeEnd:
+mov r7,r10
+mov r6,r9
+mov r5,r8
+pop {r1-r3} //Normal stuff the game does
+pop {r1}
+push {r5-r7}
+add sp,#-8
+mov r10,r0
+mov r4,#0x94 //Properly setup registers
+ldr r5,=#0x201AB1A
+mov r6,#0xC0
+sub r6,r5,r6
+mov r7,#0xF
+mov r8,r7
+mov r7,#0
+sub r7,#1
+mov r9,r7
+mov r7,#1
+
+bl $8042F17
 
 .normalEnd:
 mov r7,r10
