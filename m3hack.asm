@@ -1550,8 +1550,11 @@ org $8052ADA; db $52 //Increments the number of loaded memos, so the last one is
 //Set/Reset the flag, so everything works
 org $804A2EA; bl summary_hacks.flag_reset
 
-//If the cursor's position changes, refresh the OAM
-org $8042F30; bl summary_hacks.check_change
+//If the cursor's position changes, refresh the OAM. If Yes has been pressed, do not refresh OAM at all.
+org $8042D4A; bl summary_hacks.check_change_and_stop_OAM
+
+//Improve performances: use graphics for "Is This Okay? Yes No"
+org $8042EEC; bl summary_hacks.change_is_this_okay; b $8042F17
 
 //Stop the refreshing of the OAM if the flag is set
 org $803E6F0; bl summary_hacks.impede_refresh_oam
