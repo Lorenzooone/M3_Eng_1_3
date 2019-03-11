@@ -1788,6 +1788,19 @@ mov r0,r1 //Normal stuff the game expects from us
 bl $804EF38
 pop {pc}
 
+.inner_equip_a:
+push {lr}
+bl .main
+ldr r7,=#0x2016028 //Normal stuff the game expects from us
+ldr r0,=#0x41C6
+pop {pc}
+
+.inner_equip_scroll:
+push {lr}
+bl .main
+bl $8046D90 //Normal stuff the game expects from us
+pop {pc}
+
 .buy_lr:
 push {lr}
 bl .main

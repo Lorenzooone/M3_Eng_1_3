@@ -421,6 +421,8 @@ org $807A8DA; db $08    // fix Hinawa's name in final battle
 
 //804CA9C tells each menu where to go
 //804E374 if it's a submenu
+//804CA6C for "specific submenus"
+//804E104 for "specific submenus" submenus. B is not an option anymore.
 
 //Inventory
 //org $804CAE0; bl refreshes.inv_spec_a
@@ -437,6 +439,11 @@ org $803E064; bl refreshes.inv_submenu_block_a
 //Equip
 org $804CC64; bl refreshes.equip_a; nop
 org $804CCAA; bl refreshes.lr
+
+//Inner Equip / "specific submenus"
+org $804E092; bl refreshes.b; nop //"specific submenus" wide
+org $804E14A; bl refreshes.inner_equip_scroll
+org $804F704; bl refreshes.inner_equip_a
 
 //Memoes
 org $804D1CC; bl refreshes.b; nop
