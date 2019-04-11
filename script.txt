@@ -4901,7 +4901,7 @@
 67-14:◇かなりふるい　ネンドじんだ。[END]
 67-14E:@A quite old Clayman.[END]
 67-15:◆チュチュッチュチュー（なんか　このゴミすてば[BREAK]　なにかがおこるような　きがする。[WAIT]　これは　ネズミのちょっかんです。[WAIT]　さて　かあさんのもとへ[BREAK]　そそくさと　かえりますか）[END]
-67-15E:@Squeak squeak squeak![WAIT]  Somehow, I feel like something is going to[BREAK]  happen in this garbage dump.[WAIT]@I guess it's just a mouse's sixth sense...[WAIT]  Well, I better head back to Mom now.)[END]
+67-15E:@Squeak squeak squeak![WAIT]  (Somehow, I feel like something is going to[BREAK]  happen in this garbage dump.[WAIT]@I guess it's just a mouse's sixth sense...[WAIT]  Well, I better head back to Mom now.)[END]
 // Much of this comes from an EarthBound quote, this line isn't used in the game though
 67-16:◇こちら　ゴミすてば[WAIT]◇ゴミとともに[BREAK]　やぶれたゆめも　すててしまおう！[END]
 67-16E:@This is a garbage dump.[WAIT]@So let's throw our busted dreams out with the[BREAK]  rest of our trash![END]
