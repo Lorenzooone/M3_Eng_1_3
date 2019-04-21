@@ -1507,6 +1507,18 @@ org $8C9505A; db $A2
 org $9364430; incbin multi_debug.bin
 org $9360076; db $EC //Change pointer to another script that does the exact same thing.
 
+//Update K9000's battle and overworld sprites
+org $97977B0; incbin gfx_k9000_sprite.bin
+org $9CDF638; incbin gfx_k9000_battle_[c].bin
+org $9C90EE0; dd $0004ECD8 //Repoint the sprite graphics
+org $9C90EE4; dd $0000084C //Update the length of the graphics
+
+//Update Nuclear Reactor Robot's battle and overworld sprites
+org $97690D0; incbin gfx_nuclear_sprite.bin
+org $9CDFE84; incbin gfx_nuclear_battle_[c].bin
+org $9C90DE0; dd $0004F524 //Repoint the sprite graphics
+org $9C90DE4; dd $000004B0 //Update the length of the graphics
+
 //Fix issue with mirrors at Flint's house and Alec's house. Didn't do it in the end, seems to be hardcoded how the mirrors don't spawn if there's only one character and that's what makes it impossible to fix the issue
 //Pointers to Alec's house logic
 //org $9199084;
