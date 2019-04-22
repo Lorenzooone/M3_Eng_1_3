@@ -1519,6 +1519,9 @@ org $9CDFE84; incbin gfx_nuclear_battle_[c].bin
 org $9C90DE0; dd $0004F524 //Repoint the sprite graphics
 org $9C90DE4; dd $000004B0 //Update the length of the graphics
 
+//Fix trades of the ghost
+org $93285C0; incbin data_ghost_fix.bin
+
 //Fix issue with mirrors at Flint's house and Alec's house. Didn't do it in the end, seems to be hardcoded how the mirrors don't spawn if there's only one character and that's what makes it impossible to fix the issue
 //Pointers to Alec's house logic
 //org $9199084;

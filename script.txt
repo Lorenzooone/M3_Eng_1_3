@@ -18227,7 +18227,7 @@
 664-15E:@What does "boo" mean?[END]
 664-16:◆おい　それ[ITEM F0 FF]じゃん。[WAIT]◆たのむ　オレの[ITEM F1 FF]と[BREAK]　こうかんしてくれ。[WAIT]◆くさるまで　まちきれないんだよ。[WAIT][MENU 02 00]　　　はい　　　いいえ[ENDCHOICES][END]
 664-16E:@Hey, that's a [ITEM F0 FF] you got[BREAK]  there.[WAIT]@Please! Trade it to me for this[BREAK]  [ITEM F1 FF]![WAIT]@I can't wait long enough for it to rot.[WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[ENDCHOICES][END]
-// check this for item names and context
+// Rotten Bavarois for Luxury Banana or Rotten Eclair for Nut Bread
 664-17:◆ありがとう　これでしばらく[BREAK]　うえを　しのげるよ。[END]
 664-17E:@Thanks. Now I can stave off starvation for a[BREAK]  while.[END]
 664-18:◆つめたいのと　クールなのを[BREAK]　はきちがえてないか？[END]
