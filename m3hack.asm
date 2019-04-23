@@ -1164,6 +1164,7 @@ org $8D530BC; incbin gfx_thunder_elevator_intern_[c].bin
 org $8D50A00; incbin gfx_club_keepout_[c].bin
 org $8DBA730; incbin gfx_ropeway_bottom_[c].bin
 org $8E1444C; incbin gfx_ropeway_top_[c].bin
+org $8D5A2A8; incbin gfx_titiboo_oil_[c].bin
 
 // - Debug Room
 org $8DB555C; incbin gfx_debug_[c].bin
