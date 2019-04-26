@@ -2952,21 +2952,20 @@ beq +
 ldr r6,[r3,#8]
 add r6,#0x27
 add r6,#0xFF
-ldr r6,[r6,#0]
-cmp r6,#0
+ldrh r6,[r6,#0] //Check current HPs of a character
+cmp r6,#0 //If 0, then remove them. Otherwise refresh
 beq .remove_dead
 bl .refresh_value
 add r5,#1
 b .cont_alive
 .remove_dead:
-sub r4,r4,#1 //Someone died! Don't do them!
-mov r2,#0
-str r2,[r3,#0]
-str r2,[r3,#4]
-str r2,[r3,#8]
-mov r2,r1
-add r2,#0xCC
-str r4,[r2,#0]
+sub r4,r4,#1 //Someone died! Don't do them! Update total count!
+str r6,[r3,#0] //Remove the entry!
+str r6,[r3,#4]
+str r6,[r3,#8]
+mov r6,r1
+add r6,#0xCC
+str r4,[r6,#0] //Store new total count too!
 .cont_alive:
 +
 cmp r5,r4
@@ -3054,8 +3053,8 @@ add r5,#0xCC
 add r1,r1,r2
 mov r2,r0
 add r2,#0x34
-str r2,[r1,#0]
-ldr r2,[r2,#4]
+str r2,[r1,#0] //Store the address!
+ldr r2,[r2,#4] //Load the action counts!
 str r2,[r1,#4] //Store the action counts!
 str r3,[r1,#8] //Store the character address! Useful to check if they're alive!
 ldr r2,[r5,#0] //Store how many people we must update in total! Saves time!
