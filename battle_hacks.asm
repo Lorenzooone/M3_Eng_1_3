@@ -2885,3 +2885,183 @@ bl .base_saving_enemy_4_Dual
 ldr r2,[r4,#0x1C]
 mov r0,#0x94
 pop {pc}
+
+//---------------------------------------------------------------------------------------------
+//Multiple PK Thunders fix
+
+fix_synchronization:
+.update_value:
+push {lr,r4-r7}
+sub r0,r2,#1
+str r0,[r3,#4] //Default update
+ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
+mov r4,#0xCC
+add r4,r4,r1
+ldr r4,[r4,#0] //Total count
+mov r7,#0 //Current count
+mov r6,#0
+-
+add r5,r6,r1
+ldr r5,[r5,#0]
+cmp r5,r3 //Is it an already stored address? If it isn't, it's an enemy! We don't need them!
+beq .update_value_found
+cmp r5,#0
+beq +
+add r7,#1
++
+cmp r7,r4
+bge .update_end //We already checked all the valid entries. Stop here.
+add r6,#0xC
+cmp r6,#0xCC //Check if the address is in the memory zone. It has to be if the turn happened.
+blt -
+b .update_end
+
+.update_value_found:
+add r5,r6,r1
+str r0,[r5,#4] //Update what's stored
+cmp r0,#0
+bne +
+str r0,[r5,#0] //If this is 0, the person already acted and the memory will be freed.
+str r0,[r5,#8] //If this is 0, the person already acted and the memory will be freed.
+mov r6,r1
+add r6,#0xCC //Update the total entry count.
+ldr r5,[r6,#0]
+sub r5,r5,#1
+str r5,[r6,#0]
++
+
+.update_end:
+pop {pc,r4-r7}
+
+//------------------------------------------------------------------------------------------------
+
+.refresh:
+push {lr,r0-r1}
+push {r4-r6}
+ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
+mov r4,#0xCC
+add r4,r4,r1
+ldr r4,[r4,#0] //Total count
+mov r5,#0 //Current count
+mov r0,#0
+-
+add r3,r0,r1
+ldr r2,[r3,#0]
+cmp r2,#0
+beq +
+ldr r6,[r3,#8]
+add r6,#0x27
+add r6,#0xFF
+ldr r6,[r6,#0]
+cmp r6,#0
+beq .remove_dead
+bl .refresh_value
+add r5,#1
+b .cont_alive
+.remove_dead:
+sub r4,r4,#1 //Someone died! Don't do them!
+mov r2,#0
+str r2,[r3,#0]
+str r2,[r3,#4]
+str r2,[r3,#8]
+mov r2,r1
+add r2,#0xCC
+str r4,[r2,#0]
+.cont_alive:
++
+cmp r5,r4
+bge .refresh_end //We refreshed them all!
+add r0,#0xC
+cmp r0,#0xCC //Refresh all the addresses that are not 0
+blt -
+b .refresh_end
+
+.refresh_value:
+push {lr}
+ldr r3,[r3,#4]
+str r3,[r2,#4] //The actual refresh
+pop {pc}
+
+.refresh_end:
+mov r3,r8 //Clobbered code
+ldr r2,[r3,#4]
+pop {r4-r6}
+pop {pc,r0-r1}
+
+//---------------------------------------------------------------------------------------------
+
+.setup: //0s the area we'll use
+push {lr}
+ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
+mov r0,#0
+push {r0}
+mov r0,sp
+mov r2,#0x34
+mov  r3,#5
+lsl  r3,r3,#24
+orr  r2,r3                   // set the 24th bit of r2 so it'll know to fill instead of copy, The 26th bit is also set so it uses Words.
+swi #0xB
+pop {r0}
+pop {pc}
+
+//----------------------------------------------------------------------------------------------------
+
+.first_setup: //Happens at start of battle, sets the zone we'll use to all 0s.
+push {lr}
+bl .setup
+bl $8072B70 //Clobbered code
+pop {pc}
+
+//-----------------------------------------------------------------------------------------------------
+
+.battle_turn_setup: //Happens at end of turn. Sets the zone back to all 0s.
+push {lr}
+cmp r5,#0
+bne +
+push {r2-r3}
+bl .setup
+pop {r2-r3}
++
+lsl r0,r5,#3 //Clobbered code
+ldr r4,[r6,#8]
+pop {pc}
+
+//------------------------------------------------------------------------------------------------------
+
+.end_choice_register: //Stores the action count for the characters
+push {lr,r1-r3,r5}
+bl $8091938
+cmp r0,#0
+beq .end_choice_end //No action = no registration of it needed (sleeping/solidified characters)
+mov r1,r4
+add r1,#0xFC
+mov r2,#1
+lsl r2,r2,#27
+cmp r1,r2
+bge .end_choice_end //How did an enemy get here?! I don't know, but let's be safe
+ldr r1,[r1,#0]
+mov r2,r1
+ldrb r1,[r1,#0]
+cmp r1,#0x11
+bge .end_choice_end //Let's be safe, don't go where you shouldn't!
+mov r3,r2
+lsl r1,r1,#3 //get the address
+lsr r2,r1,#1
+add r1,r1,r2
+ldr r2,=#0x2005CB0
+mov r5,r2
+add r5,#0xCC
+add r1,r1,r2
+mov r2,r0
+add r2,#0x34
+str r2,[r1,#0]
+ldr r2,[r2,#4]
+str r2,[r1,#4] //Store the action counts!
+str r3,[r1,#8] //Store the character address! Useful to check if they're alive!
+ldr r2,[r5,#0] //Store how many people we must update in total! Saves time!
+add r2,#1
+str r2,[r5,#0]
+
+
+.end_choice_end:
+pop {pc,r1-r3,r5}

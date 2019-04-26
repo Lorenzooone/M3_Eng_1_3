@@ -10460,7 +10460,7 @@
 224-6:◆かざんへの　みちを[BREAK]　ふさいでいる　いしには[BREAK]　[ITEM B6 00]を[BREAK]　かけてあげなさい。[WAIT]◆じゃあ　がんばってね。[BREAK]◆チュッ。[END]
 224-6E:@There is a boulder blocking the path to the[BREAK]  volcano.[WAIT]  You should give it some [ITEM B6 00].[WAIT]@Well, good luck. [HEART][BREAK]@Smoochie smoochie. [HEART][END]
 224-7:◆ドラゴンの　みぎてのはりは[BREAK]　かざんの　かこうにあるわ。[WAIT]◆じゃあ　がんばってね。[WAIT]◆チュッ。[END]
-224-7E:@The Needle in the Dragon's right foot is in the[BREAK]  volcanic crater.[WAIT]@Well, good luck. [HEART][WAIT]@Smoochie smoochie. [HEART][END]
+224-7E:@The Needle in the Dragon's right hand is in the[BREAK]  volcanic crater.[WAIT]@Well, good luck. [HEART][WAIT]@Smoochie smoochie. [HEART][END]
 224-8:◆これからも　あなたの　ゆめのなかに[BREAK]　なんどでも　おじゃまするわね。[WAIT]◆ふふっ　さよならっ。[END]
 224-8E:@You can expect to see more of me in your[BREAK]  dreams from now on. [HEART][WAIT]@*giggle* Goodbye! [HEART][END]
 // Repeats: 186-35, 224-8
