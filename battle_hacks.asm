@@ -2937,7 +2937,7 @@ pop {pc,r4-r7}
 
 .refresh:
 push {lr,r0-r1}
-push {r4-r7}
+push {r3-r7}
 ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
 mov r4,#0xCC
 add r4,r4,r1
@@ -2952,12 +2952,12 @@ beq +
 mov r7,#0x3C
 sub r7,r2,r7
 ldr r6,=#0x20657375 //"use " string used by the game
-ldr r7,[r7,#0]
+ldr r7,[r7,#0] //Load the status of the memory zone
 cmp r7,r6 //Is it still in use?
 bne .remove_action_done
 mov r7,#0x10
 sub r7,r2,r7
-ldr r7,[r7,#0]
+ldr r7,[r7,#0] //Load the character's address from the action
 ldr r6,[r3,#8] //Load the character's address
 cmp r7,r6 //If it's in use, is the character's address still there? It won't be if the action's been completed.
 bne .remove_action_done
@@ -2989,10 +2989,22 @@ str r3,[r2,#4] //The actual refresh
 pop {pc}
 
 .refresh_end:
+pop {r3-r7}
+pop {pc,r0-r1}
+
+.call_refresh_enemy_joins_by_itself: //When an enemy joins the fight by itself from outside the screen (Happens when 2 enemies are called and at the beginning of battle too)
+push {lr}
+bl .refresh
 mov r3,r8 //Clobbered code
 ldr r2,[r3,#4]
-pop {r4-r7}
-pop {pc,r0-r1}
+pop {pc}
+
+.call_refresh_enemy_is_called: //When a single enemy is called into the fight or joins it (Ceiling or PORKYs)
+push {lr}
+bl .refresh
+mov r8,r0 //Clobbered code
+ldr r1,[r5,#0x1C]
+pop {pc}
 
 //---------------------------------------------------------------------------------------------
 

@@ -1525,7 +1525,8 @@ org $93285C0; incbin data_ghost_fix.bin
 
 //Fix "Multiple PK Thunders" bug
 org $805F670; bl fix_synchronization.end_choice_register
-org $8062C6E; bl fix_synchronization.refresh
+org $8062C6E; bl fix_synchronization.call_refresh_enemy_joins_by_itself
+org $80627E0; bl fix_synchronization.call_refresh_enemy_is_called
 org $8078502; bl fix_synchronization.update_value
 org $805DE2C; bl fix_synchronization.first_setup
 org $805F58C; bl fix_synchronization.battle_turn_setup
