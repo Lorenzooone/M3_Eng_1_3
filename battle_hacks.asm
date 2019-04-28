@@ -2894,9 +2894,10 @@ fix_synchronization:
 push {lr,r4-r7}
 sub r0,r2,#1
 str r0,[r3,#4] //Default update
+push {r2}
 ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
-mov r4,#0xCC
-add r4,r4,r1
+ldr r2,=#0x110 //r2 = size of table, after the table the total count is stored.
+add r4,r2,r1
 ldr r4,[r4,#0] //Total count
 mov r7,#0 //Current count
 mov r6,#0
@@ -2911,8 +2912,8 @@ add r7,#1
 +
 cmp r7,r4
 bge .update_end //We already checked all the valid entries. Stop here.
-add r6,#0xC
-cmp r6,#0xCC //Check if the address is in the memory zone. It has to be if the turn happened.
+add r6,#0x10
+cmp r6,r2 //Check if the address is in the memory zone. It has to be if the turn happened.
 blt -
 b .update_end
 
@@ -2922,15 +2923,16 @@ str r0,[r5,#4] //Update what's stored
 cmp r0,#0
 bne +
 str r0,[r5,#0] //If this is 0, the person already acted and the memory will be freed.
-str r0,[r5,#8] //If this is 0, the person already acted and the memory will be freed.
-mov r6,r1
-add r6,#0xCC //Update the total entry count.
+str r0,[r5,#8] //Same as above
+str r0,[r5,#0xC] //Same as above
+add r6,r1,r2 //Update the total entry count.
 ldr r5,[r6,#0]
 sub r5,r5,#1
 str r5,[r6,#0]
 +
 
 .update_end:
+pop {r2}
 pop {pc,r4-r7}
 
 //------------------------------------------------------------------------------------------------
@@ -2939,12 +2941,13 @@ pop {pc,r4-r7}
 push {lr,r0-r1}
 push {r3-r7}
 ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
-mov r4,#0xCC
+ldr r4,=#0x110
 add r4,r4,r1
 ldr r4,[r4,#0] //Total count
 mov r5,#0 //Current count
 mov r0,#0
 -
+lsl r0,r0,#4
 add r3,r0,r1
 ldr r2,[r3,#0]
 cmp r2,#0 //If address is 0, then there is nothing to refresh.
@@ -2954,6 +2957,12 @@ sub r7,r2,r7
 ldr r6,=#0x20657375 //"use " string used by the game
 ldr r7,[r7,#0] //Load the status of the memory zone
 cmp r7,r6 //Is it still in use?
+bne .remove_action_done
+ldr r6,[r3,#0xC]
+mov r7,#0x3C
+sub r7,r2,r7
+ldr r7,[r7,#4] //Load the size of the memory zone
+cmp r6,r7 //Is the size still it?
 bne .remove_action_done
 mov r7,#0x10
 sub r7,r2,r7
@@ -2970,15 +2979,17 @@ mov r6,#0
 str r6,[r3,#0] //Remove the entry!
 str r6,[r3,#4]
 str r6,[r3,#8]
-mov r6,r1
-add r6,#0xCC
+str r6,[r3,#0xC]
+ldr r6,=#0x110
+add r6,r6,r1
 str r4,[r6,#0] //Store new total count too!
 .cont_alive:
 +
 cmp r5,r4
 bge .refresh_end //We refreshed them all!
-add r0,#0xC
-cmp r0,#0xCC //Refresh all the addresses that are not 0
+lsr r0,r0,#4
+add r0,#1
+cmp r0,#0x11 //Refresh all the addresses that are not 0
 blt -
 b .refresh_end
 
@@ -3014,7 +3025,7 @@ ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. 
 mov r0,#0
 push {r0}
 mov r0,sp
-mov r2,#0x34
+mov r2,#0x45
 mov  r3,#5
 lsl  r3,r3,#24
 orr  r2,r3                   // set the 24th bit of r2 so it'll know to fill instead of copy, The 26th bit is also set so it uses Words.
@@ -3063,12 +3074,11 @@ ldrb r1,[r1,#0]
 cmp r1,#0x11
 bge .end_choice_end //Let's be safe, don't go where you shouldn't!
 mov r3,r2
-lsl r1,r1,#3 //get the address
-lsr r2,r1,#1
-add r1,r1,r2
+lsl r1,r1,#4 //get the address
 ldr r2,=#0x2005CB0
 mov r5,r2
-add r5,#0xCC
+add r5,#0x11
+add r5,#0xFF
 add r1,r1,r2
 mov r2,r0
 add r2,#0x34
@@ -3079,6 +3089,10 @@ beq +
 str r3,[r1,#0] //Store the address!
 str r2,[r1,#4] //Store the action count!
 str r4,[r1,#8] //Store the character address! Useful to check if the action still has to be done!
+mov r2,#0x8
+sub r3,r0,r2
+ldr r3,[r3,#4]
+str r3,[r1,#0xC] //Store the memory region's size. Another failsafe.
 ldr r2,[r5,#0] //Store how many people we must update in total! Saves time!
 add r2,#1
 str r2,[r5,#0]
