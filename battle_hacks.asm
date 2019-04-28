@@ -2890,50 +2890,46 @@ pop {pc}
 //Multiple PK Thunders fix
 
 fix_synchronization:
+
 .update_value:
-push {lr,r4-r7}
+push {lr}
 sub r0,r2,#1
 str r0,[r3,#4] //Default update
-push {r2}
+push {r2,r5}
+mov r2,#1
+lsl r2,r2,#27                // Is this an enemy? If they are, then they have their identifiers in the ROM
+mov r1,#0x10
+sub r1,r3,r1
+ldr r1,[r1,#0]
+add r1,#0xFC
+ldr r1,[r1,#0] //Load the acter's data
+cmp r1,r2 //If this is an enemy, don't update them!
+bge .update_end
+ldrb r2,[r1,#0]
+cmp r2,#0x11
+bge .update_end //Let's be safe, don't go where you shouldn't!
+lsl r2,r2,#4
 ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
-ldr r2,=#0x110 //r2 = size of table, after the table the total count is stored.
-add r4,r2,r1
-ldr r4,[r4,#0] //Total count
-mov r7,#0 //Current count
-mov r6,#0
--
-add r5,r6,r1
-ldr r5,[r5,#0]
-cmp r5,r3 //Is it an already stored address? If it isn't, it's an enemy! We don't need them!
-beq .update_value_found
-cmp r5,#0
-beq +
-add r7,#1
-+
-cmp r7,r4
-bge .update_end //We already checked all the valid entries. Stop here.
-add r6,#0x10
-cmp r6,r2 //Check if the address is in the memory zone. It has to be if the turn happened.
-blt -
-b .update_end
-
+add r2,r2,r1
+ldr r5,[r2,#0]
+cmp r5,r3 //Is it an already stored address? If it isn't, it's probably Duster's beginning of battle. We don't need it.
+bne .update_end
 .update_value_found:
-add r5,r6,r1
-str r0,[r5,#4] //Update what's stored
+str r0,[r2,#4] //Update what's stored
 cmp r0,#0
-bne +
-str r0,[r5,#0] //If this is 0, the person already acted and the memory will be freed.
-str r0,[r5,#8] //Same as above
-str r0,[r5,#0xC] //Same as above
-add r6,r1,r2 //Update the total entry count.
-ldr r5,[r6,#0]
+bne .update_end
+str r0,[r2,#0] //If this is 0, the person already acted and the memory will be freed.
+str r0,[r2,#8] //Same as above
+str r0,[r2,#0xC] //Same as above
+ldr r2,=#0x110
+add r2,r2,r1
+ldr r5,[r2,#0] //Update the entry count
 sub r5,r5,#1
-str r5,[r6,#0]
-+
+str r5,[r2,#0]
 
 .update_end:
-pop {r2}
-pop {pc,r4-r7}
+pop {r2,r5}
+pop {pc}
 
 //------------------------------------------------------------------------------------------------
 
