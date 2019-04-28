@@ -2937,7 +2937,7 @@ pop {pc,r4-r7}
 
 .refresh:
 push {lr,r0-r1}
-push {r4-r6}
+push {r4-r7}
 ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
 mov r4,#0xCC
 add r4,r4,r1
@@ -2947,19 +2947,26 @@ mov r0,#0
 -
 add r3,r0,r1
 ldr r2,[r3,#0]
-cmp r2,#0
+cmp r2,#0 //If address is 0, then there is nothing to refresh.
 beq +
-ldr r6,[r3,#8]
-add r6,#0x27
-add r6,#0xFF
-ldrh r6,[r6,#0] //Check current HPs of a character
-cmp r6,#0 //If 0, then remove them. Otherwise refresh
-beq .remove_dead
+mov r7,#0x3C
+sub r7,r2,r7
+ldr r6,=#0x20657375 //"use " string used by the game
+ldr r7,[r7,#0]
+cmp r7,r6 //Is it still in use?
+bne .remove_action_done
+mov r7,#0x10
+sub r7,r2,r7
+ldr r7,[r7,#0]
+ldr r6,[r3,#8] //Load the character's address
+cmp r7,r6 //If it's in use, is the character's address still there? It won't be if the action's been completed.
+bne .remove_action_done
 bl .refresh_value
 add r5,#1
 b .cont_alive
-.remove_dead:
-sub r4,r4,#1 //Someone died! Don't do them! Update total count!
+.remove_action_done:
+sub r4,r4,#1 //Someone completed their action! Don't do them! Update total count!
+mov r6,#0
 str r6,[r3,#0] //Remove the entry!
 str r6,[r3,#4]
 str r6,[r3,#8]
@@ -2984,7 +2991,7 @@ pop {pc}
 .refresh_end:
 mov r3,r8 //Clobbered code
 ldr r2,[r3,#4]
-pop {r4-r6}
+pop {r4-r7}
 pop {pc,r0-r1}
 
 //---------------------------------------------------------------------------------------------
@@ -3034,11 +3041,11 @@ cmp r0,#0
 beq .end_choice_end //No action = no registration of it needed (sleeping/solidified characters)
 mov r1,r4
 add r1,#0xFC
+ldr r1,[r1,#0]
 mov r2,#1
 lsl r2,r2,#27
 cmp r1,r2
 bge .end_choice_end //How did an enemy get here?! I don't know, but let's be safe
-ldr r1,[r1,#0]
 mov r2,r1
 ldrb r1,[r1,#0]
 cmp r1,#0x11
@@ -3053,13 +3060,17 @@ add r5,#0xCC
 add r1,r1,r2
 mov r2,r0
 add r2,#0x34
-str r2,[r1,#0] //Store the address!
-ldr r2,[r2,#4] //Load the action counts!
-str r2,[r1,#4] //Store the action counts!
-str r3,[r1,#8] //Store the character address! Useful to check if they're alive!
+mov r3,r2 //r3 has the action address now.
+ldr r2,[r3,#4] //Load the action count!
+cmp r2,#0 //If no action is performed anyway (Final battle) don't save addresses. A failsafe in case someone cheats stuff.
+beq +
+str r3,[r1,#0] //Store the address!
+str r2,[r1,#4] //Store the action count!
+str r4,[r1,#8] //Store the character address! Useful to check if the action still has to be done!
 ldr r2,[r5,#0] //Store how many people we must update in total! Saves time!
 add r2,#1
 str r2,[r5,#0]
++
 
 
 .end_choice_end:
