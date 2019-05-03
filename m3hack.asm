@@ -1531,6 +1531,9 @@ org $8078502; bl fix_synchronization.update_value
 org $805DE2C; bl fix_synchronization.first_setup
 org $805F58C; bl fix_synchronization.battle_turn_setup
 
+//Fix flickering in Fassad's low voice talk with Lucas. (Script: 32-21)
+org $91E0FE5; db $25 //Adds 5 more frames to allow for the text prompt to properly close
+
 //Fix issue with mirrors at Flint's house and Alec's house. Didn't do it in the end, seems to be hardcoded how the mirrors don't spawn if there's only one character and that's what makes it impossible to fix the issue
 //Pointers to Alec's house logic
 //org $9199084;
