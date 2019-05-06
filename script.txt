@@ -2845,7 +2845,7 @@
 31-38:◆あたらしい　ひつじごやも[BREAK]　そろそろ　たてないとな・・・。[END]
 31-38E:@Looks like we're going to need to build a new[BREAK]  sheep pen...[END]
 31-39:◆どこか　でかけるのか？[WAIT]◆・・・そうか　[DUSTER 23 03 00]を[BREAK]　さがしに　コーバまでいくのか。[END]
-31-39E:@Are you headed somewhere?[WAIT]@...Oh, I see.[WAIT]   You're going to the factory to look for[BREAK]  [DUSTER 23 03 00].[END]
+31-39E:@Are you headed somewhere?[WAIT]@...Oh, I see.[WAIT]  You're going to the factory to look for[BREAK]  [DUSTER 23 03 00].[END]
 31-40:◆これを　もっていくといい。[END]
 31-40E:@Take this with you.[END]
 31-41:◆おまえのことは　かあさんが[BREAK]　まもってくれる。[WAIT]◆がんばれよ。[END]
@@ -12001,7 +12001,7 @@
 
 [Container 302]
 302-0:◆へーい　いらっしゃーい！[WAIT]◆おっちゃん　おてせいの[BREAK]　ＤＣＭＣグッズだよ。[WAIT]◆こわれても　やぶれても[BREAK]　おっちゃんが　よなべして[WAIT]　なおしてあげるよー。[WAIT]◆はーい！　そんなこと　ウソだよー！[WAIT]◆おっちゃん　ウソをつくよー！[WAIT]◆そういうことは　きにしないで[BREAK]　ＤＣＭＣグッズ　かっていきなよ！[END]
-302-0E:@Heya! How's it goin'?![WAIT]@I got some homemade DCMC merchandise for[BREAK]   ya right here![WAIT]@If it breaks or rips, I'll stay up all night to fix it![WAIT]@Nah! Just kiddin'![WAIT]@I kid a lot![WAIT]@But never mind that, buy some o' these here[BREAK]  DCMC goods![END]
+302-0E:@Heya! How's it goin'?![WAIT]@I got some homemade DCMC merchandise for[BREAK]  ya right here![WAIT]@If it breaks or rips, I'll stay up all night to fix it![WAIT]@Nah! Just kiddin'![WAIT]@I kid a lot![WAIT]@But never mind that, buy some o' these here[BREAK]  DCMC goods![END]
 302-1:◆ここの　ウェイトレスは[BREAK]　さいごに　「うっふん」って[BREAK]　つけるのが　きまりなのよ。[WAIT]◆こんな　バカバカしい　きまり[BREAK]　やめてほしいわ　ほんと。[WAIT]◆うっふん。[END]
 302-1E:@All the waitresses here giggle at the end of[BREAK]  everything they say.[WAIT]@I really wish they'd get rid of that rule, though.[BREAK]  It's so stupid.[WAIT]@*giggle*[END]
 302-2:◆トンダゴッサ！[WAIT]◆あいさつだよ　あいさつ。[WAIT]◆トンダゴッサ！[WAIT]◆ＤＣＭＣの　あいさつくらい[BREAK]　おぼえておけよ。[END]
@@ -17454,7 +17454,7 @@
 624-46E:@For some reason, only the keyboard of this[BREAK]  grand piano is bright and shiny.[END]
 // Repeats: 624-46, 633-46
 624-47:◇くさりきったりんご。[BREAK]　りゃくして　くさりんご。[END]
-624-47E:@Moldy, putrid apples.[WAIT]   "Putrapples" for short.[END]
+624-47E:@Moldy, putrid apples.[WAIT]  "Putrapples" for short.[END]
 // Repeats: 624-47, 633-47
 624-48:◇じょうもんを　あけますか？[WAIT][MENU 02 00]　　　はい　　　いいえ[ENDCHOICES][END]
 624-48E:@Open the castle gate?[WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[ENDCHOICES][END]
@@ -17729,7 +17729,7 @@
 633-46E:@For some reason, only the keyboard of this[BREAK]  grand piano is bright and shiny.[END]
 // Repeats: 624-46, 633-46
 633-47:◇くさりきったりんご。[BREAK]　りゃくして　くさりんご。[END]
-633-47E:@Moldy, putrid apples.[WAIT]   "Putrapples" for short.[END]
+633-47E:@Moldy, putrid apples.[WAIT]  "Putrapples" for short.[END]
 // Repeats: 624-47, 633-47
 
 [Container 634]
