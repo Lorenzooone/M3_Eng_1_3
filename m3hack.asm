@@ -1534,6 +1534,16 @@ org $805F58C; bl fix_synchronization.battle_turn_setup
 //Fix flickering in Fassad's low voice talk with Lucas. (Script: 32-21)
 org $91E0FE5; db $30 //Adds 16 more frames to allow for the text prompt to properly close
 
+//Fix Debug Room's Staff roll
+org $91C6880; incbin logic_00E.bin
+org $91C457C; db $15 //Add a new entry to 00E's logic
+org $91C45A6; dw $08B6 //Add the new entry's pointer
+org $91C46B1; db $0F //Replace old entry loader with this one
+org $9FD6000; incbin logic_00F.bin //Move this logic that's smaller
+org $9198C94; dd $00E3D3F0
+org $9198C98; dd $00E3D400
+
+
 //Fix issue with mirrors at Flint's house and Alec's house. Didn't do it in the end, seems to be hardcoded how the mirrors don't spawn if there's only one character and that's what makes it impossible to fix the issue
 //Pointers to Alec's house logic
 //org $9199084;
