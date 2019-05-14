@@ -1522,6 +1522,8 @@ org $9C90DE4; dd $000004B0 //Update the length of the graphics
 
 //Fix trades of the ghost
 org $93285C0; incbin data_ghost_fix.bin
+org $80D3594; dw $0268
+org $80D6204; dw $0268
 
 //Fix "Multiple PK Thunders" bug
 org $805F670; bl fix_synchronization.end_choice_register
