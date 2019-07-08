@@ -1522,8 +1522,8 @@ org $9C90DE4; dd $000004B0 //Update the length of the graphics
 
 //Fix trades of the ghost
 org $93285C0; incbin data_ghost_fix.bin
-org $80D3594; dw $0268
-org $80D6204; dw $0268
+//org $80D3594; dw $0268
+//org $80D6204; dw $0268
 
 //Fix "Multiple PK Thunders" bug
 org $805F670; bl fix_synchronization.end_choice_register
@@ -1556,6 +1556,9 @@ org $9198C98; dd $00E3D400
 //org $9133660;
 //Alec's house object table
 //org $9146EB0;
+
+//Fix issue where losing in the prologue removes all Claus' PPs.
+org $8001D5A; bl claus_pp_fix.main; pop {r1}; bx r1
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
