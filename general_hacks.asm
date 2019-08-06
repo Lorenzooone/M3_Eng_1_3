@@ -48,6 +48,28 @@ b    -                       // do the next loop iteration
 mov  r0,r3                   // r0 now has the # of bytes copied
 pop  {r2-r4,pc}
 
+//Party members variant
+custom_strcopy_party:
+push {r2-r4,lr}
+
+mov  r3,#0                   // r3 will be our counter, so initialize it to zero
+ldr  r4,=#0xFFFF             // r4 now as 0xFFFF, an [END] code
+
+-
+ldrh r2,[r0,r3]              // load the current character from the source address
+cmp  r2,r4                   // is it an [END] code?
+beq  +                       // if so, let's end the routine
+cmp r3,#0x10                 // Party members can only be 8 letters long, it all 8 are used, there will be no 0xFFFF, so go out
+beq +
+
+strh r2,[r1,r3]              // otherwise, let's store it to the target address
+add  r3,#2                   // increment the counter
+b    -                       // do the next loop iteration
+
++
+mov  r0,r3                   // r0 now has the # of bytes copied
+pop  {r2-r4,pc}
+
 
 
 //===========================================================================================
@@ -107,6 +129,27 @@ ldr  r4,=#0xFFFF             // r4 now has 0xFFFF, an [END] code
 ldrh r2,[r0,r3]              // load the current character from the source address
 cmp  r2,r4                   // is it an [END] code?
 beq  +                       // if so, let's end the routine
+
+add  r3,#2                   // increment the counter
+b    -                       // do the next loop iteration
+
++
+lsr  r0,r3,#1                // r0 now has the # of bytes in the string
+pop  {r2-r4,pc}
+
+//Party member variant
+custom_strlen_party:
+push {r2-r4,lr}
+
+mov  r3,#0                   // r3 will be our counter, so initialize it to zero
+ldr  r4,=#0xFFFF             // r4 now has 0xFFFF, an [END] code
+
+-
+ldrh r2,[r0,r3]              // load the current character from the source address
+cmp  r2,r4                   // is it an [END] code?
+beq  +                       // if so, let's end the routine
+cmp r3,#0x10                 // Party members can have names up to 8 characters long. Not more
+beq +
 
 add  r3,#2                   // increment the counter
 b    -                       // do the next loop iteration

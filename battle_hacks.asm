@@ -218,25 +218,30 @@ bne +
 mov r0,#149                  // if it is, then change it to the Pigmask
 +
 ldr r2,=#0x149
-cmp r0,r2                     // If the actor id is > 0x149, it's going to be a character. Let's call them properly
+cmp r0,r2                    // If the actor id is > 0x149, it's going to be a character. Let's call them properly
 blt +
+
 ldr  r1,=#0x2004110          // Character data address
 sub r0,r0,r2                 // Remove 0x149 to get their ID
 mov r2,#0x6C
 mul r0,r2                    // Multiply it by 0x6C, each character's data length
 add r0,#2                    // Add 2 to get their name
+add  r0,r0,r1                // r0 now has the address of the character's name
+pop  {r1-r2}
+bl   custom_strlen_party     // count the length of our special string, store its length in r2, this is special because party member can have non 0xFFFF terminated names
 b .end_cc_enemy_name
+
 +
 mov  r1,#50
 mul  r0,r1                   // offset = enemy ID * 50 bytes
 ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-
-.end_cc_enemy_name:
 add  r0,r0,r1                // r0 now has the address of the enemy's name
 pop  {r1-r2}
 
 .count_and_inc:
 bl   custom_strlen           // count the length of our special string, store its length in r2
+
+.end_cc_enemy_name:
 b    .main_loop_next         // now jump back to the part of the main loop that increments and such
 
 //--------------------------------------------------------------------------------------------
@@ -1272,22 +1277,27 @@ mov r0,#149                  // if it is, then change it to the Pigmask
 ldr r2,=#0x149
 cmp r0,r2                     // If the actor id is > 0x149, it's going to be a character. Let's call them properly
 blt +
+
 ldr  r1,=#0x2004110          // Character data address
 sub r0,r0,r2                 // Remove 0x149 to get their ID
 mov r2,#0x6C
 mul r0,r2                    // Multiply it by 0x6C, each character's data length
 add r0,#2                    // Add 2 to get their name
+add  r0,r0,r1                // r0 now has the address of the character's name
+pop  {r1-r2}
+bl custom_strcopy_party      // This is a special case. We cannot use the normal strcopy because party members can have non 0xFFFF terminated names
+
 b .end_ecc_enemy_name
+
 +
 mov  r1,#50
 mul  r0,r1                   // offset = enemy ID * 50 bytes
 ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-
-.end_ecc_enemy_name:
 add  r0,r0,r1                // r0 now has the address of the enemy's name
 pop  {r1-r2}
-
 bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
+
+.end_ecc_enemy_name:
 b    .customcc_inc           // go to the common custom CC incrementing, etc. code
 
 //--------------------------------------------------------------------------------------------
