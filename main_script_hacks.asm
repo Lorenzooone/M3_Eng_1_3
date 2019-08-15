@@ -774,6 +774,88 @@ ldr  r4,=#0x2014340
 bx   lr
 
 
+//===========================================================================================
+// An edited version of the routine at 0x8002474.
+// This hack compares two strings up to a length and then checks whether the second string has ended or not. Returns 0 if they're the same. Otherwise it returns which one is the greater or smaller one.
+//===========================================================================================
+
+.compare_strings_edited:
+push {r4-r6,lr}
+mov r3,r0 //r0 has the first string's address
+mov r4,r1 //r1 has the second string's address
+lsl r2,r2,#0x10 //r2 has the length
+ldr r5,=#0xFFFF0000
+asr r0,r2,#0x10
+cmp r2,r5 //Checks that the length is a valid number
+bne .valid_number
+ldrh r1,[r3,#0]
+lsr r0,r5,#0x10
+cmp r1,r0
+beq + //If the first string ends instantly, then it returns true. Probably used to prevent the player from entering void names
+add r2,r0,#0
+
+.end_first:
+ldrh r0,[r4,#0]
+add r4,r4,#2
+add r3,r3,#2
+cmp r2,r0 //Does the second string end here?
+beq .end_second
+
+.reached_difference:
+sub r3,r3,#2
+sub r4,r4,#2
+ldrh r0,[r3,#0]
+ldrh r4,[r4,#0]
+cmp r0,r4
+bhi .different_first_greater
+mov r0,#1 //The second string is greater. Returns 0xFFFFFFFF
+neg r0,r0
+b .end
+
+.end_second:
+ldrh r1,[r3,#0]
+cmp r1,r2 //Does the first string have an end one character after the first one?
+bne .end_first
+b +
+
+.different_first_greater:
+mov r0,#1 //The first string is greater. Returns 1
+b .end
+
+.valid_number:
+mov r2,#0
+cmp r2,r0
+bge + //If it has to compare strings of 0 length, it returns true
+ldr r6,=#0xFFFF
+add r5,r0,#0
+
+-
+ldrh r1,[r3,#0]
+ldrh r0,[r4,#0]
+add r4,#2
+add r3,#2
+cmp r1,r0
+bne .reached_difference
+cmp r1,r6 //Have we reached the strings' end?
+beq +
+add r0,r2,#1
+lsl r0,r0,#0x10
+lsr r2,r0,#0x10
+cmp r2,r5
+blt -
+
+//NEW CODE HERE
+//Checks if the second string has ended. If it has, then returns 0. Otherwise it returns 1
+ldrh r0,[r4,#0]
+cmp r0,r6 
+bne .different_first_greater
+
++
+mov r0,#0
+
+.end:
+pop {r4-r6}
+pop {pc}
 
 //===========================================================================================
 // This hack decodes the main script, give r0 the raw, encoded value from the ROM, and

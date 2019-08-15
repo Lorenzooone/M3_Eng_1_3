@@ -1617,6 +1617,16 @@ org $8042EEC; bl summary_hacks.change_is_this_okay; b $8042F17
 org $803E6F0; bl summary_hacks.impede_refresh_oam
 
 //============================================================================================
+//                                   8 LETTERS FAKE NAMES
+//============================================================================================
+
+//Makes it so Lucky's name can be properly matched if 8 letters long
+org $802164A; mov r2,#8; bl main_script_hacks.compare_strings_edited
+
+//Makes it so Violet's name can be properly matched if 8 letters long
+org $8021676; mov r2,#8; bl main_script_hacks.compare_strings_edited
+
+//============================================================================================
 //                                    NEW HACK CODE
 //============================================================================================
 
