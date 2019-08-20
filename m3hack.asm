@@ -1545,6 +1545,16 @@ org $9FD6000; incbin logic_00F.bin //Move this logic that's smaller
 org $9198C94; dd $00E3D3F0
 org $9198C98; dd $00E3D400
 
+//Fix wrong text being displayed for train money in Chapter 4-5
+//Block 38 - Tazmily station
+org $91E9249; db $55 //Two people
+org $91E925D; db $56 //Three people
+org $91E9271; db $57 //Four people
+//Block 47 - Factory station
+org $91F2B49; db $05 //Two people
+org $91F2B5D; db $06 //Three people
+org $91F2B71; db $07 //Four people
+
 //Fix issue with mirrors at Flint's house and Alec's house. Didn't do it in the end, seems to be hardcoded how the mirrors don't spawn if there's only one character and that's what makes it impossible to fix the issue
 //Pointers to Alec's house logic
 //org $9199084;
