@@ -177,6 +177,135 @@ pop  {r0}
 pop  {pc}
 
 //--------------------------------------------------------------------------------------------
+.custom_cc:
+sub  r2,#1                   // need to subtract 1 to counter the raw custom control code itself
+
+ldrb r0,[r1,#0]              // load the current low byte of the custom control code
+
+cmp  r0,#0x00                // check for 0xEF00, which will print the current enemy's name
+bne +
+b  .cc_enemy_name
++
+
+cmp  r0,#0x01                // check for 0xEF01, which will print the cohorts string
+bne +
+b  .cc_cohorts
++
+
+cmp  r0,#0x02                // check for 0xEF02, which will print an initial uppercase article if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x03                // check for 0xEF03, which will print an initial lowercase article if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x04                // check for 0xEF04, which will print an uppercase article if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x05                // check for 0xEF05, which will print a lowercase article if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x06                // check for 0xEF06, which will print a lowercase possessive if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x10                // check for 0xEF10, which will print an initial uppercase article for items
+bne +
+b  .cc_it_articles
++
+
+cmp  r0,#0x11                // check for 0xEF11, which will print an initial lowercase article for items
+bne +
+b  .cc_it_articles
++
+
+cmp  r0,#0x12                // check for 0xEF12, which will print an uppercase article for items
+bne +
+b  .cc_it_articles
++
+
+cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
+bne +
+b  .cc_it_articles
++
+
+cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
+bne +
+b  .cc_it_articles
++
+
+cmp  r0,#0x20                // check for 0xEF20, which will fix the "The Pigmask threw a cannonball!" glitch
+bne +
+b  .cc_enemy_name
++
+
+cmp  r0,#0x21                // check for 0xEF21, which will print the Pigmask's uppercase article if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x22                // check for 0xEF22, which will print an initial uppercase article if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x23                // check for 0xEF23, which will print an initial lowercase article if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x24                // check for 0xEF24, which will print an uppercase article if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x25                // check for 0xEF25, which will print a lowercase article if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x26                // check for 0xEF26, which will print a lowercase possessive if need be
+bne +
+b  .cc_en_articles
++
+
+cmp  r0,#0x30                // check for 0xEF30, which will print an initial uppercase article for the second last item
+bne +
+b  .cc_it_articles
++
+
+cmp  r0,#0x31                // check for 0xEF31, which will print an initial lowercase article for the second last item
+bne +
+b  .cc_it_articles
++
+
+cmp  r0,#0x32                // check for 0xEF32, which will print an uppercase article for the second last item
+bne +
+b  .cc_it_articles
++
+
+cmp  r0,#0x33                // check for 0xEF33, which will print a lowercase article for the second last item
+bne +
+b  .cc_it_articles
++
+
+cmp  r0,#0x36                // check for 0xEF36, which will print a lowercase reference for the second last item
+bne +
+b  .cc_it_articles
++
+
+mov  r0,#0                   // if this executes, it's an unknown control code, so treat it normally
+b    .main_loop_next         // jump back to the part of the main loop that increments and such
+
+//--------------------------------------------------------------------------------------------
 
 .cc_it_articles:
 push {r1-r2}
@@ -243,87 +372,6 @@ bl   custom_strlen           // count the length of our special string, store it
 
 .end_cc_enemy_name:
 b    .main_loop_next         // now jump back to the part of the main loop that increments and such
-
-//--------------------------------------------------------------------------------------------
-.custom_cc:
-sub  r2,#1                   // need to subtract 1 to counter the raw custom control code itself
-
-ldrb r0,[r1,#0]              // load the current low byte of the custom control code
-
-cmp  r0,#0x00                // check for 0xEF00, which will print the current enemy's name
-beq  .cc_enemy_name
-
-cmp  r0,#0x01                // check for 0xEF01, which will print the cohorts string
-beq  .cc_cohorts
-
-cmp  r0,#0x02                // check for 0xEF02, which will print an initial uppercase article if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x03                // check for 0xEF03, which will print an initial lowercase article if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x04                // check for 0xEF04, which will print an uppercase article if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x05                // check for 0xEF05, which will print a lowercase article if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x06                // check for 0xEF06, which will print a lowercase possessive if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x10                // check for 0xEF10, which will print an initial uppercase article for items
-beq  .cc_it_articles
-
-cmp  r0,#0x11                // check for 0xEF11, which will print an initial lowercase article for items
-beq  .cc_it_articles
-
-cmp  r0,#0x12                // check for 0xEF12, which will print an uppercase article for items
-beq  .cc_it_articles
-
-cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
-beq  .cc_it_articles
-
-cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
-beq  .cc_it_articles
-
-cmp  r0,#0x20                // check for 0xEF20, which will fix the "The Pigmask threw a cannonball!" glitch
-beq  .cc_enemy_name
-
-cmp  r0,#0x21                // check for 0xEF21, which will print the Pigmask's uppercase article if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x22                // check for 0xEF22, which will print an initial uppercase article if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x23                // check for 0xEF23, which will print an initial lowercase article if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x24                // check for 0xEF24, which will print an uppercase article if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x25                // check for 0xEF25, which will print a lowercase article if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x26                // check for 0xEF26, which will print a lowercase possessive if need be
-beq  .cc_en_articles
-
-cmp  r0,#0x30                // check for 0xEF30, which will print an initial uppercase article for the second last item
-beq  .cc_it_articles
-
-cmp  r0,#0x31                // check for 0xEF31, which will print an initial lowercase article for the second last item
-beq  .cc_it_articles
-
-cmp  r0,#0x32                // check for 0xEF32, which will print an uppercase article for the second last item
-beq  .cc_it_articles
-
-cmp  r0,#0x33                // check for 0xEF33, which will print a lowercase article for the second last item
-beq  .cc_it_articles
-
-cmp  r0,#0x36                // check for 0xEF36, which will print a lowercase reference for the second last item
-beq  .cc_it_articles
-
-mov  r0,#0                   // if this executes, it's an unknown control code, so treat it normally
-b    .main_loop_next         // jump back to the part of the main loop that increments and such
 
 //--------------------------------------------------------------------------------------------
 
@@ -1235,6 +1283,146 @@ pop  {r6-r7,pc}              // restore registers and exit
 
 //--------------------------------------------------------------------------------------------
 
+.check_custom_cc:
+ldrb r0,[r0,#0]              // load the current character
+
+cmp  r0,#0x00                // check for 0xEF00, which will print the current enemy's name
+bne +
+b  .ecc_enemy_name
++
+
+cmp  r0,#0x01                // check for 0xEF01, which will print "and cohort/and cohorts" if need be
+bne +
+b  .ecc_cohorts
++
+
+cmp  r0,#0x02                // check for 0xEF02, which will print an initial uppercase article if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x03                // check for 0xEF03, which will print an initial lowercase article if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x04                // check for 0xEF04, which will print an uppercase article if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x05                // check for 0xEF05, which will print a lowercase article if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x06                // check for 0xEF06, which will print a lowercase possessive if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x10                // check for 0xEF10, which will print an initial uppercase article for items
+bne +
+b  .ecc_it_articles
++
+
+cmp  r0,#0x11                // check for 0xEF11, which will print an initial lowercase article for items
+bne +
+b  .ecc_it_articles
++
+
+cmp  r0,#0x12                // check for 0xEF12, which will print an uppercase article for items
+bne +
+b  .ecc_it_articles
++
+
+cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
+bne +
+b  .ecc_it_articles
++
+
+cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
+bne +
+b  .ecc_it_articles
++
+
+cmp  r0,#0x20                // check for 0xEF20, which will fix the "The Pigmask threw a cannonball!" glitch
+bne +
+b  .ecc_enemy_name
++
+
+cmp  r0,#0x21                // check for 0xEF21, which will print the Pigmask's uppercase article if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x22                // check for 0xEF22, which will print an initial uppercase article if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x23                // check for 0xEF23, which will print an initial lowercase article if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x24                // check for 0xEF24, which will print an uppercase article if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x25                // check for 0xEF25, which will print a lowercase article if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x26                // check for 0xEF26, which will print a lowercase possessive if need be
+bne +
+b  .ecc_en_articles
++
+
+cmp  r0,#0x30                // check for 0xEF30, which will print an initial uppercase article for the second last item
+bne +
+b  .ecc_it_articles
++
+
+cmp  r0,#0x31                // check for 0xEF31, which will print an initial lowercase article for the second last item
+bne +
+b  .ecc_it_articles
++
+
+cmp  r0,#0x32                // check for 0xEF32, which will print an uppercase article for the second last item
+bne +
+b  .ecc_it_articles
++
+
+cmp  r0,#0x33                // check for 0xEF33, which will print a lowercase article for the second last item
+bne +
+b  .ecc_it_articles
++
+
+cmp  r0,#0x36                // check for 0xEF36, which will print a lowercase reference for the second last item
+bne +
+b  .ecc_it_articles
++
+
+b    .ecc_inc                // treat this code normally if it's not a valid custom control code
+
+//--------------------------------------------------------------------------------------------
+
+.customcc_inc:
+add  r1,r1,r0                // update our write address
+lsr  r0,r0,#0x1
+add  r6,r6,r0                // update our own custom counter
+
+ldrh r0,[r3,#0x6]            // increment the char count, which will later increment the read address
+add  r0,#1
+strh r0,[r3,#0x6]
+
+b    .ecc_len_check
+
+//--------------------------------------------------------------------------------------------
+
 .ecc_it_articles:
 push {r1-r2}
 
@@ -1299,98 +1487,6 @@ bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
 
 .end_ecc_enemy_name:
 b    .customcc_inc           // go to the common custom CC incrementing, etc. code
-
-//--------------------------------------------------------------------------------------------
-
-.check_custom_cc:
-ldrb r0,[r0,#0]              // load the current character
-
-cmp  r0,#0x00                // check for 0xEF00, which will print the current enemy's name
-beq  .ecc_enemy_name
-
-cmp  r0,#0x01                // check for 0xEF01, which will print "and cohort/and cohorts" if need be
-beq  .ecc_cohorts
-
-cmp  r0,#0x02                // check for 0xEF02, which will print an initial uppercase article if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x03                // check for 0xEF03, which will print an initial lowercase article if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x04                // check for 0xEF04, which will print an uppercase article if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x05                // check for 0xEF05, which will print a lowercase article if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x06                // check for 0xEF06, which will print a lowercase possessive if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x10                // check for 0xEF10, which will print an initial uppercase article for items
-beq  .ecc_it_articles
-
-cmp  r0,#0x11                // check for 0xEF11, which will print an initial lowercase article for items
-beq  .ecc_it_articles
-
-cmp  r0,#0x12                // check for 0xEF12, which will print an uppercase article for items
-beq  .ecc_it_articles
-
-cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
-beq  .ecc_it_articles
-
-cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
-beq  .ecc_it_articles
-
-cmp  r0,#0x20                // check for 0xEF20, which will fix the "The Pigmask threw a cannonball!" glitch
-beq  .ecc_enemy_name
-
-cmp  r0,#0x21                // check for 0xEF21, which will print the Pigmask's uppercase article if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x22                // check for 0xEF22, which will print an initial uppercase article if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x23                // check for 0xEF23, which will print an initial lowercase article if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x24                // check for 0xEF24, which will print an uppercase article if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x25                // check for 0xEF25, which will print a lowercase article if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x26                // check for 0xEF26, which will print a lowercase possessive if need be
-beq  .ecc_en_articles
-
-cmp  r0,#0x30                // check for 0xEF30, which will print an initial uppercase article for the second last item
-beq  .ecc_it_articles
-
-cmp  r0,#0x31                // check for 0xEF31, which will print an initial lowercase article for the second last item
-beq  .ecc_it_articles
-
-cmp  r0,#0x32                // check for 0xEF32, which will print an uppercase article for the second last item
-beq  .ecc_it_articles
-
-cmp  r0,#0x33                // check for 0xEF33, which will print a lowercase article for the second last item
-beq  .ecc_it_articles
-
-cmp  r0,#0x36                // check for 0xEF36, which will print a lowercase reference for the second last item
-beq  .ecc_it_articles
-
-b    .ecc_inc                // treat this code normally if it's not a valid custom control code
-
-//--------------------------------------------------------------------------------------------
-
-.customcc_inc:
-add  r1,r1,r0                // update our write address
-lsr  r0,r0,#0x1
-add  r6,r6,r0                // update our own custom counter
-
-ldrh r0,[r3,#0x6]            // increment the char count, which will later increment the read address
-add  r0,#1
-strh r0,[r3,#0x6]
-
-b    .ecc_len_check
 
 //--------------------------------------------------------------------------------------------
 
