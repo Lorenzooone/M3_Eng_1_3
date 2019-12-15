@@ -2,6 +2,13 @@
 // Codes that end in FF] are real control codes. Custom control codes end in EF].
 // Custom control codes are complicated, eerie, and need extra explaining.
 // Until you have a handle on custom control codes, you should leave them out.
+//
+// Certain lines have comments under them that show which enemies and/or actions MAY call them.
+// This was done automatically and should only be used as a helping hand of sorts.
+// It DOESN'T mean certain lines will be called by a certain enemy and certain others won't.
+// ASM functions can call whichever line they want and change an enemy's behaviour as they see fit,
+// meaning the standard enemy behaviour (the one the comments refer to) may even go unused.
+// Please keep it in mind when looking for which enemies use which lines.
 
 0000: Debug Text[END]
 0000-E: Debug Text[END]
@@ -949,6 +956,7 @@
 01D7-E: FLINT MESSAGES[END]
 01D8: [END]
 01D8-E: [END]
+// Used by the character skill: 31
 01D9: [END]
 01D9-E: [END]
 01DA: [END]
@@ -957,8 +965,10 @@
 01DB-E: [END]
 01DC: [11 FF] put all of his strength behind [26 EF]attack![END]
 01DC-E: [11 FF] put all of his strength behind [26 EF]attack![END]
+// Used by the character skill: 33
 01DD: [11 FF] swung [26 EF]weapon wildly![END]
 01DD-E: [11 FF] swung [26 EF]weapon wildly![END]
+// Used by the character skill: 32
 01DE: [END]
 01DE-E: [END]
 01DF: [END]
@@ -971,14 +981,18 @@
 01E2-E: [END]
 01E3: [11 FF] gathered [26 EF]strength![END]
 01E3-E: [11 FF] gathered [26 EF]strength![END]
+// Used by the character skill: 34
 01E4: [11 FF] stiffened [26 EF]body![END]
 01E4-E: [11 FF] stiffened [26 EF]body![END]
+// Used by the character skill: 35
 01E5: BONEY MESSAGES[END]
 01E5-E: BONEY MESSAGES[END]
 01E6: [END]
 01E6-E: [END]
+// Used by the character skill: 43
 01E7: [11 FF] sniffed [05 EF][12 FF]![END]
 01E7-E: [11 FF] sniffed [05 EF][12 FF]![END]
+// Used by the character skill: 44
 01E8: But the putrid stench was too much for [11 FF] to handle.[END]
 01E8-E: But the putrid stench was too much for [11 FF] to handle.[END]
 01E9: But he didn't smell anything.[END]
@@ -1141,18 +1155,25 @@
 0237-E: DUSTER MESSAGES[END]
 0238: [END]
 0238-E: [END]
+// Used by the character skill: 36
 0239: [11 FF] threw Wall Staples![END]
 0239-E: [11 FF] threw Wall Staples![END]
+// Used by the character skill: 37
 023A: [11 FF] held up the Siren Beetle![END]
 023A-E: [11 FF] held up the Siren Beetle![END]
+// Used by the character skill: 38
 023B: [11 FF] swayed [26 EF]Hypno-Pendulum![END]
 023B-E: [11 FF] swayed [26 EF]Hypno-Pendulum![END]
+// Used by the character skill: 39
 023C: [11 FF] threw a smoke bomb![END]
 023C-E: [11 FF] threw a smoke bomb![END]
+// Used by the character skill: 40
 023D: [11 FF] put on a scary mask![END]
 023D-E: [11 FF] put on a scary mask![END]
+// Used by the character skill: 41
 023E: [11 FF] used the Tickle Stick![END]
 023E-E: [11 FF] used the Tickle Stick![END]
+// Used by the character skill: 42
 023F: But it didn't work.[END]
 023F-E: But it didn't work.[END]
 0240: But it had no effect![END]
@@ -1187,6 +1208,7 @@
 024E-E: SALSA MESSAGES[END]
 024F: [END]
 024F-E: [END]
+// Used by the character skills: 45, 46, 47
 0250: [11 FF] apologized profusely![END]
 0250-E: [11 FF] apologized profusely![END]
 0251: [11 FF] apologized profusely![END]
@@ -1229,8 +1251,10 @@
 0263-E: [11 FF] performed a headstand![END]
 0264: [11 FF] did a tiny little dance![END]
 0264-E: [11 FF] did a tiny little dance![END]
+// Used by the character skill: 48
 0265: [11 FF] is sizing up the enemy![END]
 0265-E: [11 FF] is sizing up the enemy![END]
+// Used by the character skill: 49
 0266: [END]
 0266-E: [END]
 0267: [END]
@@ -1265,62 +1289,79 @@
 0275-E: SHARED PLAYER MESSAGES[END]
 0276: [END]
 0276-E: [END]
+// Used by the character skills: 0, 9, 26, 28, 29
 0277: [11 FF] attacks![END]
 0277-E: [11 FF] attacks![END]
+// Used by the character skills: 1, 4, 27
 0278: [11 FF] is guarding.[END]
 0278-E: [11 FF] is guarding.[END]
+// Used by the character skills: 2, 30
 0279: [11 FF] ran away![END]
 0279-E: [11 FF] ran away![END]
+// Used by the character skill: 3
 027A: [11 FF] and company ran away![END]
 027A-E: [11 FF] and company ran away![END]
 027B: [11 FF] attacks![END]
 027B-E: [11 FF] attacks![END]
+// Used by the character skill: 5
 027C: [10 FF] received an electric shock![END]
 027C-E: [10 FF] received an electric shock![END]
 027D: But [11 FF] deftly flipped behind the enemy![31 FF][END]
 027D-E: But [11 FF] deftly flipped behind the enemy![31 FF][END]
+// Used by the character skill: 6
 027E: But [11 FF] unleashed a reverse kick with unfathomable speed![31 FF][END]
 027E-E: But [11 FF] unleashed a reverse kick with unfathomable speed![31 FF][END]
+// Used by the character skill: 7
 027F: [11 FF] attacked with blinding speed![31 FF][END]
 027F-E: [11 FF] attacked with blinding speed![31 FF][END]
+// Used by the character skill: 8
 0280: Ran away successfully![END]
 0280-E: Ran away successfully![END]
 0281: Couldn't run![END]
 0281-E: Couldn't run![END]
 0282: For some reason, [11 FF][32 FF] couldn't attack.[END]
 0282-E: For some reason, [11 FF][32 FF] couldn't attack.[END]
+// Used by the character skill: 25
 0283: [END]
 0283-E: [END]
 0284: [END]
 0284-E: [END]
 0285: [END]
 0285-E: [END]
+// Used by the character skill: 10
 0286: Baccio attacks![32 FF][END]
 0286-E: Baccio attacks![32 FF][END]
+// Used by the character skills: 11, 12
 0287: [END]
 0287-E: [END]
 0288: Shimmy Zmizz attacks![32 FF][END]
 0288-E: Shimmy Zmizz attacks![32 FF][END]
+// Used by the character skills: 13, 14
 0289: [END]
 0289-E: [END]
 028A: Magic attacks![32 FF][END]
 028A-E: Magic attacks![32 FF][END]
+// Used by the character skills: 15, 16
 028B: [END]
 028B-E: [END]
 028C: OJ attacks![32 FF][END]
 028C-E: OJ attacks![32 FF][END]
+// Used by the character skills: 17, 18
 028D: [END]
 028D-E: [END]
 028E: Dr. Andonuts fired a Pencil Rocket![END]
 028E-E: Dr. Andonuts fired a Pencil Rocket![END]
+// Used by the character skills: 19, 20
 028F: [END]
 028F-E: [END]
 0290: Wess attacks![END]
 0290-E: Wess attacks![END]
+// Used by the character skills: 21, 22
 0291: [END]
 0291-E: [END]
 0292: [14 FF] attacks![END]
 0292-E: [14 FF] attacks![END]
+// Used by the character skills: 23, 24
 0293: [14 FF] attacks![END]
 0293-E: [14 FF] attacks![END]
 0294: GUEST MESSAGES[END]
@@ -1475,298 +1516,541 @@
 02DE-E: MONSTER MESSAGES[END]
 02DF: [END]
 02DF-E: [END]
+// Used by the enemies:  Soot Dumpling,  Return of Octobot,  Greedier Mouse
+// Used by the actions: 0, 62, 148, 241, 280, 342, 410, 437, 567, 635, 636, 637, 640
 02E0: [24 EF][11 FF] attacks![END]
 02E0-E: [24 EF][11 FF] attacks![END]
+// Used by the enemies:  Bright Smile,  Jealous Bass,  Sticky Slug,  Tender Loving Tree,  Road Block,  Mr. Batty,  Yammonster,  Soot Dumpling,  Baked Yammonster,  Mystery Metal Monkey,  Spud Bug,  Slimy Slug,  Ramblin' Mushroom,  Tree,  Mrs. Lava,  Magman,  Lingering Spirit,  HUGE Pillbug,  Barrel Man,  Strawberry Slime,  Violent Roach,  Osohe Cape,  Pseudoor,  Dung Beetle,  Sara-Sara-Sahara,  Sand Lizard,  Gooey Goo,  Cleocatra,  Stinky Ghost,  Artsy Ghost,  Pigtunia,  Putrid Moldyman,  Whatever,  Einswine,  Ancient Dragonfly,  Filthy Attack Roach,  Batangutan,  Sky Titany,  Negative Man,  Big Spud Bug,  Grated Yammonster,  Naughty Mushroom,  Elder Batty,  Gently Weeping Guitar,  Wobbly Robot,  Men's Room Sign,  Surprise Box,  Screwloose,  Cuddle Bomb,  Master Eddy,  Rooound Fish,  Unwelcome Gust,  Beanling,  Black Beanling,  Tiny Forest,  Masked Man,  Masked Man,  Masked Man,  Masked Man
+// Used by the actions: 2, 104, 113, 275, 279, 331, 334, 347, 394, 438, 439, 440, 531, 580, 581, 582, 583, 630, 631, 638, 639, 641
 02E1: [04 EF][11 FF] did a combo attack![END]
 02E1-E: [04 EF][11 FF] did a combo attack![END]
+// Used by the enemies:  Scamperin' Mushroom,  Flying Mouse,  Ghost Sword,  Metal Attack Roach
+// Used by the actions: 3, 354
 02E2: [04 EF][11 FF] used a biting attack![END]
 02E2-E: [04 EF][11 FF] used a biting attack![END]
+// Used by the enemies:  Oh-So-Snake,  Mecha-Drago,  Mole Cricket,  The Squeekz,  Mecha-Lion,  Top Dogfish,  Greedy Mouse,  Flying Mouse,  Mighty Bitey Snake,  Mystery Metal Monkey,  Crag Lizard,  Chilly Dog,  Mole Cricket,  Boa Transistor,  Zombie Man,  Zombie Dog,  Detached Leech,  Arachnid!,  Cactus Wolf,  Dogfish,  Muttshroom,  Parental Kangashark,  Almost Mecha-Lion,  Really Flying Mouse,  Carpet Monster,  Zombie Lady,  Arachnid!!!!,  Greedier Mouse,  Reconstructed Lion
+// Used by the actions: 4, 103, 270, 304, 320, 380, 465, 546, 586
 02E3: [04 EF][11 FF] used a drill attack![END]
 02E3-E: [04 EF][11 FF] used a drill attack![END]
+// Used by the enemies:  Mecha-Mole!,  Li'l Miss Marshmallow,  Reconstructed Mole
+// Used by the actions: 5, 365
 02E4: [04 EF][11 FF] used a propeller attack![END]
 02E4-E: [04 EF][11 FF] used a propeller attack![END]
+// Used by the enemy:  Really Flying Mouse
+// Used by the action: 6
 02E5: [04 EF][11 FF] bore down and attacked![END]
 02E5-E: [04 EF][11 FF] bore down and attacked![END]
+// Used by the enemies:  N.K. Cyborg,  Crag Lizard,  Mecha-Turtle
+// Used by the actions: 7, 416
 02E6: [04 EF][11 FF] stabbed with a horn![END]
 02E6-E: [04 EF][11 FF] stabbed with a horn![END]
+// Used by the enemies:  Reconstructed Caribou,  Rhinocerocket Mark II,  Cattlesnake,  Rhinocerocket
+// Used by the actions: 8, 114, 300
 02E7: [04 EF][11 FF] pecked with its beak![END]
 02E7-E: [04 EF][11 FF] pecked with its beak![END]
+// Used by the enemies:  Balding Eagle,  Squawking Stick,  Slitherhen,  Blue Balding Eagle
+// Used by the action: 9
 02E8: [04 EF][11 FF] stabbed with a spear![END]
 02E8-E: [04 EF][11 FF] stabbed with a spear![END]
+// Used by the enemy:  Rockin' Ghost
+// Used by the action: 10
 02E9: [04 EF][11 FF] stabbed with a sword![END]
 02E9-E: [04 EF][11 FF] stabbed with a sword![END]
+// Used by the enemies:  Ghost Sword,  Ghost Knight
+// Used by the action: 11
 02EA: [04 EF][11 FF] brandished a pincer![END]
 02EA-E: [04 EF][11 FF] brandished a pincer![END]
+// Used by the enemies:  Titany,  Spineless Lobster,  Li'l Miss Marshmallow,  Rock Lobster,  Titanian
+// Used by the actions: 12, 364
 02EB: [04 EF][11 FF] swung a sword![END]
 02EB-E: [04 EF][11 FF] swung a sword![END]
+// Used by the enemies:  Masked Man,  Ghost Knight
+// Used by the actions: 13, 402
 02EC: [04 EF][11 FF] brandished a scythe![END]
 02EC-E: [04 EF][11 FF] brandished a scythe![END]
+// Used by the enemy:  Praying Mantis
+// Used by the action: 14
 02ED: [04 EF][11 FF] swung a steel ball![END]
 02ED-E: [04 EF][11 FF] swung a steel ball![END]
+// Used by the enemy:  Steel Mechorilla
+// Used by the actions: 15, 489
 02EE: [04 EF][11 FF] scratched with its claws![END]
 02EE-E: [04 EF][11 FF] scratched with its claws![END]
+// Used by the enemy:  Mischievous Mole
+// Used by the action: 16
 02EF: [04 EF][11 FF] scratched with its sharp claws![END]
 02EF-E: [04 EF][11 FF] scratched with its sharp claws![END]
+// Used by the enemies:  Balding Eagle,  Almost Mecha-Lion,  Blue Balding Eagle
+// Used by the actions: 17, 382
 02F0: [04 EF][11 FF] swung its tail violently![END]
 02F0-E: [04 EF][11 FF] swung its tail violently![END]
+// Used by the enemy:  Cattlesnake
+// Used by the action: 18
 02F1: [04 EF][11 FF] threw a rock![END]
 02F1-E: [04 EF][11 FF] threw a rock![END]
+// Used by the enemy:  Mischievous Mole
+// Used by the action: 19
 02F2: [04 EF][11 FF] threw a bone![END]
 02F2-E: [04 EF][11 FF] threw a bone![END]
+// Used by the enemy:  Cheery Skeleton
+// Used by the action: 20
 02F3: [04 EF][11 FF] threw some sunflower seeds![END]
 02F3-E: [04 EF][11 FF] threw some sunflower seeds![END]
 02F4: [04 EF][11 FF] came out swinging![END]
 02F4-E: [04 EF][11 FF] came out swinging![END]
 02F5: [04 EF][11 FF] threw a punch![END]
 02F5-E: [04 EF][11 FF] threw a punch![END]
+// Used by the enemies:  Clayman,  Ghost Armor,  Li'l Big Bro,  Minor Robot,  Fish Roe Man
+// Used by the actions: 23, 115, 325
 02F6: [04 EF][11 FF] attacked with a kick![END]
 02F6-E: [04 EF][11 FF] attacked with a kick![END]
+// Used by the enemies:  Li'l Big Bro,  Fish Roe Man,  Pigmask
+// Used by the action: 24
 02F7: [04 EF][11 FF] threw a powerful punch![END]
 02F7-E: [04 EF][11 FF] threw a powerful punch![END]
+// Used by the enemies:  Bro Team,  Three Amigos
+// Used by the action: 25
 02F8: [04 EF][11 FF] attacked with a powerful kick![END]
 02F8-E: [04 EF][11 FF] attacked with a powerful kick![END]
+// Used by the enemies:  Horsantula,  Parental Kangashark,  Love Walker,  Steel Mechorilla,  Pigmask Captain
+// Used by the actions: 26, 490
 02F9: [04 EF][11 FF] stomped with a giant foot![END]
 02F9-E: [04 EF][11 FF] stomped with a giant foot![END]
+// Used by the enemy:  Mecha-Drago
+// Used by the actions: 27, 305
 02FA: [04 EF][11 FF] did a cactus-headbutt![END]
 02FA-E: [04 EF][11 FF] did a cactus-headbutt![END]
+// Used by the enemy:  Cactus Wolf
+// Used by the action: 28
 02FB: [04 EF][11 FF] charged![END]
 02FB-E: [04 EF][11 FF] charged![END]
+// Used by the enemies:  Pork Tank,  Hippo Launcher,  New Fassad,  Top Dogfish,  Agitated Boar,  Baked Yammonster,  Ten-Yeti,  Ghost Shield,  Rockin' Ghost,  Horsantula,  Ostrelephant,  Sky Titany,  Really Flying Mouse,  Hippo Launcher,  K9000
+// Used by the actions: 29, 338, 493
 02FC: [04 EF][11 FF] did a bum-rush![END]
 02FC-E: [04 EF][11 FF] did a bum-rush![END]
+// Used by the enemies:  Clayman,  Fierce Pork Trooper,  Fierce Pork Trooper,  Pigmask Major,  Ghost Armor,  Li'l Big Bro,  Bro Team,  Monkalrus,  Wobbly Robot,  Pigmask Major,  Pigmask Colonel,  Upgraded Robot
+// Used by the actions: 30, 260, 326, 476, 484
 02FD: [04 EF][11 FF] fired a beam![END]
 02FD-E: [04 EF][11 FF] fired a beam![END]
+// Used by the enemies:  Masked Man,  Pigmask Major,  Mecha-Mole!,  Atomic Power Robot,  Nuclear Reactor Robot,  Return of Octobot,  Recon Mech,  Pigmask,  Pigmask Major,  Pigmask Captain,  Navy SQUEAL,  Security Robot
+// Used by the actions: 31, 35, 76, 109, 255, 352, 403
 02FE: [04 EF][11 FF] fired a high-powered beam![END]
 02FE-E: [04 EF][11 FF] fired a high-powered beam![END]
+// Used by the action: 32
 02FF: [04 EF][11 FF] fired missiles![END]
 02FF-E: [04 EF][11 FF] fired missiles![END]
+// Used by the enemies:  Hippo Launcher,  Hippo Launcher
+// Used by the action: 33
 0300: [04 EF][11 FF] madly brandished his baton![END]
 0300-E: [04 EF][11 FF] madly brandished his baton![END]
+// Used by the enemies:  Mr. Passion,  Lord Passion
+// Used by the actions: 315, 625
 0301: [04 EF][11 FF] fired its cannon![END]
 0301-E: [04 EF][11 FF] fired its cannon![END]
+// Used by the enemy:  Pork Tank
+// Used by the actions: 339, 612
 0302: [04 EF][11 FF] bit with its venomous fangs![END]
 0302-E: [04 EF][11 FF] bit with its venomous fangs![END]
+// Used by the enemies:  Mighty Bitey Snake,  Dogfish,  Arachnid!!!!
+// Used by the action: 36
 0303: [04 EF][11 FF] stabbed with its venomous stinger![END]
 0303-E: [04 EF][11 FF] stabbed with its venomous stinger![END]
+// Used by the enemy:  Horsantula
+// Used by the action: 37
 0304: [04 EF][11 FF] sprayed a poisonous gas![END]
 0304-E: [04 EF][11 FF] sprayed a poisonous gas![END]
+// Used by the actions: 38, 419
 0305: [04 EF][11 FF] emitted an electromagnetic pulse![END]
 0305-E: [04 EF][11 FF] emitted an electromagnetic pulse![END]
+// Used by the enemies:  Return of Octobot,  Wobbly Robot
+// Used by the action: 39
 0306: [04 EF][11 FF] tried to strike [12 FF]'s joints![END]
 0306-E: [04 EF][11 FF] tried to strike [12 FF]'s joints![END]
+// Used by the enemies:  Pigmask Major,  Pigmask Major
+// Used by the action: 40
 0307: [04 EF][11 FF] planted an unwanted kiss![END]
 0307-E: [04 EF][11 FF] planted an unwanted kiss![END]
+// Used by the enemies:  Mrs. Lava,  Love Walker
+// Used by the action: 41
 0308: [04 EF][11 FF] tried Paralysis [ALPHA]![END]
 0308-E: [04 EF][11 FF] tried Paralysis [ALPHA]![END]
+// Used by the enemy:  Frosted Bun
+// Used by the action: 42
 0309: [04 EF][11 FF] tried Paralysis [OMEGA]![END]
 0309-E: [04 EF][11 FF] tried Paralysis [OMEGA]![END]
 030A: [04 EF][11 FF] fired its DRoW-Z Beam![END]
 030A-E: [04 EF][11 FF] fired its DRoW-Z Beam![END]
+// Used by the enemies:  Minor Robot,  Security Robot
+// Used by the actions: 44, 277
 030B: [04 EF][11 FF] clung to [12 FF]![END]
 030B-E: [04 EF][11 FF] clung to [12 FF]![END]
+// Used by the action: 223
 030C: [04 EF][11 FF] let out a sweet fragrance![END]
 030C-E: [04 EF][11 FF] let out a sweet fragrance![END]
+// Used by the enemies:  Barrel Man,  Strawberry Slime
+// Used by the action: 46
 030D: [04 EF][11 FF] tried Hypnosis [ALPHA]![END]
 030D-E: [04 EF][11 FF] tried Hypnosis [ALPHA]![END]
+// Used by the enemies:  Jealous Bass,  Sticky Slug,  Slimy Slug,  Titany,  Cleocatra,  Sky Titany,  Big Spud Bug,  Screwloose
+// Used by the actions: 43, 47, 149, 348
 030E: [04 EF][11 FF] tried Hypnosis [OMEGA]![END]
 030E-E: [04 EF][11 FF] tried Hypnosis [OMEGA]![END]
+// Used by the enemies:  Road Block,  Titanian
+// Used by the action: 48
 030F: [04 EF][11 FF] scattered its spores![END]
 030F-E: [04 EF][11 FF] scattered its spores![END]
+// Used by the enemies:  Scamperin' Mushroom,  Ramblin' Mushroom,  Muttshroom,  Muttshroom,  Naughty Mushroom
+// Used by the actions: 49, 51, 267, 522
 0310: [04 EF][11 FF] fired a Dum-E Beam![END]
 0310-E: [04 EF][11 FF] fired a Dum-E Beam![END]
+// Used by the enemies:  Boa Transistor,  Sara-Sara-Sahara
+// Used by the action: 50
 0311: [04 EF][11 FF] did an alluring dance![END]
 0311-E: [04 EF][11 FF] did an alluring dance![END]
 0312: [04 EF][11 FF] fired a pepper spray![END]
 0312-E: [04 EF][11 FF] fired a pepper spray![END]
+// Used by the enemy:  Pigmask Captain
+// Used by the action: 52
 0313: [04 EF][11 FF] scattered pollen all about![END]
 0313-E: [04 EF][11 FF] scattered pollen all about![END]
+// Used by the enemy:  Pigtunia
+// Used by the action: 53
 0314: [04 EF][11 FF] kicked up sand![END]
 0314-E: [04 EF][11 FF] kicked up sand![END]
+// Used by the enemies:  Great Antlion,  Great Antlion
+// Used by the action: 54
 0315: [04 EF][11 FF] scattered soot about![END]
 0315-E: [04 EF][11 FF] scattered soot about![END]
+// Used by the enemy:  Soot Dumpling
+// Used by the action: 55
 0316: [04 EF][11 FF] vented its exhaust![END]
 0316-E: [04 EF][11 FF] vented its exhaust![END]
+// Used by the enemy:  Pork Tank
+// Used by the actions: 56, 340
 0317: [04 EF][11 FF] emitted a dazzling light![END]
 0317-E: [04 EF][11 FF] emitted a dazzling light![END]
+// Used by the action: 57
 0318: [04 EF][11 FF] emitted a Forgetfulness Flash![END]
 0318-E: [04 EF][11 FF] emitted a Forgetfulness Flash![END]
+// Used by the enemy:  Surprise Box
+// Used by the action: 58
 0319: [04 EF][11 FF] greeted everyone politely and left.[END]
 0319-E: [04 EF][11 FF] greeted everyone politely and left.[END]
+// Used by the enemy:  Walking Bushie
+// Used by the action: 521
 031A: [04 EF][11 FF] used a Counter-PSI Unit![END]
 031A-E: [04 EF][11 FF] used a Counter-PSI Unit![END]
+// Used by the action: 60
 031B: [04 EF][11 FF] expounded on its past sorrows in life![END]
 031B-E: [04 EF][11 FF] expounded on its past sorrows in life![END]
+// Used by the enemy:  Lingering Spirit
+// Used by the action: 61
 031C: [END]
 031C-E: [END]
 031D: [04 EF][11 FF] coughed up a terrible odor![END]
 031D-E: [04 EF][11 FF] coughed up a terrible odor![END]
+// Used by the enemies:  Stinky Ghost,  Putrid Moldyman,  Zombidillo
+// Used by the actions: 63, 548
 031E: [04 EF][11 FF] coughed up an unbelievably offensive smell![END]
 031E-E: [04 EF][11 FF] coughed up an unbelievably offensive smell![END]
+// Used by the action: 64
 031F: [04 EF][11 FF] sent its fleas flying![END]
 031F-E: [04 EF][11 FF] sent its fleas flying![END]
+// Used by the enemies:  Ten-Yeti,  Batangutan,  Monkalrus
+// Used by the actions: 65, 66
 0320: [04 EF][11 FF] fell on top of [12 FF]![END]
 0320-E: [04 EF][11 FF] fell on top of [12 FF]![END]
+// Used by the enemy:  Mobile Grave
+// Used by the action: 68
 0321: [04 EF][11 FF] fired a whole bunch of missiles![END]
 0321-E: [04 EF][11 FF] fired a whole bunch of missiles![END]
 0322: [04 EF][11 FF] crashed down on top of [12 FF] with all of its weight![END]
 0322-E: [04 EF][11 FF] crashed down on top of [12 FF] with all of its weight![END]
+// Used by the enemy:  Clayman
+// Used by the action: 327
 0323: [04 EF][11 FF] sent candles flying![END]
 0323-E: [04 EF][11 FF] sent candles flying![END]
+// Used by the enemies:  Mr. Passion,  Lord Passion
+// Used by the actions: 316, 626
 0324: [04 EF][11 FF] went berserk![END]
 0324-E: [04 EF][11 FF] went berserk![END]
+// Used by the enemies:  Reconstructed Caribou,  Horsantula,  Cattlesnake,  Steel Mechorilla
+// Used by the actions: 70, 301, 491
 0325: [04 EF][11 FF] attacked wildly![END]
 0325-E: [04 EF][11 FF] attacked wildly![END]
+// Used by the enemies:  Pork Tank,  Li'l Miss Marshmallow,  Wound-Up Road Hog
+// Used by the actions: 71, 77, 341, 366
 0326: [04 EF][11 FF] fired a BB machine gun![END]
 0326-E: [04 EF][11 FF] fired a BB machine gun![END]
+// Used by the enemy:  Mecha-Turtle
+// Used by the action: 257
 0327: [04 EF][11 FF] fired a bazooka![END]
 0327-E: [04 EF][11 FF] fired a bazooka![END]
+// Used by the action: 73
 0328: [04 EF][11 FF] fired a Heavy Bazooka![END]
 0328-E: [04 EF][11 FF] fired a Heavy Bazooka![END]
+// Used by the enemy:  Pigmask Colonel
+// Used by the action: 74
 0329: [04 EF][11 FF] fired a whole bunch of missiles![END]
 0329-E: [04 EF][11 FF] fired a whole bunch of missiles![END]
+// Used by the enemies:  Hippo Launcher,  Hippo Launcher
+// Used by the action: 75
 032A: Help arrived![END]
 032A-E: Help arrived![END]
 032B: Friends gathered![END]
 032B-E: Friends gathered![END]
 032C: [04 EF][11 FF] threw a Bomb![END]
 032C-E: [04 EF][11 FF] threw a Bomb![END]
+// Used by the enemies:  Minor Robot,  Cuddle Bomb
+// Used by the action: 78
 032D: [04 EF][11 FF] threw a Super Bomb![END]
 032D-E: [04 EF][11 FF] threw a Super Bomb![END]
+// Used by the action: 79
 032E: [04 EF][11 FF] threw a time bomb![END]
 032E-E: [04 EF][11 FF] threw a time bomb![END]
+// Used by the enemies:  Pigmask Major,  Pigmask Major
+// Used by the action: 80
 032F: The bomb exploded![END]
 032F-E: The bomb exploded![END]
 0330: [04 EF][11 FF] sprayed digestive fluids![END]
 0330-E: [04 EF][11 FF] sprayed digestive fluids![END]
+// Used by the enemies:  Strawberry Slime,  Gooey Goo,  Zombidillo
+// Used by the actions: 82, 332, 353
 0331: [04 EF][11 FF] dove into the water and caused a giant wave![END]
 0331-E: [04 EF][11 FF] dove into the water and caused a giant wave![END]
+// Used by the enemy:  Oh-So-Snake
+// Used by the actions: 83, 321
 0332: [04 EF][11 FF] generated a whirlpool![END]
 0332-E: [04 EF][11 FF] generated a whirlpool![END]
+// Used by the enemies:  Master Eddy,  Fierce Pork Trooper,  Green Train
+// Used by the actions: 84, 532
 0333: [04 EF][11 FF] generated a waterspout![END]
 0333-E: [04 EF][11 FF] generated a waterspout![END]
+// Used by the enemy:  Unwelcome Gust
+// Used by the action: 85
 0334: [04 EF][11 FF] breathed fire![END]
 0334-E: [04 EF][11 FF] breathed fire![END]
+// Used by the enemies:  Pyrefly,  Firefly,  Ancient Dragonfly,  Almost Mecha-Lion,  Reconstructed Lion
+// Used by the actions: 86, 308, 381, 473
 0335: [04 EF][11 FF] shot flames out![END]
 0335-E: [04 EF][11 FF] shot flames out![END]
+// Used by the enemies:  Mecha-Drago,  Mecha-Lion
+// Used by the actions: 87, 306
 0336: [04 EF][11 FF] tried PK Fire [ALPHA]![END]
 0336-E: [04 EF][11 FF] tried PK Fire [ALPHA]![END]
+// Used by the enemies:  Mystery Metal Monkey,  Lingering Spirit,  Beanling,  Black Beanling
+// Used by the actions: 88, 177
 0337: [04 EF][11 FF] tried PK Fire [BETA]![END]
 0337-E: [04 EF][11 FF] tried PK Fire [BETA]![END]
+// Used by the enemies:  Bright Smile,  Barrier Trio,  Surprise Box,  Black Beanling
+// Used by the actions: 89, 178, 504
 0338: [04 EF][11 FF] tried PK Fire [GAMMA]![END]
 0338-E: [04 EF][11 FF] tried PK Fire [GAMMA]![END]
+// Used by the enemies:  Mrs. Lava,  Barrier Trio,  Love Walker
+// Used by the actions: 90, 502
 0339: [04 EF][11 FF] tried PK Fire [OMEGA]![END]
 0339-E: [04 EF][11 FF] tried PK Fire [OMEGA]![END]
+// Used by the enemy:  Love Walker
+// Used by the action: 91
 033A: [04 EF][11 FF] tried PK Freeze [ALPHA]![END]
 033A-E: [04 EF][11 FF] tried PK Freeze [ALPHA]![END]
+// Used by the enemies:  Osohe Cape,  Artsy Ghost,  Bro Team
+// Used by the actions: 92, 154, 536
 033B: [04 EF][11 FF] tried PK Freeze [BETA]![END]
 033B-E: [04 EF][11 FF] tried PK Freeze [BETA]![END]
+// Used by the enemies:  Chilly Dog,  Frosted Bun,  Barrier Trio,  Dogfish,  Einswine,  Grated Yammonster,  Rooound Fish
+// Used by the actions: 93, 505
 033C: [04 EF][11 FF] tried PK Freeze [GAMMA]![END]
 033C-E: [04 EF][11 FF] tried PK Freeze [GAMMA]![END]
+// Used by the enemies:  Top Dogfish,  Barrier Trio
+// Used by the actions: 94, 503
 033D: [04 EF][11 FF] tried PK Freeze [OMEGA]![END]
 033D-E: [04 EF][11 FF] tried PK Freeze [OMEGA]![END]
+// Used by the actions: 95, 568
 033E: [04 EF][11 FF] used an electric shock attack![END]
 033E-E: [04 EF][11 FF] used an electric shock attack![END]
+// Used by the enemy:  Gently Weeping Guitar
+// Used by the action: 96
 033F: [04 EF][11 FF] used a Crashing Boom Bang attack![END]
 033F-E: [04 EF][11 FF] used a Crashing Boom Bang attack![END]
+// Used by the actions: 97, 559
 0340: [04 EF][11 FF] tried PK Thunder [ALPHA]![END]
 0340-E: [04 EF][11 FF] tried PK Thunder [ALPHA]![END]
+// Used by the enemy:  Short Circuit Zap!
+// Used by the action: 98
 0341: [04 EF][11 FF] tried PK Thunder [BETA]![END]
 0341-E: [04 EF][11 FF] tried PK Thunder [BETA]![END]
+// Used by the enemies:  Einswine,  Short Circuit Zap!
+// Used by the action: 99
 0342: [04 EF][11 FF] tried PK Thunder [GAMMA]![END]
 0342-E: [04 EF][11 FF] tried PK Thunder [GAMMA]![END]
+// Used by the enemy:  Frosted Bun
+// Used by the action: 100
 0343: [04 EF][11 FF] tried PK Thunder [OMEGA]![END]
 0343-E: [04 EF][11 FF] tried PK Thunder [OMEGA]![END]
+// Used by the action: 101
 0344: [04 EF][11 FF] tried PK Flash![END]
 0344-E: [04 EF][11 FF] tried PK Flash![END]
+// Used by the enemies:  Short Circuit Zap!,  Masked Man,  Masked Man
+// Used by the actions: 102, 632
 0345: [04 EF][11 FF] exploded![END]
 0345-E: [04 EF][11 FF] exploded![END]
+// Used by the action: 119
 0346: [04 EF][11 FF] exploded![END]
 0346-E: [04 EF][11 FF] exploded![END]
+// Used by the enemy:  Squawking Boomstick
+// Used by the actions: 411, 514, 515, 516, 517
 0347: [04 EF][11 FF] caused an immense explosive blast![END]
 0347-E: [04 EF][11 FF] caused an immense explosive blast![END]
+// Used by the action: 412
 0348: [04 EF][11 FF] tried PK Starstorm![END]
 0348-E: [04 EF][11 FF] tried PK Starstorm![END]
+// Used by the enemies:  Miracle Fassad,  Barrier Trio,  Men's Room Sign
+// Used by the actions: 106, 391, 397, 547
 0349: [04 EF][11 FF] shot out flame after flame![END]
 0349-E: [04 EF][11 FF] shot out flame after flame![END]
+// Used by the enemy:  Mecha-Lion
+// Used by the action: 470
 034A: [04 EF][11 FF] attacked with a mushroom headbutt![END]
 034A-E: [04 EF][11 FF] attacked with a mushroom headbutt![END]
+// Used by the enemy:  Muttshroom
+// Used by the action: 108
 034B: [04 EF][11 FF] is spewing out black smoke![END]
 034B-E: [04 EF][11 FF] is spewing out black smoke![END]
+// Used by the action: 345
 034C: [04 EF][11 FF] stomped its feet![END]
 034C-E: [04 EF][11 FF] stomped its feet![END]
+// Used by the action: 110
 034D: [04 EF][11 FF] slammed its head into the ground![WAIT][12 FF] and company were hit by a shock wave![END]
 034D-E: [04 EF][11 FF] slammed its head into the ground![WAIT][12 FF] and company were hit by a shock wave![END]
+// Used by the enemy:  Heftyhead
+// Used by the action: 111
 034E: [04 EF][11 FF] is rattling and shaking![END]
 034E-E: [04 EF][11 FF] is rattling and shaking![END]
+// Used by the action: 344
 034F: [04 EF][11 FF] apologized profusely![END]
 034F-E: [04 EF][11 FF] apologized profusely![END]
+// Used by the enemy:  Pigmask
+// Used by the action: 214
 0350: [04 EF][11 FF] went home to pack for a paid vacation![END]
 0350-E: [04 EF][11 FF] went home to pack for a paid vacation![END]
 0351: [04 EF][11 FF] used a pincer attack![END]
 0351-E: [04 EF][11 FF] used a pincer attack![END]
+// Used by the enemies:  Great Antlion,  Great Antlion
+// Used by the action: 116
 0352: [04 EF][11 FF] jumped into [12 FF]'s mouth![END]
 0352-E: [04 EF][11 FF] jumped into [12 FF]'s mouth![END]
 0353: [04 EF][11 FF] tried one last attack![END]
 0353-E: [04 EF][11 FF] tried one last attack![END]
+// Used by the actions: 117, 150
 0354: [04 EF][11 FF] violently burst into flames![END]
 0354-E: [04 EF][11 FF] violently burst into flames![END]
+// Used by the enemy:  Tree
+// Used by the actions: 45, 118, 197
 0355: [04 EF][11 FF] caused a tremendous explosion![END]
 0355-E: [04 EF][11 FF] caused a tremendous explosion![END]
+// Used by the action: 297
 0356: [04 EF][11 FF] used a blood-sucking attack![END]
 0356-E: [04 EF][11 FF] used a blood-sucking attack![END]
+// Used by the enemies:  Detached Leech,  Elder Batty
+// Used by the actions: 120, 434
 0357: [04 EF][11 FF] used the HP-Sucker![END]
 0357-E: [04 EF][11 FF] used the HP-Sucker![END]
+// Used by the enemy:  Whatever
+// Used by the action: 121
 0358: [04 EF][11 FF] used the Hungry HP-Sucker![END]
 0358-E: [04 EF][11 FF] used the Hungry HP-Sucker![END]
+// Used by the action: 122
 0359: [04 EF][11 FF] spun something around![END]
 0359-E: [04 EF][11 FF] spun something around![END]
+// Used by the action: 123
 035A: [04 EF][11 FF] tried PSI Magnet [ALPHA]![END]
 035A-E: [04 EF][11 FF] tried PSI Magnet [ALPHA]![END]
+// Used by the enemy:  Osohe Cape
+// Used by the action: 124
 035B: [04 EF][11 FF] tried PSI Magnet [OMEGA]![END]
 035B-E: [04 EF][11 FF] tried PSI Magnet [OMEGA]![END]
+// Used by the action: 125
 035C: [04 EF][11 FF] coiled around [12 FF]![END]
 035C-E: [04 EF][11 FF] coiled around [12 FF]![END]
+// Used by the enemies:  Oh-So-Snake,  Mighty Bitey Snake,  Carefree Jellyfish,  Cleocatra,  Slitherhen,  Reconstructed Lion,  Master Eddy
+// Used by the actions: 126, 322, 534
 035D: [04 EF][11 FF] became friendly and affectionate![END]
 035D-E: [04 EF][11 FF] became friendly and affectionate![END]
+// Used by the enemies:  Mr. Batty,  Walking Bushie,  Whatever
+// Used by the action: 127
 035E: [04 EF][11 FF] spread its wings and charged![END]
 035E-E: [04 EF][11 FF] spread its wings and charged![END]
+// Used by the enemies:  Violent Roach,  Filthy Attack Roach,  Metal Attack Roach
+// Used by the actions: 112, 128
 035F: [04 EF][11 FF] shot webbing from its rear![END]
 035F-E: [04 EF][11 FF] shot webbing from its rear![END]
+// Used by the enemies:  Arachnid!,  Arachnid!!!!
+// Used by the action: 129
 0360: [04 EF][11 FF] coughed up phlegm![END]
 0360-E: [04 EF][11 FF] coughed up phlegm![END]
+// Used by the enemy:  Grated Yammonster
+// Used by the actions: 130, 231
 0361: [04 EF][11 FF] used the Slime Generator![END]
 0361-E: [04 EF][11 FF] used the Slime Generator![END]
+// Used by the enemy:  Security Robot
+// Used by the action: 131
 0362: [04 EF][11 FF] made a scary face![END]
 0362-E: [04 EF][11 FF] made a scary face![END]
+// Used by the enemies:  Baked Yammonster,  Pseudoor,  Li'l Big Bro
+// Used by the action: 132
 0363: [04 EF][11 FF] said some nasty, horrible things![END]
 0363-E: [04 EF][11 FF] said some nasty, horrible things![END]
+// Used by the enemies:  Pigmask,  Greedier Mouse,  Pigmask Captain
+// Used by the actions: 133, 478, 486
 0364: [04 EF][11 FF] let out an awful smell![END]
 0364-E: [04 EF][11 FF] let out an awful smell![END]
+// Used by the enemy:  Scrapped Robot
+// Used by the actions: 134, 387, 498
 0365: [04 EF][11 FF] tried Offense Down [ALPHA]![END]
 0365-E: [04 EF][11 FF] tried Offense Down [ALPHA]![END]
+// Used by the action: 135
 0366: [04 EF][11 FF] tried Offense Down [OMEGA]![END]
 0366-E: [04 EF][11 FF] tried Offense Down [OMEGA]![END]
+// Used by the enemy:  Miracle Fassad
+// Used by the action: 136
 0367: [04 EF][11 FF] tickled [12 FF]![END]
 0367-E: [04 EF][11 FF] tickled [12 FF]![END]
+// Used by the enemies:  Mischievous Mole,  Cheery Skeleton,  Navy SQUEAL
+// Used by the action: 137
 0368: [04 EF][11 FF] tried Defense Down [ALPHA]![END]
 0368-E: [04 EF][11 FF] tried Defense Down [ALPHA]![END]
+// Used by the action: 138
 0369: [04 EF][11 FF] tried Defense Down [OMEGA]![END]
 0369-E: [04 EF][11 FF] tried Defense Down [OMEGA]![END]
+// Used by the action: 139
 036A: [04 EF][11 FF] used a vacuum attack![END]
 036A-E: [04 EF][11 FF] used a vacuum attack![END]
+// Used by the enemies:  Sticky Slug,  Slimy Slug,  Tree,  Rooound Fish,  Tiny Forest
+// Used by the action: 140
 036B: [04 EF][11 FF] bellowed a war cry![END]
 036B-E: [04 EF][11 FF] bellowed a war cry![END]
+// Used by the enemies:  Mecha-Drago,  Almost Mecha-Lion,  Steel Mechorilla,  Reconstructed Lion
+// Used by the actions: 141, 307, 492
 036C: [04 EF][11 FF] shouted loudly![END]
 036C-E: [04 EF][11 FF] shouted loudly![END]
 036D: [04 EF][11 FF] made a heartbreaking comment![END]
 036D-E: [04 EF][11 FF] made a heartbreaking comment![END]
+// Used by the actions: 143, 428
 036E: [04 EF][11 FF] used the Shield Killer![END]
 036E-E: [04 EF][11 FF] used the Shield Killer![END]
+// Used by the enemy:  Masked Man
+// Used by the action: 144
 036F: [04 EF][11 FF] used a combination attack![END]
 036F-E: [04 EF][11 FF] used a combination attack![END]
+// Used by the enemy:  Bro Team
+// Used by the action: 145
 0370: [04 EF][11 FF] emitted a pale green light![END]
 0370-E: [04 EF][11 FF] emitted a pale green light![END]
+// Used by the action: 146
 0371: [04 EF][11 FF] used the Neutralizer![END]
 0371-E: [04 EF][11 FF] used the Neutralizer![END]
+// Used by the action: 147
 0372: In the confusion, [05 EF][11 FF] [END]
 0372-E: In the confusion, [05 EF][11 FF] [END]
 0373: stole [11 EF][END]
@@ -1775,372 +2059,645 @@
 0374-E: In the confusion, [05 EF][11 FF] tried to steal something[33 FF], but failed![END]
 0375: [04 EF][11 FF] jumped on top of [12 FF] and punched away![END]
 0375-E: [04 EF][11 FF] jumped on top of [12 FF] and punched away![END]
+// Used by the enemies:  Fierce Pork Trooper,  Fierce Pork Trooper
+// Used by the actions: 477, 485
 0376: [04 EF][11 FF] smelled [12 FF]![END]
 0376-E: [04 EF][11 FF] smelled [12 FF]![END]
+// Used by the action: 479
 0377: [04 EF][11 FF] ate some food![END]
 0377-E: [04 EF][11 FF] ate some food![END]
+// Used by the enemies:  Greedy Mouse,  Greedier Mouse
+// Used by the actions: 107, 151
 0378: The young kangashark cheered its mother on![END]
 0378-E: The young kangashark cheered its mother on![END]
+// Used by the enemy:  Parental Kangashark
+// Used by the action: 152
 0379: [04 EF][11 FF] settled on a tree and rested its wings![END]
 0379-E: [04 EF][11 FF] settled on a tree and rested its wings![END]
+// Used by the enemies:  Balding Eagle,  Blue Balding Eagle
+// Used by the actions: 153, 268
 037A: [04 EF][11 FF] picked up some parts and attached them to itself![END]
 037A-E: [04 EF][11 FF] picked up some parts and attached them to itself![END]
 037B: [04 EF][11 FF] did a drop-kick![END]
 037B-E: [04 EF][11 FF] did a drop-kick![END]
+// Used by the enemy:  Parental Kangashark
+// Used by the action: 155
 037C: [24 EF][11 FF] repaired [05 EF][12 FF]![END]
 037C-E: [24 EF][11 FF] repaired [05 EF][12 FF]![END]
+// Used by the action: 156
 037D: [24 EF][11 FF] replenished energy![END]
 037D-E: [24 EF][11 FF] replenished energy![END]
+// Used by the enemies:  Atomic Power Robot,  Nuclear Reactor Robot
+// Used by the actions: 157, 413
 037E: [24 EF][11 FF] supplied electricity![END]
 037E-E: [24 EF][11 FF] supplied electricity![END]
+// Used by the action: 158
 037F: [24 EF][11 FF] tried Lifeup [ALPHA]![END]
 037F-E: [24 EF][11 FF] tried Lifeup [ALPHA]![END]
+// Used by the enemies:  Walking Bushie,  Spud Bug,  Squawking Stick
+// Used by the actions: 159, 519
 0380: [24 EF][11 FF] tried Lifeup [BETA]![END]
 0380-E: [24 EF][11 FF] tried Lifeup [BETA]![END]
+// Used by the enemies:  Cleocatra,  Big Spud Bug
+// Used by the action: 160
 0381: [24 EF][11 FF] tried Lifeup [GAMMA]![END]
 0381-E: [24 EF][11 FF] tried Lifeup [GAMMA]![END]
+// Used by the action: 161
 0382: [24 EF][11 FF] tried Lifeup [OMEGA]![END]
 0382-E: [24 EF][11 FF] tried Lifeup [OMEGA]![END]
+// Used by the action: 162
 0383: [24 EF][11 FF] tried Healing [ALPHA]![END]
 0383-E: [24 EF][11 FF] tried Healing [ALPHA]![END]
+// Used by the enemy:  Walking Bushie
+// Used by the actions: 163, 520
 0384: [24 EF][11 FF] tried Healing [BETA]![END]
 0384-E: [24 EF][11 FF] tried Healing [BETA]![END]
+// Used by the action: 164
 0385: [24 EF][11 FF] tried Healing [GAMMA]![END]
 0385-E: [24 EF][11 FF] tried Healing [GAMMA]![END]
+// Used by the action: 165
 0386: [24 EF][11 FF] tried Healing [OMEGA]![END]
 0386-E: [24 EF][11 FF] tried Healing [OMEGA]![END]
+// Used by the action: 166
 0387: [04 EF][11 FF] flew into a rage![END]
 0387-E: [04 EF][11 FF] flew into a rage![END]
+// Used by the enemy:  Pigmask
+// Used by the action: 167
 0388: [24 EF][11 FF] tried Offense Up [ALPHA]![END]
 0388-E: [24 EF][11 FF] tried Offense Up [ALPHA]![END]
+// Used by the enemies:  Spineless Lobster,  Ghost Knight,  Horsantula,  Carpet Monster,  Rock Lobster
+// Used by the action: 168
 0389: [24 EF][11 FF] tried Offense Up [OMEGA]![END]
 0389-E: [24 EF][11 FF] tried Offense Up [OMEGA]![END]
+// Used by the enemy:  Magman
+// Used by the action: 169
 038A: [24 EF][11 FF] used a Defense Spray![END]
 038A-E: [24 EF][11 FF] used a Defense Spray![END]
+// Used by the enemy:  Pigmask Colonel
+// Used by the action: 170
 038B: [24 EF][11 FF] used a Defense Shower![END]
 038B-E: [24 EF][11 FF] used a Defense Shower![END]
+// Used by the action: 171
 038C: [24 EF][11 FF] tried Defense Up [ALPHA]![END]
 038C-E: [24 EF][11 FF] tried Defense Up [ALPHA]![END]
+// Used by the enemy:  Ghost Knight
+// Used by the action: 172
 038D: [24 EF][11 FF] tried Defense Up [OMEGA]![END]
 038D-E: [24 EF][11 FF] tried Defense Up [OMEGA]![END]
+// Used by the actions: 173, 561
 038E: [24 EF][11 FF] tried Shield [ALPHA]![END]
 038E-E: [24 EF][11 FF] tried Shield [ALPHA]![END]
+// Used by the enemy:  Osohe Cape
+// Used by the action: 174
 038F: [24 EF][11 FF] tried Shield [OMEGA]![END]
 038F-E: [24 EF][11 FF] tried Shield [OMEGA]![END]
+// Used by the enemy:  Einswine
+// Used by the action: 175
 0390: [10 FF] received an electric shock![END]
 0390-E: [10 FF] received an electric shock![END]
+// Used by the action: 176
 0391: [24 EF][11 FF] tried Counter [ALPHA]![END]
 0391-E: [24 EF][11 FF] tried Counter [ALPHA]![END]
+// Used by the enemy:  Men's Room Sign
+// Used by the action: 399
 0392: [24 EF][11 FF] tried Counter [OMEGA]![END]
 0392-E: [24 EF][11 FF] tried Counter [OMEGA]![END]
+// Used by the enemy:  Love Walker
+// Used by the action: 400
 0393: [24 EF][11 FF] used the Diffuser Barrier![END]
 0393-E: [24 EF][11 FF] used the Diffuser Barrier![END]
 0394: [24 EF][11 FF] used the New Diffuser Barrier![END]
 0394-E: [24 EF][11 FF] used the New Diffuser Barrier![END]
 0395: [24 EF][11 FF] tried PSI Shield [ALPHA]![END]
 0395-E: [24 EF][11 FF] tried PSI Shield [ALPHA]![END]
+// Used by the enemy:  Bright Smile
+// Used by the action: 181
 0396: [24 EF][11 FF] tried PSI Shield [OMEGA]![END]
 0396-E: [24 EF][11 FF] tried PSI Shield [OMEGA]![END]
+// Used by the action: 182
 0397: [02 EF][11 FF] dropped down from the ceiling![END]
 0397-E: [02 EF][11 FF] dropped down from the ceiling![END]
+// Used by the actions: 69, 183, 523
 0398: [04 EF][11 FF] unleashed a back kick![END]
 0398-E: [04 EF][11 FF] unleashed a back kick![END]
+// Used by the action: 184
 0399: [24 EF][11 FF] tried PSI Counter [ALPHA]![END]
 0399-E: [24 EF][11 FF] tried PSI Counter [ALPHA]![END]
+// Used by the enemies:  Bright Smile,  Heftyhead
+// Used by the action: 185
 039A: [24 EF][11 FF] tried PSI Counter [OMEGA]![END]
 039A-E: [24 EF][11 FF] tried PSI Counter [OMEGA]![END]
+// Used by the enemy:  Love Walker
+// Used by the action: 186
 039B: [04 EF][11 FF] is in a ready stance![END]
 039B-E: [04 EF][11 FF] is in a ready stance![END]
+// Used by the action: 187
 039C: [04 EF][11 FF] sized up the situation![END]
 039C-E: [04 EF][11 FF] sized up the situation![END]
+// Used by the enemies:  Mr. Batty,  HUGE Pillbug,  Elder Batty
+// Used by the action: 188
 039D: [04 EF][11 FF] hid the food it was carrying![END]
 039D-E: [04 EF][11 FF] hid the food it was carrying![END]
+// Used by the enemy:  Greedy Mouse
+// Used by the action: 189
 039E: [04 EF][11 FF] edged closer![END]
 039E-E: [04 EF][11 FF] edged closer![END]
+// Used by the enemies:  Crag Lizard,  Mobile Grave
+// Used by the action: 190
 039F: [04 EF][11 FF] is kicking the ground![END]
 039F-E: [04 EF][11 FF] is kicking the ground![END]
+// Used by the enemies:  Reconstructed Caribou,  Agitated Boar
+// Used by the actions: 191, 302
 03A0: [04 EF][11 FF]'s wind-up spring broke![END]
 03A0-E: [04 EF][11 FF]'s wind-up spring broke![END]
+// Used by the enemy:  Wound-Up Road Hog
+// Used by the action: 192
 03A1: [04 EF][11 FF] generated an intense burst of steam![END]
 03A1-E: [04 EF][11 FF] generated an intense burst of steam![END]
+// Used by the enemy:  Reconstructed Caribou
+// Used by the actions: 193, 303
 03A2: [04 EF][11 FF] vented an intense burst of steam![END]
 03A2-E: [04 EF][11 FF] vented an intense burst of steam![END]
+// Used by the enemy:  Baked Yammonster
+// Used by the action: 194
 03A3: [04 EF][11 FF] called for help![END]
 03A3-E: [04 EF][11 FF] called for help![END]
+// Used by the enemies:  Pyrefly,  Road Block,  Road Block,  Spud Bug,  Chilly Dog,  Tree,  Stinky Ghost,  Dogfish,  Ancient Dragonfly,  Reconstructed Mole,  Reconstructed Mole,  Screwloose,  Pigmask Major
+// Used by the actions: 195, 240, 298, 299, 526, 620, 621
 03A4: [02 EF][10 FF] joined the fight![END]
 03A4-E: [02 EF][10 FF] joined the fight![END]
 03A5: But nobody came![END]
 03A5-E: But nobody came![END]
 03A6: [04 EF][11 FF] sowed some seeds around itself![31 FF][END]
 03A6-E: [04 EF][11 FF] sowed some seeds around itself![31 FF][END]
+// Used by the enemy:  Pigtunia
+// Used by the action: 196
 03A7: [02 EF][10 FF] sprouted up![END]
 03A7-E: [02 EF][10 FF] sprouted up![END]
 03A8: But nothing sprouted![END]
 03A8-E: But nothing sprouted![END]
 03A9: [04 EF][11 FF] tried to split![31 FF][END]
 03A9-E: [04 EF][11 FF] tried to split![31 FF][END]
+// Used by the enemy:  Gooey Goo
+// Used by the action: 333
 03AA: [04 EF][11 FF] divided![END]
 03AA-E: [04 EF][11 FF] divided![END]
 03AB: But it failed![END]
 03AB-E: But it failed![END]
 03AC: [04 EF][11 FF] is down in the dumps![END]
 03AC-E: [04 EF][11 FF] is down in the dumps![END]
+// Used by the enemy:  Spud Bug
+// Used by the action: 198
 03AD: [04 EF][11 FF] is skipping![END]
 03AD-E: [04 EF][11 FF] is skipping![END]
+// Used by the enemy:  Cheery Skeleton
+// Used by the action: 199
 03AE: [04 EF][11 FF] is swinging its ears![END]
 03AE-E: [04 EF][11 FF] is swinging its ears![END]
+// Used by the enemy:  Ostrelephant
+// Used by the action: 200
 03AF: [04 EF][11 FF] is hopping around![END]
 03AF-E: [04 EF][11 FF] is hopping around![END]
+// Used by the enemies:  Cleocatra,  Beanling,  Black Beanling
+// Used by the action: 201
 03B0: [04 EF][11 FF] fell over![END]
 03B0-E: [04 EF][11 FF] fell over![END]
+// Used by the enemies:  Mischievous Mole,  Mobile Grave,  Battery Man
+// Used by the action: 202
 03B1: [04 EF][11 FF] is trembling with fear![END]
 03B1-E: [04 EF][11 FF] is trembling with fear![END]
+// Used by the enemy:  Big Bro
+// Used by the action: 203
 03B2: [11 FF] is acting nervous![END]
 03B2-E: [11 FF] is acting nervous![END]
+// Used by the enemy:  Big Bro
+// Used by the action: 204
 03B3: [04 EF][11 FF] is having trouble balancing![END]
 03B3-E: [04 EF][11 FF] is having trouble balancing![END]
+// Used by the enemies:  Zombie Man,  Zombie Lady
+// Used by the actions: 205, 464
 03B4: [04 EF][11 FF] is swaying back and forth![END]
 03B4-E: [04 EF][11 FF] is swaying back and forth![END]
+// Used by the enemy:  Lingering Spirit
+// Used by the action: 206
 03B5: [04 EF][11 FF] is just going with the flow![END]
 03B5-E: [04 EF][11 FF] is just going with the flow![END]
+// Used by the enemy:  Sara-Sara-Sahara
+// Used by the action: 207
 03B6: [04 EF][11 FF] felt homesick![END]
 03B6-E: [04 EF][11 FF] felt homesick![END]
+// Used by the enemy:  Mischievous Mole
+// Used by the action: 208
 03B7: [04 EF][11 FF] is beckoning![END]
 03B7-E: [04 EF][11 FF] is beckoning![END]
+// Used by the enemies:  Great Antlion,  Great Antlion
+// Used by the action: 209
 03B8: [04 EF][11 FF] looked the other way![END]
 03B8-E: [04 EF][11 FF] looked the other way![END]
+// Used by the enemy:  Whatever
+// Used by the action: 210
 03B9: [04 EF][11 FF] tried to look cool![END]
 03B9-E: [04 EF][11 FF] tried to look cool![END]
+// Used by the enemies:  Ghost Armor,  Ghost Knight
+// Used by the action: 211
 03BA: [04 EF][11 FF] is being absentminded![END]
 03BA-E: [04 EF][11 FF] is being absentminded![END]
+// Used by the enemies:  Clayman,  Ramblin' Mushroom,  Zombie Man,  Batangutan,  Zombie Lady,  Naughty Mushroom
+// Used by the actions: 212, 328
 03BB: [04 EF][11 FF] is making lots of bubbles![END]
 03BB-E: [04 EF][11 FF] is making lots of bubbles![END]
+// Used by the enemy:  Oh-So-Snake
+// Used by the action: 323
 03BC: ![END]
 03BC-E: ![END]
 03BD: [04 EF][11 FF] is staring this way![END]
 03BD-E: [04 EF][11 FF] is staring this way![END]
+// Used by the enemies:  Squawking Boomstick,  Yammonster,  Sand Lizard,  Cattlesnake,  Mecha-Turtle,  Beaten Drum
+// Used by the action: 215
 03BE: [04 EF][11 FF] is staring fixedly at the Dung Beetle![END]
 03BE-E: [04 EF][11 FF] is staring fixedly at the Dung Beetle![END]
+// Used by the action: 216
 03BF: [04 EF][11 FF] knitted its brow![END]
 03BF-E: [04 EF][11 FF] knitted its brow![END]
+// Used by the enemies:  Violent Roach,  Filthy Attack Roach
+// Used by the action: 217
 03C0: [04 EF][11 FF] is acting threatening![END]
 03C0-E: [04 EF][11 FF] is acting threatening![END]
+// Used by the action: 218
 03C1: [04 EF][11 FF] is poofing out its hair to look threatening![END]
 03C1-E: [04 EF][11 FF] is poofing out its hair to look threatening![END]
+// Used by the enemy:  Flying Mouse
+// Used by the action: 219
 03C2: [04 EF][11 FF] is holding up its pincers to look threatening![END]
 03C2-E: [04 EF][11 FF] is holding up its pincers to look threatening![END]
+// Used by the enemies:  Titany,  Spineless Lobster
+// Used by the action: 220
 03C3: [04 EF][11 FF] is holding up its scythe-like forelegs to look threatening![END]
 03C3-E: [04 EF][11 FF] is holding up its scythe-like forelegs to look threatening![END]
+// Used by the enemy:  Praying Mantis
+// Used by the action: 221
 03C4: [04 EF][11 FF] is sounding an alarm![END]
 03C4-E: [04 EF][11 FF] is sounding an alarm![END]
+// Used by the enemies:  Boa Transistor,  Mecha-Mole!,  Recon Mech,  Security Robot
+// Used by the actions: 222, 224, 524, 570
 03C5: [04 EF][11 FF] spilled hot tea![END]
 03C5-E: [04 EF][11 FF] spilled hot tea![END]
+// Used by the enemy:  Li'l Miss Marshmallow
+// Used by the action: 363
 03C6: [04 EF][11 FF] is kicking up clouds of smoke while hard at work![END]
 03C6-E: [04 EF][11 FF] is kicking up clouds of smoke while hard at work![END]
 03C7: [04 EF][11 FF] generated fresh air![32 FF][WAIT][12 FF] felt refreshed![END]
 03C7-E: [04 EF][11 FF] generated fresh air![32 FF][WAIT][12 FF] felt refreshed![END]
+// Used by the enemy:  Walking Bushie
+// Used by the action: 225
 03C8: [04 EF][11 FF] spoke passionately about art![32 FF][WAIT][12 FF] had difficulty understanding.[END]
 03C8-E: [04 EF][11 FF] spoke passionately about art![32 FF][WAIT][12 FF] had difficulty understanding.[END]
+// Used by the enemy:  Artsy Ghost
+// Used by the action: 226
 03C9: [04 EF][11 FF] is grinning![END]
 03C9-E: [04 EF][11 FF] is grinning![END]
+// Used by the enemies:  Balding Eagle,  Ghost Sword,  Ghost Shield,  Big Spud Bug,  Reconstructed Mole,  Men's Room Sign,  Cuddle Bomb,  Unwelcome Gust
+// Used by the action: 227
 03CA: [04 EF][11 FF] is cackling![END]
 03CA-E: [04 EF][11 FF] is cackling![END]
+// Used by the enemy:  Cheery Skeleton
+// Used by the action: 228
 03CB: [04 EF][11 FF] is laughing in embarrassment![END]
 03CB-E: [04 EF][11 FF] is laughing in embarrassment![END]
+// Used by the action: 229
 03CC: [04 EF][11 FF] flashed a creepy smile![END]
 03CC-E: [04 EF][11 FF] flashed a creepy smile![END]
+// Used by the enemies:  Rockin' Ghost,  Pseudoor
+// Used by the action: 230
 03CD: [24 EF][11 FF] used a Counter Device![END]
 03CD-E: [24 EF][11 FF] used a Counter Device![END]
+// Used by the action: 421
 03CE: [04 EF][11 FF]'s jaw is clattering![END]
 03CE-E: [04 EF][11 FF]'s jaw is clattering![END]
+// Used by the enemy:  Sara-Sara-Sahara
+// Used by the action: 232
 03CF: [04 EF][11 FF] emerged from the water![END]
 03CF-E: [04 EF][11 FF] emerged from the water![END]
+// Used by the action: 324
 03D0: [04 EF][11 FF] is making an odd sound![END]
 03D0-E: [04 EF][11 FF] is making an odd sound![END]
+// Used by the enemies:  Zombie Man,  Zombie Lady
+// Used by the action: 234
 03D1: [04 EF][11 FF] is uttering a low growl![END]
 03D1-E: [04 EF][11 FF] is uttering a low growl![END]
+// Used by the enemies:  Zombie Dog,  Cactus Wolf,  Carpet Monster
+// Used by the action: 235
 03D2: [04 EF][11 FF] grew ever more exuberant![END]
 03D2-E: [04 EF][11 FF] grew ever more exuberant![END]
+// Used by the action: 314
 03D3: [04 EF][11 FF] is dancing![END]
 03D3-E: [04 EF][11 FF] is dancing![END]
+// Used by the enemy:  Cheery Skeleton
+// Used by the actions: 237, 336
 03D4: [04 EF][11 FF] is spinning around![END]
 03D4-E: [04 EF][11 FF] is spinning around![END]
+// Used by the enemy:  Squawking Stick
+// Used by the action: 238
 03D5: [04 EF][11 FF] glared rebelliously![END]
 03D5-E: [04 EF][11 FF] glared rebelliously![END]
+// Used by the enemy:  Rock Lobster
+// Used by the action: 142
 03D6: [04 EF][11 FF] was hit by recoil![END]
 03D6-E: [04 EF][11 FF] was hit by recoil![END]
 03D7: [04 EF][11 FF] was scattered by the wind![END]
 03D7-E: [04 EF][11 FF] was scattered by the wind![END]
 03D8: [04 EF][11 FF] ate the Dung Beetle![END]
 03D8-E: [04 EF][11 FF] ate the Dung Beetle![END]
+// Used by the action: 242
 03D9: [04 EF][11 FF] dropped some of its worn-out parts![END]
 03D9-E: [04 EF][11 FF] dropped some of its worn-out parts![END]
+// Used by the enemy:  Scrapped Robot
+// Used by the action: 243
 03DA: [04 EF][11 FF] spread pain and misery![END]
 03DA-E: [04 EF][11 FF] spread pain and misery![END]
+// Used by the action: 244
 03DB: [04 EF][11 FF] clung to [12 FF]![END]
 03DB-E: [04 EF][11 FF] clung to [12 FF]![END]
+// Used by the actions: 245, 510, 511, 512, 513
 03DC: [04 EF][11 FF] murmured, "Three..."[END]
 03DC-E: [04 EF][11 FF] murmured, "Three..."[END]
+// Used by the action: 246
 03DD: [04 EF][11 FF] murmured, "Two..."[END]
 03DD-E: [04 EF][11 FF] murmured, "Two..."[END]
+// Used by the action: 247
 03DE: [04 EF][11 FF] murmured, "One..."[END]
 03DE-E: [04 EF][11 FF] murmured, "One..."[END]
+// Used by the action: 248
 03DF: [04 EF][11 FF] was shaken off![END]
 03DF-E: [04 EF][11 FF] was shaken off![END]
+// Used by the action: 249
 03E0: [04 EF][11 FF] is acting flustered![END]
 03E0-E: [04 EF][11 FF] is acting flustered![END]
+// Used by the action: 250
 03E1: [04 EF][11 FF]'s batteries died![31 FF][END]
 03E1-E: [04 EF][11 FF]'s batteries died![31 FF][END]
+// Used by the action: 251
 03E2: [04 EF][11 FF] can't move![END]
 03E2-E: [04 EF][11 FF] can't move![END]
+// Used by the action: 252
 03E3: [04 EF][11 FF] is on guard![END]
 03E3-E: [04 EF][11 FF] is on guard![END]
+// Used by the action: 253
 03E4: [04 EF][11 FF] is charging its batteries![END]
 03E4-E: [04 EF][11 FF] is charging its batteries![END]
+// Used by the action: 369
 03E5: [04 EF][11 FF] finished charging its batteries![END]
 03E5-E: [04 EF][11 FF] finished charging its batteries![END]
+// Used by the enemy:  Mr. Genetor
+// Used by the action: 370
 03E6: [04 EF][11 FF] is buzzing all around [12 FF]![END]
 03E6-E: [04 EF][11 FF] is buzzing all around [12 FF]![END]
+// Used by the enemy:  Firefly
+// Used by the actions: 256, 310
 03E7: [04 EF][11 FF] slapped with its tail![END]
 03E7-E: [04 EF][11 FF] slapped with its tail![END]
+// Used by the action: 373
 03E8: [04 EF][11 FF] has locked on to its target![END]
 03E8-E: [04 EF][11 FF] has locked on to its target![END]
 03E9: [04 EF][11 FF] shut its doors to protect itself![END]
 03E9-E: [04 EF][11 FF] shut its doors to protect itself![END]
+// Used by the enemy:  Pseudoor
+// Used by the action: 259
 03EA: [04 EF][11 FF] was wrecked![END]
 03EA-E: [04 EF][11 FF] was wrecked![END]
 03EB: [04 EF][11 FF] used an eight-beat attack![END]
 03EB-E: [04 EF][11 FF] used an eight-beat attack![END]
+// Used by the enemy:  Beaten Drum
+// Used by the action: 261
 03EC: [04 EF][11 FF] started beeping![END]
 03EC-E: [04 EF][11 FF] started beeping![END]
+// Used by the enemies:  Mecha-Mole!,  Whatever
+// Used by the action: 262
 03ED: [04 EF][11 FF] spread its roots into the earth![END]
 03ED-E: [04 EF][11 FF] spread its roots into the earth![END]
+// Used by the enemies:  Tender Loving Tree,  Tree
+// Used by the action: 263
 03EE: [04 EF][11 FF] is chasing its tail![END]
 03EE-E: [04 EF][11 FF] is chasing its tail![END]
+// Used by the enemy:  Zombie Dog
+// Used by the action: 264
 03EF: [04 EF][11 FF] is struggling to get up![END]
 03EF-E: [04 EF][11 FF] is struggling to get up![END]
+// Used by the action: 329
 03F0: [04 EF][11 FF] got up![END]
 03F0-E: [04 EF][11 FF] got up![END]
+// Used by the action: 330
 03F1: [04 EF][11 FF] is lost in the music![END]
 03F1-E: [04 EF][11 FF] is lost in the music![END]
+// Used by the enemy:  Mr. Passion
+// Used by the action: 317
 03F2: [04 EF][11 FF] fired its cannon![32 FF][WAIT]...But it jammed![END]
 03F2-E: [04 EF][11 FF] fired its cannon![32 FF][WAIT]...But it jammed![END]
+// Used by the enemy:  Pork Tank
+// Used by the action: 343
 03F3: The Pigmask complained![END]
 03F3-E: The Pigmask complained![END]
+// Used by the action: 311
 03F4: The Pigmask is coughing![END]
 03F4-E: The Pigmask is coughing![END]
+// Used by the action: 312
 03F5: [04 EF][11 FF] fired up and charged![END]
 03F5-E: [04 EF][11 FF] fired up and charged![END]
+// Used by the enemies:  Pyrefly,  Firefly
+// Used by the actions: 309, 474
 03F6: [04 EF][11 FF] dragged [12 FF] over![END]
 03F6-E: [04 EF][11 FF] dragged [12 FF] over![END]
+// Used by the enemies:  Great Antlion,  Great Antlion
+// Used by the action: 272
 03F7: [04 EF][11 FF] rolled into a ball![END]
 03F7-E: [04 EF][11 FF] rolled into a ball![END]
+// Used by the enemy:  HUGE Pillbug
+// Used by the action: 273
 03F8: [04 EF][11 FF] is diligently rolling its dung![END]
 03F8-E: [04 EF][11 FF] is diligently rolling its dung![END]
+// Used by the enemy:  Dung Beetle
+// Used by the action: 274
 03F9: [04 EF][11 FF] cried![END]
 03F9-E: [04 EF][11 FF] cried![END]
 03FA: [04 EF][11 FF] turned around![END]
 03FA-E: [04 EF][11 FF] turned around![END]
+// Used by the action: 1
 03FB: [04 EF][11 FF] fired a whole bunch of beams![END]
 03FB-E: [04 EF][11 FF] fired a whole bunch of beams![END]
+// Used by the actions: 527, 530
 03FC: [04 EF][11 FF] shot out mold spores![END]
 03FC-E: [04 EF][11 FF] shot out mold spores![END]
+// Used by the enemies:  Eerie Smile,  Zombieshroom
+// Used by the action: 337
 03FD: [21 EF][20 EF] threw a cannonball![END]
 03FD-E: [21 EF][20 EF] threw a cannonball![END]
+// Used by the action: 346
 03FE: [04 EF][11 FF] yawned lazily![END]
 03FE-E: [04 EF][11 FF] yawned lazily![END]
 03FF: ...But didn't have enough PP![END]
 03FF-E: ...But didn't have enough PP![END]
 0400: [04 EF][11 FF] tried Fire [ALPHA]![32 FF][WAIT]But it didn't work.[END]
 0400-E: [04 EF][11 FF] tried Fire [ALPHA]![32 FF][WAIT]But it didn't work.[END]
+// Used by the enemy:  Big Bro
+// Used by the action: 281
 0401: [04 EF][11 FF] tried Freeze [BETA]![32 FF][WAIT]But it didn't work.[END]
 0401-E: [04 EF][11 FF] tried Freeze [BETA]![32 FF][WAIT]But it didn't work.[END]
+// Used by the enemy:  Big Bro
+// Used by the action: 282
 0402: [04 EF][11 FF] tried Lifeup [BETA]![32 FF][WAIT]But it didn't work.[END]
 0402-E: [04 EF][11 FF] tried Lifeup [BETA]![32 FF][WAIT]But it didn't work.[END]
+// Used by the enemy:  Big Bro
+// Used by the action: 283
 0403: [04 EF][11 FF] used its Discharge Zap attack![END]
 0403-E: [04 EF][11 FF] used its Discharge Zap attack![END]
+// Used by the enemy:  Mr. Genetor
+// Used by the action: 368
 0404: [04 EF][11 FF] used a sixteen-beat attack![END]
 0404-E: [04 EF][11 FF] used a sixteen-beat attack![END]
+// Used by the enemy:  Beaten Drum
+// Used by the action: 285
 0405: [04 EF][11 FF] used a marching attack![END]
 0405-E: [04 EF][11 FF] used a marching attack![END]
+// Used by the enemy:  Beaten Drum
+// Used by the action: 286
 0406: The instruments used a jam session attack![END]
 0406-E: The instruments used a jam session attack![END]
+// Used by the enemies:  Jealous Bass,  Jealous Bass
+// Used by the actions: 349, 350
 0407: The Jealous Bass used a solo jam session attack![END]
 0407-E: The Jealous Bass used a solo jam session attack![END]
+// Used by the enemy:  Jealous Bass
+// Used by the actions: 291, 351
 0408: [24 EF][11 FF] jumped inside [05 EF][12 FF] and provided it with energy![END]
 0408-E: [24 EF][11 FF] jumped inside [05 EF][12 FF] and provided it with energy![END]
+// Used by the enemy:  Battery Man
+// Used by the action: 290
 0409: [04 EF][11 FF] is feeling a bit strange...[WAIT][04 EF][11 FF] attacks![END]
 0409-E: [04 EF][11 FF] is feeling a bit strange...[WAIT][04 EF][11 FF] attacks![END]
+// Used by the enemies:  Scrapped Robot,  Scrapped Robot
+// Used by the actions: 292, 584
 040A: [04 EF][11 FF] charged straight ahead![END]
 040A-E: [04 EF][11 FF] charged straight ahead![END]
+// Used by the enemies:  Rhinocerocket Mark II,  Rhinocerocket
+// Used by the action: 293
 040B: [04 EF][11 FF] turned back![END]
 040B-E: [04 EF][11 FF] turned back![END]
+// Used by the action: 294
 040C: [04 EF][11 FF] absorbed nourishment from the earth![END]
 040C-E: [04 EF][11 FF] absorbed nourishment from the earth![END]
+// Used by the enemy:  Tiny Forest
+// Used by the actions: 335, 544
 040D: [24 EF][11 FF] used Offense Up![END]
 040D-E: [24 EF][11 FF] used Offense Up![END]
 040E: [04 EF][11 FF] slapped [12 FF]![END]
 040E-E: [04 EF][11 FF] slapped [12 FF]![END]
+// Used by the enemy:  Li'l Miss Marshmallow
+// Used by the action: 359
 040F: [04 EF][11 FF] combo-slapped [12 FF] in the face![END]
 040F-E: [04 EF][11 FF] combo-slapped [12 FF] in the face![END]
+// Used by the enemy:  Li'l Miss Marshmallow
+// Used by the action: 360
 0410: [04 EF][11 FF] scanned [12 FF]![END]
 0410-E: [04 EF][11 FF] scanned [12 FF]![END]
+// Used by the action: 361
 0411: [04 EF][11 FF] activated the Ultra Ticked-Off System![END]
 0411-E: [04 EF][11 FF] activated the Ultra Ticked-Off System![END]
+// Used by the action: 362
 0412: [04 EF][11 FF] entered Battle Mode Formation![END]
 0412-E: [04 EF][11 FF] entered Battle Mode Formation![END]
 0413: [04 EF][11 FF] attacked with a 1.5V Kick![END]
 0413-E: [04 EF][11 FF] attacked with a 1.5V Kick![END]
+// Used by the enemy:  Battery Man
+// Used by the action: 295
 0414: [04 EF][11 FF] attacked with a 12V Kick![END]
 0414-E: [04 EF][11 FF] attacked with a 12V Kick![END]
 0415: [04 EF][11 FF] attacked with a 1,000,000V Chop![END]
 0415-E: [04 EF][11 FF] attacked with a 1,000,000V Chop![END]
+// Used by the enemy:  Mr. Genetor
+// Used by the actions: 296, 367
 0416: [04 EF][11 FF] ran out of energy.[END]
 0416-E: [04 EF][11 FF] ran out of energy.[END]
 0417: [04 EF][11 FF] triple-slapped [12 FF] in the face![END]
 0417-E: [04 EF][11 FF] triple-slapped [12 FF] in the face![END]
+// Used by the action: 529
 0418: [04 EF][11 FF] is feeling a bit strange...[WAIT][04 EF][11 FF] attacked with a body blow![END]
 0418-E: [04 EF][11 FF] is feeling a bit strange...[WAIT][04 EF][11 FF] attacked with a body blow![END]
+// Used by the enemies:  Scrapped Robot,  Scrapped Robot
+// Used by the actions: 289, 585
 0419: [04 EF][11 FF] is surprised![END]
 0419-E: [04 EF][11 FF] is surprised![END]
+// Used by the action: 287
 041A: [04 EF][11 FF] fired several missiles![END]
 041A-E: [04 EF][11 FF] fired several missiles![END]
+// Used by the enemies:  N.K. Cyborg,  Mecha-Turtle
+// Used by the actions: 284, 417, 611
 041B: [04 EF][11 FF] tried Brainshock [ALPHA]![END]
 041B-E: [04 EF][11 FF] tried Brainshock [ALPHA]![END]
+// Used by the enemies:  Tender Loving Tree,  Pigtunia,  Whatever
+// Used by the action: 288
 041C: [04 EF][11 FF] flashed a dazzling smile![END]
 041C-E: [04 EF][11 FF] flashed a dazzling smile![END]
+// Used by the enemy:  Bright Smile
+// Used by the action: 213
 041D: [04 EF][11 FF] swung a big lump of garbage![END]
 041D-E: [04 EF][11 FF] swung a big lump of garbage![END]
+// Used by the enemy:  Forlorn Junk Heap
+// Used by the action: 374
 041E: [04 EF][11 FF] gave off an incredibly foul odor![END]
 041E-E: [04 EF][11 FF] gave off an incredibly foul odor![END]
+// Used by the enemy:  Forlorn Junk Heap
+// Used by the action: 376
 041F: [04 EF][11 FF] attached pieces of trash to itself![END]
 041F-E: [04 EF][11 FF] attached pieces of trash to itself![END]
+// Used by the enemy:  Forlorn Junk Heap
+// Used by the actions: 377, 378, 379
 0420: [04 EF][11 FF] swung both arms all around![END]
 0420-E: [04 EF][11 FF] swung both arms all around![END]
+// Used by the enemy:  Mr. Genetor
+// Used by the action: 371
 0421: [END]
 0421-E: [END]
+// Used by the action: 372
 0422: [04 EF][11 FF]'s Power-Up System activated![END]
 0422-E: [04 EF][11 FF]'s Power-Up System activated![END]
+// Used by the actions: 420, 556
 0423: [04 EF][11 FF]'s anger reached its peak![END]
 0423-E: [04 EF][11 FF]'s anger reached its peak![END]
+// Used by the enemy:  Fierce Pork Trooper
+// Used by the action: 487
 0424: [24 EF][11 FF] attacked the stinky [12 FF]![END]
 0424-E: [24 EF][11 FF] attacked the stinky [12 FF]![END]
+// Used by the actions: 179, 180, 233
 0425: [04 EF][11 FF] swung both arms all around![END]
 0425-E: [04 EF][11 FF] swung both arms all around![END]
+// Used by the enemy:  Fierce Pork Trooper
+// Used by the action: 481
 0426: [04 EF][11 FF] is protecting itself inside an ocean current![END]
 0426-E: [04 EF][11 FF] is protecting itself inside an ocean current![END]
+// Used by the enemy:  Carefree Jellyfish
+// Used by the action: 278
 0427: [04 EF][11 FF] used a tentacle attack![END]
 0427-E: [04 EF][11 FF] used a tentacle attack![END]
+// Used by the enemy:  Carefree Jellyfish
+// Used by the action: 390
 0428: [04 EF][11 FF] fired a torpedo![END]
 0428-E: [04 EF][11 FF] fired a torpedo![END]
+// Used by the enemy:  Navy SQUEAL
+// Used by the action: 254
 0429: [04 EF][11 FF] concentrated![END]
 0429-E: [04 EF][11 FF] concentrated![END]
+// Used by the enemy:  Barrier Trio
+// Used by the action: 506
 042A: [04 EF][11 FF] short-circuited![END]
 042A-E: [04 EF][11 FF] short-circuited![END]
+// Used by the action: 67
 042B: [04 EF][11 FF] is blocking the way![END]
 042B-E: [04 EF][11 FF] is blocking the way![END]
+// Used by the action: 560
 042C: The baby birds atop [05 EF][11 FF] called for their mother![END]
 042C-E: The baby birds atop [05 EF][11 FF] called for their mother![END]
+// Used by the enemy:  Tender Loving Tree
+// Used by the action: 269
 042D: But it didn't work.[END]
 042D-E: But it didn't work.[END]
 042E: It didn't hit anyone![END]
@@ -2185,80 +2742,131 @@
 0441-E: [04 EF][11 FF] scattered a whole bunch of fleas![END]
 0442: [04 EF][11 FF] used an electric shock attack![END]
 0442-E: [04 EF][11 FF] used an electric shock attack![END]
+// Used by the enemies:  N.K. Cyborg,  Masked Man
+// Used by the actions: 406, 409, 418, 471
 0443: [04 EF][11 FF] took a powerful swing![END]
 0443-E: [04 EF][11 FF] took a powerful swing![END]
+// Used by the enemies:  N.K. Cyborg,  Fierce Pork Trooper,  Fierce Pork Trooper,  Monkalrus
+// Used by the actions: 415, 472, 475, 483
 0444: [04 EF][11 FF] fired its End of the Century Beam![END]
 0444-E: [04 EF][11 FF] fired its End of the Century Beam![END]
+// Used by the enemy:  N.K. Cyborg
+// Used by the actions: 422, 647
 0445: [04 EF][11 FF] activated its Self-Repair System![END]
 0445-E: [04 EF][11 FF] activated its Self-Repair System![END]
+// Used by the action: 424
 0446: [04 EF][11 FF] sprayed tear gas![END]
 0446-E: [04 EF][11 FF] sprayed tear gas![END]
+// Used by the action: 423
 0447: [04 EF][11 FF] exploded right where it stood![END]
 0447-E: [04 EF][11 FF] exploded right where it stood![END]
+// Used by the action: 266
 0448: [04 EF][11 FF] generated a mechanical explosion![END]
 0448-E: [04 EF][11 FF] generated a mechanical explosion![END]
+// Used by the actions: 429, 528
 0449: [04 EF][11 FF] flashed an insincere mechanical smile![END]
 0449-E: [04 EF][11 FF] flashed an insincere mechanical smile![END]
+// Used by the action: 430
 044A: [04 EF][11 FF] played mechanically dead![END]
 044A-E: [04 EF][11 FF] played mechanically dead![END]
+// Used by the actions: 431, 518
 044B: [04 EF][11 FF] proposed a mechanical truce![END]
 044B-E: [04 EF][11 FF] proposed a mechanical truce![END]
+// Used by the action: 432
 044C: [04 EF][11 FF] mechanically pretended to cry![END]
 044C-E: [04 EF][11 FF] mechanically pretended to cry![END]
+// Used by the action: 433
 044D: [04 EF][11 FF] let out an incredibly foul gas![END]
 044D-E: [04 EF][11 FF] let out an incredibly foul gas![END]
+// Used by the actions: 398, 427
 044E: With the last of its strength, [05 EF][11 FF] leapt into [12 FF]'s mouth![31 FF][END]
 044E-E: With the last of its strength, [05 EF][11 FF] leapt into [12 FF]'s mouth![31 FF][END]
+// Used by the enemy:  Fish Roe Man
+// Used by the action: 276
 044F: [04 EF][11 FF] attacked, and then...[32 FF] [END]
 044F-E: [04 EF][11 FF] attacked, and then...[32 FF] [END]
 0450: [04 EF][11 FF] called for help![31 FF][BREAK]...But nobody came![END]
 0450-E: [04 EF][11 FF] called for help![31 FF][BREAK]...But nobody came![END]
+// Used by the action: 34
 0451: [04 EF][11 FF] made an incredibly scary face![END]
 0451-E: [04 EF][11 FF] made an incredibly scary face![END]
 0452: [04 EF][11 FF] made a chair charge![END]
 0452-E: [04 EF][11 FF] made a chair charge![END]
+// Used by the enemy:  Mr. Passion
+// Used by the actions: 318, 628
 0453: [04 EF][11 FF] sent a mouse flying![END]
 0453-E: [04 EF][11 FF] sent a mouse flying![END]
+// Used by the enemy:  Mr. Passion
+// Used by the action: 319
 0454: [04 EF][11 FF] unleashed a Line-Dance Kick![END]
 0454-E: [04 EF][11 FF] unleashed a Line-Dance Kick![END]
+// Used by the actions: 435, 436
 0455: [04 EF][11 FF] pecked [12 FF] over and over![END]
 0455-E: [04 EF][11 FF] pecked [12 FF] over and over![END]
+// Used by the enemy:  Ostrelephant
+// Used by the action: 271
 0456: [04 EF][11 FF] grabbed the Chilly Dog and swung it around![END]
 0456-E: [04 EF][11 FF] grabbed the Chilly Dog and swung it around![END]
+// Used by the action: 265
 0457: [04 EF][11 FF] sent everything but the kitchen sink flying![END]
 0457-E: [04 EF][11 FF] sent everything but the kitchen sink flying![END]
+// Used by the enemy:  Lord Passion
+// Used by the actions: 313, 627
 0458: The band members' defeat caused [05 EF][11 FF] to fly into a rage![30 FF][END]
 0458-E: The band members' defeat caused [05 EF][11 FF] to fly into a rage![30 FF][END]
+// Used by the action: 258
 0459: [04 EF][11 FF] shut itself tightly![END]
 0459-E: [04 EF][11 FF] shut itself tightly![END]
+// Used by the action: 388
 045A: [04 EF][11 FF] knocked itself silly![END]
 045A-E: [04 EF][11 FF] knocked itself silly![END]
+// Used by the action: 389
 045B: [12 FF]'s items floated away![END]
 045B-E: [12 FF]'s items floated away![END]
 045C: [04 EF][11 FF] attacked with a Fish Roe Punch![END]
 045C-E: [04 EF][11 FF] attacked with a Fish Roe Punch![END]
+// Used by the action: 537
 045D: [04 EF][11 FF] attacked with a Fish Roe Kick![END]
 045D-E: [04 EF][11 FF] attacked with a Fish Roe Kick![END]
+// Used by the enemy:  Mini Elevator
+// Used by the action: 538
 045E: [04 EF][11 FF] attacked with a flurry of arms and legs![END]
 045E-E: [04 EF][11 FF] attacked with a flurry of arms and legs![END]
+// Used by the action: 545
 045F: [04 EF][11 FF] played a sorrowful melody![END]
 045F-E: [04 EF][11 FF] played a sorrowful melody![END]
+// Used by the enemy:  Lord Passion
+// Used by the action: 563
 0460: [04 EF][11 FF] is crying.[END]
 0460-E: [04 EF][11 FF] is crying.[END]
+// Used by the action: 462
 0461: [04 EF][11 FF] threw a whole bunch of bombs![END]
 0461-E: [04 EF][11 FF] threw a whole bunch of bombs![END]
+// Used by the enemies:  New Fassad,  Miracle Fassad
+// Used by the actions: 463, 495
 0462: [04 EF][11 FF] stumbled![END]
 0462-E: [04 EF][11 FF] stumbled![END]
+// Used by the enemy:  Heftyhead
+// Used by the action: 384
 0463: [04 EF][11 FF] used a headbutt attack![END]
 0463-E: [04 EF][11 FF] used a headbutt attack![END]
+// Used by the enemy:  Heftyhead
+// Used by the action: 383
 0464: [04 EF][11 FF] ran off while tossing out DP![END]
 0464-E: [04 EF][11 FF] ran off while tossing out DP![END]
+// Used by the enemy:  Pigmask Captain
+// Used by the action: 466
 0465: [04 EF][11 FF] used a musical horn attack![END]
 0465-E: [04 EF][11 FF] used a musical horn attack![END]
+// Used by the enemy:  New Fassad
+// Used by the action: 494
 0466: [04 EF][11 FF] tried Brainshock [OMEGA]![END]
 0466-E: [04 EF][11 FF] tried Brainshock [OMEGA]![END]
+// Used by the enemies:  Frosted Bun,  Einswine,  Tiny Forest
+// Used by the action: 355
 0467: [04 EF][11 FF] threw a flea bomb![END]
 0467-E: [04 EF][11 FF] threw a flea bomb![END]
+// Used by the action: 497
 0468: [04 EF][11 FF] threw a poison gas bomb![END]
 0468-E: [04 EF][11 FF] threw a poison gas bomb![END]
 0469: [04 EF][11 FF] threw a tear gas bomb![END]
@@ -2269,28 +2877,47 @@
 046B-E: [04 EF][11 FF] threw a stink bomb![END]
 046C: [04 EF][11 FF] scarfed down a Luxury Banana![END]
 046C-E: [04 EF][11 FF] scarfed down a Luxury Banana![END]
+// Used by the enemies:  New Fassad,  Miracle Fassad
+// Used by the action: 501
 046D: The Parental Kangashark suckled its young![END]
 046D-E: The Parental Kangashark suckled its young![END]
 046E: [04 EF][11 FF] erupted![END]
 046E-E: [04 EF][11 FF] erupted![END]
+// Used by the enemy:  Magman
+// Used by the action: 357
 046F: Pyreflies erupted out of [05 EF][11 FF]'s head![END]
 046F-E: Pyreflies erupted out of [05 EF][11 FF]'s head![END]
+// Used by the enemy:  Magman
+// Used by the action: 358
 0470: [24 EF][11 FF] used a Shield Device![END]
 0470-E: [24 EF][11 FF] used a Shield Device![END]
+// Used by the actions: 500, 565
 0471: [04 EF][11 FF] emitted a dazzling light![END]
 0471-E: [04 EF][11 FF] emitted a dazzling light![END]
+// Used by the enemy:  K9000
+// Used by the action: 499
 0472: [04 EF][11 FF] played a numbing melody![END]
 0472-E: [04 EF][11 FF] played a numbing melody![END]
+// Used by the enemy:  Lord Passion
+// Used by the action: 562
 0473: [04 EF][11 FF] started a fight![END]
 0473-E: [04 EF][11 FF] started a fight![END]
+// Used by the action: 59
 0474: [04 EF][11 FF] smiled boldly![END]
 0474-E: [04 EF][11 FF] smiled boldly![END]
+// Used by the action: 401
 0475: [04 EF][11 FF] beat his chest like a gorilla![END]
 0475-E: [04 EF][11 FF] beat his chest like a gorilla![END]
+// Used by the enemy:  Fierce Pork Trooper
+// Used by the action: 414
 0476: [04 EF][11 FF] scattered poisonous mold spores![END]
 0476-E: [04 EF][11 FF] scattered poisonous mold spores![END]
+// Used by the enemy:  Putrid Moldyman
+// Used by the action: 549
 0477: [04 EF][11 FF] launched some Mini-Mecha-Dogs![WAIT]The Mini-Mecha-Dogs charged![END]
 0477-E: [04 EF][11 FF] launched some Mini-Mecha-Dogs![WAIT]The Mini-Mecha-Dogs charged![END]
+// Used by the enemy:  K9000
+// Used by the action: 555
 0478: [04 EF][11 FF] swung its tentacles around![END]
 0478-E: [04 EF][11 FF] swung its tentacles around![END]
 0479: [04 EF][11 FF] attacked with a 9V Kick![END]
@@ -2301,12 +2928,16 @@
 047B-E: [04 EF][11 FF] stabbed with its tail![END]
 047C: [04 EF][11 FF] leapt forward![END]
 047C-E: [04 EF][11 FF] leapt forward![END]
+// Used by the enemy:  Fenomeno
+// Used by the action: 642
 047D: [04 EF][11 FF] fired a high-tech beam![END]
 047D-E: [04 EF][11 FF] fired a high-tech beam![END]
 047E: [04 EF][11 FF] threw a high-tech bomb![END]
 047E-E: [04 EF][11 FF] threw a high-tech bomb![END]
 047F: [04 EF][11 FF] swung its branches around![END]
 047F-E: [04 EF][11 FF] swung its branches around![END]
+// Used by the enemy:  Tiny Forest
+// Used by the action: 587
 0480: [04 EF][11 FF] clung to [12 FF]![END]
 0480-E: [04 EF][11 FF] clung to [12 FF]![END]
 0481: [04 EF][11 FF] ran out of bombs![END]
@@ -2317,42 +2948,71 @@
 0483-E: The powerful light caused [12 FF] to faint![END]
 0484: [04 EF][11 FF] squeaked![END]
 0484-E: [04 EF][11 FF] squeaked![END]
+// Used by the enemy:  Squawking Stick
+// Used by the action: 81
 0485: [04 EF][11 FF] is marching![END]
 0485-E: [04 EF][11 FF] is marching![END]
+// Used by the action: 356
 0486: [04 EF][11 FF] rolled forward![END]
 0486-E: [04 EF][11 FF] rolled forward![END]
+// Used by the enemies:  HUGE Pillbug,  Zombidillo
+// Used by the actions: 236, 239
 0487: [04 EF][11 FF] yanked the carpet![END]
 0487-E: [04 EF][11 FF] yanked the carpet![END]
+// Used by the enemy:  Carpet Monster
+// Used by the action: 105
 0488: [04 EF][12 FF] fell over![END]
 0488-E: [04 EF][12 FF] fell over![END]
 0489: [24 EF][11 FF] used a Bufferizer![END]
 0489-E: [24 EF][11 FF] used a Bufferizer![END]
+// Used by the enemy:  Fierce Pork Trooper
+// Used by the action: 480
 048A: [04 EF][11 FF] ate a Bag of Pork Chips![END]
 048A-E: [04 EF][11 FF] ate a Bag of Pork Chips![END]
+// Used by the enemy:  Fierce Pork Trooper
+// Used by the action: 482
 048B: [04 EF][11 FF] flashed some DP![END]
 048B-E: [04 EF][11 FF] flashed some DP![END]
+// Used by the enemies:  Bright Smile,  Mrs. Lava
+// Used by the action: 467
 048C: [04 EF][11 FF] sprayed Forgetfulness Gas![END]
 048C-E: [04 EF][11 FF] sprayed Forgetfulness Gas![END]
+// Used by the enemies:  Wobbly Robot,  Upgraded Robot
+// Used by the actions: 468, 496
 048D: [04 EF][11 FF] went on a berserk rampage![END]
 048D-E: [04 EF][11 FF] went on a berserk rampage![END]
+// Used by the enemy:  Fierce Pork Trooper
+// Used by the action: 488
 048E: [04 EF][11 FF] cheerfully threw scrap metal![END]
 048E-E: [04 EF][11 FF] cheerfully threw scrap metal![END]
+// Used by the enemy:  Forlorn Junk Heap
+// Used by the action: 375
 048F: [24 EF][11 FF] used a PSI Counter Device![END]
 048F-E: [24 EF][11 FF] used a PSI Counter Device![END]
+// Used by the action: 425
 0490: [04 EF][11 FF] swung its plank of wood![END]
 0490-E: [04 EF][11 FF] swung its plank of wood![END]
+// Used by the enemy:  Ten-Yeti
+// Used by the action: 469
 0491: [04 EF][11 FF] stabbed with its poisonous tail![END]
 0491-E: [04 EF][11 FF] stabbed with its poisonous tail![END]
+// Used by the enemy:  Mecha-Lion
+// Used by the action: 461
 0492: [04 EF][11 FF] decided it's time to go on a paid vacation![END]
 0492-E: [04 EF][11 FF] decided it's time to go on a paid vacation![END]
+// Used by the enemy:  Navy SQUEAL
+// Used by the action: 525
 0493: [12 FF]'s mouth began to burn![END]
 0493-E: [12 FF]'s mouth began to burn![END]
 0494: [04 EF][11 FF] sent a shoe flying![END]
 0494-E: [04 EF][11 FF] sent a shoe flying![END]
+// Used by the enemy:  Lord Passion
+// Used by the action: 629
 0495: The barrier re-formed![WAIT][04 EF][11 FF]'s weakness changed![END]
 0495-E: The barrier re-formed![WAIT][04 EF][11 FF]'s weakness changed![END]
 0496: [END]
 0496-E: [END]
+// Used by the action: 404
 0497: [04 EF][11 FF]'s [10 FF] was dissolved by digestive fluids![END]
 0497-E: [04 EF][11 FF]'s [10 FF] was dissolved by digestive fluids![END]
 0498: [END]
@@ -2363,190 +3023,328 @@
 049A-E: [04 EF][12 FF] dodged quickly![END]
 049B: With the last of his strength, [05 EF][11 FF] generated a whirlpool![END]
 049B-E: With the last of his strength, [05 EF][11 FF] generated a whirlpool![END]
+// Used by the action: 533
 049C: [04 EF][11 FF] sang a lullaby![END]
 049C-E: [04 EF][11 FF] sang a lullaby![END]
+// Used by the enemy:  Master Eddy
+// Used by the action: 535
 049D: [END]
 049D-E: [END]
+// Used by the action: 385
 049E: [END]
 049E-E: [END]
+// Used by the action: 386
 049F: [10 FF] and company joined the fight one by one![END]
 049F-E: [10 FF] and company joined the fight one by one![END]
 04A0: [04 EF][11 FF] wound itself up![END]
 04A0-E: [04 EF][11 FF] wound itself up![END]
+// Used by the action: 539
 04A1: [04 EF][11 FF]'s explosive device was destroyed![END]
 04A1-E: [04 EF][11 FF]'s explosive device was destroyed![END]
+// Used by the enemy:  Vapor 2
+// Used by the action: 540
 04A2: [04 EF][11 FF]'s battery fell out![END]
 04A2-E: [04 EF][11 FF]'s battery fell out![END]
+// Used by the action: 541
 04A3: [04 EF][11 FF]'s charger was broken![END]
 04A3-E: [04 EF][11 FF]'s charger was broken![END]
+// Used by the action: 542
 04A4: [04 EF][11 FF] stored electricity![END]
 04A4-E: [04 EF][11 FF] stored electricity![END]
+// Used by the action: 543
 04A5: [04 EF][11 FF] burst into laughter![END]
 04A5-E: [04 EF][11 FF] burst into laughter![END]
+// Used by the enemies:  Eerie Smile,  Masked Man,  Eerie Smile,  Eerie Smile,  Eerie Smile,  Pump Drago,  Unworked Clay,  Explosion,  Electric Catfish
+// Used by the actions: 446, 447, 450, 451, 452
 04A6: [04 EF][11 FF] grew bigger![END]
 04A6-E: [04 EF][11 FF] grew bigger![END]
+// Used by the enemy:  Eerie Smile
+// Used by the action: 448
 04A7: [04 EF][11 FF] begun to spin around![END]
 04A7-E: [04 EF][11 FF] begun to spin around![END]
+// Used by the enemies:  Eerie Smile,  Eerie Smile,  Unworked Clay,  Explosion,  Electric Catfish
+// Used by the actions: 449, 454
 04A8: [04 EF][11 FF] let out a scream![END]
 04A8-E: [04 EF][11 FF] let out a scream![END]
+// Used by the enemies:  Eerie Smile,  Eerie Smile,  Unworked Clay,  Unworked Clay,  Explosion,  Explosion,  Electric Catfish,  Electric Catfish
+// Used by the actions: 453, 455
 04A9: [END]
 04A9-E: [END]
 04AA: [04 EF][11 FF] scattered mold spores![END]
 04AA-E: [04 EF][11 FF] scattered mold spores![END]
+// Used by the action: 553
 04AB: [04 EF][11 FF] absolutely hates saltwater![END]
 04AB-E: [04 EF][11 FF] absolutely hates saltwater![END]
+// Used by the action: 72
 04AC: [04 EF][11 FF] confided its worries to you![END]
 04AC-E: [04 EF][11 FF] confided its worries to you![END]
+// Used by the enemy:  Drago
+// Used by the action: 557
 04AD: [04 EF][11 FF] gave a lecture![END]
 04AD-E: [04 EF][11 FF] gave a lecture![END]
+// Used by the action: 558
 04AE: [04 EF][11 FF] used its booster rockets![END]
 04AE-E: [04 EF][11 FF] used its booster rockets![END]
+// Used by the enemy:  Rhinocerocket Mark II
+// Used by the action: 569
 04AF: [END]
 04AF-E: [END]
+// Used by the action: 572
 04B0: [04 EF][11 FF] ran away![END]
 04B0-E: [04 EF][11 FF] ran away![END]
+// Used by the enemies:  Mystery Metal Monkey,  Beanling,  Black Beanling
+// Used by the action: 571
 04B1: [04 EF][11 FF] stabbed with the tip of its tail![END]
 04B1-E: [04 EF][11 FF] stabbed with the tip of its tail![END]
+// Used by the enemy:  Boa Transistor
+// Used by the action: 22
 04B2: [10 FF] and company joined the fight![END]
 04B2-E: [10 FF] and company joined the fight![END]
 04B3: [04 EF][11 FF] stomped its feet![WAIT][12 FF] and company were hit by a shock wave![END]
 04B3-E: [04 EF][11 FF] stomped its feet![WAIT][12 FF] and company were hit by a shock wave![END]
+// Used by the enemy:  King Statue
+// Used by the actions: 566, 573
 04B4: [04 EF][11 FF] swung both arms all around![END]
 04B4-E: [04 EF][11 FF] swung both arms all around![END]
+// Used by the enemy:  King Statue
+// Used by the action: 574
 04B5: [04 EF][11 FF] attacked with a book![END]
 04B5-E: [04 EF][11 FF] attacked with a book![END]
+// Used by the enemies:  King Statue,  King Statue
+// Used by the actions: 575, 576
 04B6: [04 EF][11 FF] used a spring-shot attack![END]
 04B6-E: [04 EF][11 FF] used a spring-shot attack![END]
 04B7: [04 EF][11 FF] threw a bomb and ran off![END]
 04B7-E: [04 EF][11 FF] threw a bomb and ran off![END]
+// Used by the enemy:  Pigmask Major
+// Used by the action: 554
 04B8: [24 EF][11 FF] used a PSI Shield Device![END]
 04B8-E: [24 EF][11 FF] used a PSI Shield Device![END]
+// Used by the enemy:  Pigmask Colonel
+// Used by the action: 577
 04B9: [04 EF][11 FF] came crashing down![END]
 04B9-E: [04 EF][11 FF] came crashing down![END]
+// Used by the enemy:  Minerali
+// Used by the action: 645
 04BA: [04 EF][11 FF] crashed into the ground![WAIT][12 FF] and company were hit by a shock wave![END]
 04BA-E: [04 EF][11 FF] crashed into the ground![WAIT][12 FF] and company were hit by a shock wave![END]
+// Used by the action: 646
 04BB: [04 EF][11 FF] sent rock fragments flying![END]
 04BB-E: [04 EF][11 FF] sent rock fragments flying![END]
+// Used by the enemy:  Minerali
+// Used by the action: 644
 04BC: [04 EF][11 FF] discharged electricity![END]
 04BC-E: [04 EF][11 FF] discharged electricity![END]
+// Used by the enemy:  Fenomeno
+// Used by the action: 643
 04BD: [END]
 04BD-E: [END]
 04BE: [END]
 04BE-E: [END]
 04BF: [04 EF][11 FF] used an off-key music attack![END]
 04BF-E: [04 EF][11 FF] used an off-key music attack![END]
+// Used by the enemy:  Miracle Fassad
+// Used by the action: 578
 04C0: [04 EF][11 FF] emitted an intense light![END]
 04C0-E: [04 EF][11 FF] emitted an intense light![END]
+// Used by the enemies:  Miracle Fassad,  Upgraded Robot
+// Used by the action: 579
 04C1: [04 EF][11 FF] blew flames from his many musical horns![END]
 04C1-E: [04 EF][11 FF] blew flames from his many musical horns![END]
 04C2: [04 EF][11 FF] muttered,[32 FF] "It's always the same..."[END]
 04C2-E: [04 EF][11 FF] muttered,[32 FF] "It's always the same..."[END]
+// Used by the enemy:  Negative Man
+// Used by the action: 588
 04C3: [04 EF][11 FF] mumbled,[32 FF] "I'm nothing but a worthless protoplasm..."[END]
 04C3-E: [04 EF][11 FF] mumbled,[32 FF] "I'm nothing but a worthless protoplasm..."[END]
+// Used by the enemy:  Negative Man
+// Used by the action: 589
 04C4: [04 EF][11 FF] muttered,[32 FF] "There's just no way I can win..."[END]
 04C4-E: [04 EF][11 FF] muttered,[32 FF] "There's just no way I can win..."[END]
+// Used by the enemy:  Negative Man
+// Used by the action: 590
 04C5: [04 EF][11 FF] murmured,[32 FF] "Life is but a moment, a meaningless grain of sand..."[END]
 04C5-E: [04 EF][11 FF] murmured,[32 FF] "Life is but a moment, a meaningless grain of sand..."[END]
+// Used by the enemy:  Negative Man
+// Used by the action: 591
 04C6: [04 EF][11 FF] moaned,[32 FF] "Just get rid of me now..."[END]
 04C6-E: [04 EF][11 FF] moaned,[32 FF] "Just get rid of me now..."[END]
+// Used by the enemy:  Negative Man
+// Used by the action: 592
 04C7: [04 EF][11 FF] sobbed,[32 FF] moaned,[34 FF] and started wailing.[END]
 04C7-E: [04 EF][11 FF] sobbed,[32 FF] moaned,[34 FF] and started wailing.[END]
+// Used by the enemy:  Negative Man
+// Used by the action: 593
 04C8: [04 EF][11 FF] struck a moving pose![END]
 04C8-E: [04 EF][11 FF] struck a moving pose![END]
+// Used by the enemy:  Nice Poser
+// Used by the action: 594
 04C9: [04 EF][11 FF] struck an incomprehensible pose![END]
 04C9-E: [04 EF][11 FF] struck an incomprehensible pose![END]
+// Used by the enemy:  Nice Poser
+// Used by the action: 595
 04CA: [04 EF][11 FF] struck a cool pose![END]
 04CA-E: [04 EF][11 FF] struck a cool pose![END]
+// Used by the enemy:  Nice Poser
+// Used by the actions: 21, 596
 04CB: [04 EF][11 FF] struck an unpleasant pose![END]
 04CB-E: [04 EF][11 FF] struck an unpleasant pose![END]
+// Used by the enemy:  Nice Poser
+// Used by the action: 597
 04CC: [04 EF][11 FF] struck a boring pose![END]
 04CC-E: [04 EF][11 FF] struck a boring pose![END]
+// Used by the enemy:  Nice Poser
+// Used by the action: 598
 04CD: [04 EF][11 FF] is thinking up a new pose.[END]
 04CD-E: [04 EF][11 FF] is thinking up a new pose.[END]
+// Used by the enemy:  Nice Poser
+// Used by the action: 599
 04CE: [04 EF][11 FF][32 FF] started telling a spine-tingling story.[32 FF][END]
 04CE-E: [04 EF][11 FF][32 FF] started telling a spine-tingling story.[32 FF][END]
+// Used by the enemy:  Frightbot
+// Used by the action: 600
 04CF: [04 EF][11 FF][32 FF] told a bloodcurdling story.[32 FF][END]
 04CF-E: [04 EF][11 FF][32 FF] told a bloodcurdling story.[32 FF][END]
+// Used by the enemy:  Frightbot
+// Used by the action: 601
 04D0: [04 EF][11 FF][32 FF] told a pants-wettingly scary story.[32 FF][END]
 04D0-E: [04 EF][11 FF][32 FF] told a pants-wettingly scary story.[32 FF][END]
+// Used by the enemy:  Frightbot
+// Used by the action: 602
 04D1: [04 EF][11 FF][32 FF] told a bone-chillingly scary story.[32 FF][END]
 04D1-E: [04 EF][11 FF][32 FF] told a bone-chillingly scary story.[32 FF][END]
+// Used by the enemy:  Frightbot
+// Used by the action: 603
 04D2: [04 EF][11 FF][32 FF] told a story so scary you want to cover your ears.[32 FF][END]
 04D2-E: [04 EF][11 FF][32 FF] told a story so scary you want to cover your ears.[32 FF][END]
+// Used by the enemy:  Frightbot
+// Used by the action: 604
 04D3: [04 EF][11 FF][32 FF] told a story so scary you'll never go to the bathroom at night again.[32 FF][END]
 04D3-E: [04 EF][11 FF][32 FF] told a story so scary you'll never go to the bathroom at night again.[32 FF][END]
+// Used by the enemy:  Frightbot
+// Used by the action: 605
 04D4: [04 EF][11 FF][32 FF] told a story so scary you couldn't help but laugh.[32 FF][END]
 04D4-E: [04 EF][11 FF][32 FF] told a story so scary you couldn't help but laugh.[32 FF][END]
+// Used by the enemy:  Frightbot
+// Used by the action: 606
 04D5: [04 EF][11 FF][32 FF] told a scary story with some deeply touching moments mixed in.[32 FF][END]
 04D5-E: [04 EF][11 FF][32 FF] told a scary story with some deeply touching moments mixed in.[32 FF][END]
+// Used by the enemy:  Frightbot
+// Used by the action: 607
 04D6: [04 EF][11 FF][32 FF] told a story so scary it made your eyes start to tear up.[32 FF][END]
 04D6-E: [04 EF][11 FF][32 FF] told a story so scary it made your eyes start to tear up.[32 FF][END]
+// Used by the action: 608
 04D7: [04 EF][11 FF][32 FF] told a story so incredibly scary that your teeth won't stop chattering.[32 FF][END]
 04D7-E: [04 EF][11 FF][32 FF] told a story so incredibly scary that your teeth won't stop chattering.[32 FF][END]
+// Used by the action: 609
 04D8: [04 EF][11 FF][32 FF] accidentally told a cute, funny story.[32 FF][END]
 04D8-E: [04 EF][11 FF][32 FF] accidentally told a cute, funny story.[32 FF][END]
+// Used by the action: 610
 04D9: ?! ...What did [11 FF] do?![END]
 04D9-E: ?! ...What did [11 FF] do?![END]
+// Used by the enemies:  Porky,  Porky,  Porky,  Porky
+// Used by the actions: 613, 615, 616, 617
 04DA: [04 EF][11 FF] sprayed something of some sort![END]
 04DA-E: [04 EF][11 FF] sprayed something of some sort![END]
+// Used by the enemy:  Porky
+// Used by the action: 618
 04DB: [04 EF][11 FF] did something![END]
 04DB-E: [04 EF][11 FF] did something![END]
+// Used by the enemy:  Porky
+// Used by the action: 614
 04DC: [04 EF][11 FF] sucked something up![END]
 04DC-E: [04 EF][11 FF] sucked something up![END]
+// Used by the enemy:  Porky
+// Used by the action: 619
 04DD: The Absolutely Safe Capsule doesn't do anything.[32 FF][END]
 04DD-E: The Absolutely Safe Capsule doesn't do anything.[32 FF][END]
+// Used by the enemy:  Porky
+// Used by the action: 623
 04DE: Inside the Absolutely Safe Capsule, Porky is sticking his tongue out at you.[32 FF][END]
 04DE-E: Inside the Absolutely Safe Capsule, Porky is sticking his tongue out at you.[32 FF][END]
+// Used by the enemy:  Porky
+// Used by the action: 624
 04DF: [04 EF][11 FF] fired an intense bolt of lightning![END]
 04DF-E: [04 EF][11 FF] fired an intense bolt of lightning![END]
+// Used by the action: 633
 04E0: [20 FF] fired an intense bolt of lightning![END]
 04E0-E: [20 FF] fired an intense bolt of lightning![END]
+// Used by the action: 634
 04E1: Help arrived![END]
 04E1-E: Help arrived![END]
 04E2: The [11 FF]'s Barrier Pose was crushed![END]
 04E2-E: The [11 FF]'s Barrier Pose was crushed![END]
+// Used by the action: 392
 04E3: Barrier Man called out, and [05 EF][11 FF] struck a Barrier Pose![END]
 04E3-E: Barrier Man called out, and [05 EF][11 FF] struck a Barrier Pose![END]
+// Used by the enemy:  Barrier Trio
+// Used by the action: 507
 04E4: Barrier Gal called out, and [05 EF][11 FF] struck a Barrier Pose![END]
 04E4-E: Barrier Gal called out, and [05 EF][11 FF] struck a Barrier Pose![END]
+// Used by the action: 508
 04E5: Barrier Dude called out, and [05 EF][11 FF] struck a Barrier Pose![END]
 04E5-E: Barrier Dude called out, and [05 EF][11 FF] struck a Barrier Pose![END]
+// Used by the action: 509
 04E6: The Barrier Trio dropped their Barrier Pose![END]
 04E6-E: The Barrier Trio dropped their Barrier Pose![END]
+// Used by the action: 393
 04E7: The exhausted [11 FF] struck one final Barrier Pose![END]
 04E7-E: The exhausted [11 FF] struck one final Barrier Pose![END]
+// Used by the action: 395
 04E8: It was spectacular.[34 FF][END]
 04E8-E: It was spectacular.[34 FF][END]
 04E9: [04 EF][11 FF] tried PK Starstorm! [33 FF][WAIT]...But didn't have enough strength left for it.[END]
 04E9-E: [04 EF][11 FF] tried PK Starstorm! [33 FF][WAIT]...But didn't have enough strength left for it.[END]
+// Used by the action: 396
 04EA: [15 FF] and friends' attacks broke off some of Fassad's horns![32 FF][END]
 04EA-E: [15 FF] and friends' attacks broke off some of Fassad's horns![32 FF][END]
 04EB: Fassad's heart filled with hatred![33 FF][33 FF][WAIT]Fassad is serious now![32 FF][END]
 04EB-E: Fassad's heart filled with hatred![33 FF][33 FF][WAIT]Fassad is serious now![32 FF][END]
 04EC: [04 EF][11 FF] coughed something up![END]
 04EC-E: [04 EF][11 FF] coughed something up![END]
+// Used by the action: 622
 04ED: [04 EF][11 FF]'s mechanical attack![END]
 04ED-E: [04 EF][11 FF]'s mechanical attack![END]
+// Used by the action: 441
 04EE: [04 EF][11 FF] used a mechanical ramming attack![END]
 04EE-E: [04 EF][11 FF] used a mechanical ramming attack![END]
+// Used by the action: 426
 04EF: [04 EF][11 FF] tried PK [10 FF] [ALPHA]![END]
 04EF-E: [04 EF][11 FF] tried PK [10 FF] [ALPHA]![END]
+// Used by the enemy:  Masked Man
+// Used by the actions: 407, 442, 564
 04F0: [04 EF][11 FF] tried PK [10 FF] [BETA]![END]
 04F0-E: [04 EF][11 FF] tried PK [10 FF] [BETA]![END]
+// Used by the enemies:  Masked Man,  Masked Man,  Dung Beetle,  Unworked Clay,  Explosion,  Electric Catfish
+// Used by the actions: 408, 443, 456
 04F1: [04 EF][11 FF] tried PK [10 FF] [GAMMA]![END]
 04F1-E: [04 EF][11 FF] tried PK [10 FF] [GAMMA]![END]
+// Used by the enemies:  Masked Man,  Tent Person,  Unworked Clay,  Explosion,  Electric Catfish
+// Used by the actions: 405, 444, 457
 04F2: [04 EF][11 FF] tried PK [10 FF] [OMEGA]![END]
 04F2-E: [04 EF][11 FF] tried PK [10 FF] [OMEGA]![END]
+// Used by the enemies:  Snow Bunny,  Unworked Clay,  Explosion,  Electric Catfish
+// Used by the actions: 445, 458
 04F3: The Barrier Pose made the [10 FF] dissipate![END]
 04F3-E: The Barrier Pose made the [10 FF] dissipate![END]
+// Used by the enemies:  Clayman,  Unworked Clay,  Explosion,  Electric Catfish
+// Used by the action: 459
 04F4: [END]
 04F4-E: [END]
+// Used by the enemy:  Vapor
+// Used by the action: 460
 04F5: [END]
 04F5-E: [END]
+// Used by the enemy:  Rope Snake
+// Used by the action: 550
 04F6: [END]
 04F6-E: [END]
+// Used by the enemy:  Rope Snake
+// Used by the action: 551
 04F7: [END]
 04F7-E: [END]
+// Used by the enemy:  Aeolia's Table
+// Used by the action: 552
 04F8: [END]
 04F8-E: [END]
 04F9: [END]
