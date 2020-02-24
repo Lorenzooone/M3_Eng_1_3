@@ -1570,6 +1570,13 @@ org $91F2B71; db $07 //Four people
 //Fix issue where losing in the prologue removes all Claus' PPs.
 org $8001D5A; bl claus_pp_fix.main; pop {r1}; bx r1
 
+//Fix issue with mouse in block 632 always displaying "Talking to Salsa"'s line when it can never be interacted with as Salsa
+//org $9315EF5; db $0A //WIP
+
+//Fix issue with Thomas in block 91 disappearing if the pigmask notebook is collected and the sprite table is reloaded
+org $9222696; db $93 //Jump to next instruction set
+org $92226B4; dd $0093000C //Jump to next instruction set
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
