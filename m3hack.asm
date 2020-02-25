@@ -1571,7 +1571,11 @@ org $91F2B71; db $07 //Four people
 org $8001D5A; bl claus_pp_fix.main; pop {r1}; bx r1
 
 //Fix issue with mouse in block 632 always displaying "Talking to Salsa"'s line when it can never be interacted with as Salsa
-//org $9315EF5; db $0A //WIP
+org $9199FD4; dd $00E3CBF0
+org $9199FD8; dd $00E3CC04
+org $9FD5800; incbin logic_pointer_277.bin
+org $9FD5814; incbin logic_code_277.bin
+
 
 //Fix issue with Thomas in block 91 disappearing if the pigmask notebook is collected and the sprite table is reloaded
 org $9222696; db $93 //Jump to next instruction set
