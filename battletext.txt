@@ -1664,8 +1664,8 @@
 0305-E: [04 EF][11 FF] emitted an electromagnetic pulse![END]
 // Used by the enemies:  Return of Octobot,  Wobbly Robot
 // Used by the action: 39
-0306: [04 EF][11 FF] tried to strike [12 FF]'s joints![END]
-0306-E: [04 EF][11 FF] tried to strike [12 FF]'s joints![END]
+0306: [04 EF][11 FF] tried to strike [45 EF][12 FF]'s joints![END]
+0306-E: [04 EF][11 FF] tried to strike [45 EF][12 FF]'s joints![END]
 // Used by the enemies:  Pigmask Major,  Pigmask Major
 // Used by the action: 40
 0307: [04 EF][11 FF] planted an unwanted kiss![END]
@@ -1758,14 +1758,14 @@
 031F-E: [04 EF][11 FF] sent its fleas flying![END]
 // Used by the enemies:  Ten-Yeti,  Batangutan,  Monkalrus
 // Used by the actions: 65, 66
-0320: [04 EF][11 FF] fell on top of [12 FF]![END]
-0320-E: [04 EF][11 FF] fell on top of [12 FF]![END]
+0320: [04 EF][11 FF] fell on top of [45 EF][12 FF]![END]
+0320-E: [04 EF][11 FF] fell on top of [45 EF][12 FF]![END]
 // Used by the enemy:  Mobile Grave
 // Used by the action: 68
 0321: [04 EF][11 FF] fired a whole bunch of missiles![END]
 0321-E: [04 EF][11 FF] fired a whole bunch of missiles![END]
-0322: [04 EF][11 FF] crashed down on top of [12 FF] with all of its weight![END]
-0322-E: [04 EF][11 FF] crashed down on top of [12 FF] with all of its weight![END]
+0322: [04 EF][11 FF] crashed down on top of [45 EF][12 FF] with all of its weight![END]
+0322-E: [04 EF][11 FF] crashed down on top of [45 EF][12 FF] with all of its weight![END]
 // Used by the enemy:  Clayman
 // Used by the action: 327
 0323: [04 EF][11 FF] sent candles flying![END]
@@ -1921,8 +1921,8 @@
 034C: [04 EF][11 FF] stomped its feet![END]
 034C-E: [04 EF][11 FF] stomped its feet![END]
 // Used by the action: 110
-034D: [04 EF][11 FF] slammed its head into the ground![WAIT][12 FF] and company were hit by a shock wave![END]
-034D-E: [04 EF][11 FF] slammed its head into the ground![WAIT][12 FF] and company were hit by a shock wave![END]
+034D: [04 EF][11 FF] slammed its head into the ground![WAIT][44 EF][12 FF] and company were hit by a shock wave![END]
+034D-E: [04 EF][11 FF] slammed its head into the ground![WAIT][44 EF][12 FF] and company were hit by a shock wave![END]
 // Used by the enemy:  Heftyhead
 // Used by the action: 111
 034E: [04 EF][11 FF] is rattling and shaking![END]
@@ -1938,8 +1938,8 @@
 0351-E: [04 EF][11 FF] used a pincer attack![END]
 // Used by the enemies:  Great Antlion,  Great Antlion
 // Used by the action: 116
-0352: [04 EF][11 FF] jumped into [12 FF]'s mouth![END]
-0352-E: [04 EF][11 FF] jumped into [12 FF]'s mouth![END]
+0352: [04 EF][11 FF] jumped into [45 EF][12 FF]'s mouth![END]
+0352-E: [04 EF][11 FF] jumped into [45 EF][12 FF]'s mouth![END]
 0353: [04 EF][11 FF] tried one last attack![END]
 0353-E: [04 EF][11 FF] tried one last attack![END]
 // Used by the actions: 117, 150
@@ -2057,8 +2057,8 @@
 0373-E: stole [11 EF][END]
 0374: In the confusion, [05 EF][11 FF] tried to steal something[33 FF], but failed![END]
 0374-E: In the confusion, [05 EF][11 FF] tried to steal something[33 FF], but failed![END]
-0375: [04 EF][11 FF] jumped on top of [12 FF] and punched away![END]
-0375-E: [04 EF][11 FF] jumped on top of [12 FF] and punched away![END]
+0375: [04 EF][11 FF] jumped on top of [45 EF][12 FF] and punched away![END]
+0375-E: [04 EF][11 FF] jumped on top of [45 EF][12 FF] and punched away![END]
 // Used by the enemies:  Fierce Pork Trooper,  Fierce Pork Trooper
 // Used by the actions: 477, 485
 0376: [04 EF][11 FF] smelled [12 FF]![END]
@@ -2589,12 +2589,12 @@
 // Used by the actions: 335, 544
 040D: [24 EF][11 FF] used Offense Up![END]
 040D-E: [24 EF][11 FF] used Offense Up![END]
-040E: [04 EF][11 FF] slapped [12 FF]![END]
-040E-E: [04 EF][11 FF] slapped [12 FF]![END]
+040E: [04 EF][11 FF] slapped [45 EF][12 FF]![END]
+040E-E: [04 EF][11 FF] slapped [45 EF][12 FF]![END]
 // Used by the enemy:  Li'l Miss Marshmallow
 // Used by the action: 359
-040F: [04 EF][11 FF] combo-slapped [12 FF] in the face![END]
-040F-E: [04 EF][11 FF] combo-slapped [12 FF] in the face![END]
+040F: [04 EF][11 FF] combo-slapped [45 EF][12 FF] in the face![END]
+040F-E: [04 EF][11 FF] combo-slapped [45 EF][12 FF] in the face![END]
 // Used by the enemy:  Li'l Miss Marshmallow
 // Used by the action: 360
 0410: [04 EF][11 FF] scanned [12 FF]![END]
@@ -2617,8 +2617,8 @@
 // Used by the actions: 296, 367
 0416: [04 EF][11 FF] ran out of energy.[END]
 0416-E: [04 EF][11 FF] ran out of energy.[END]
-0417: [04 EF][11 FF] triple-slapped [12 FF] in the face![END]
-0417-E: [04 EF][11 FF] triple-slapped [12 FF] in the face![END]
+0417: [04 EF][11 FF] triple-slapped [45 EF][12 FF] in the face![END]
+0417-E: [04 EF][11 FF] triple-slapped [45 EF][12 FF] in the face![END]
 // Used by the action: 529
 0418: [04 EF][11 FF] is feeling a bit strange...[WAIT][04 EF][11 FF] attacked with a body blow![END]
 0418-E: [04 EF][11 FF] is feeling a bit strange...[WAIT][04 EF][11 FF] attacked with a body blow![END]
@@ -2801,8 +2801,8 @@
 0454: [04 EF][11 FF] unleashed a Line-Dance Kick![END]
 0454-E: [04 EF][11 FF] unleashed a Line-Dance Kick![END]
 // Used by the actions: 435, 436
-0455: [04 EF][11 FF] pecked [12 FF] over and over![END]
-0455-E: [04 EF][11 FF] pecked [12 FF] over and over![END]
+0455: [04 EF][11 FF] pecked [45 EF][12 FF] over and over![END]
+0455-E: [04 EF][11 FF] pecked [45 EF][12 FF] over and over![END]
 // Used by the enemy:  Ostrelephant
 // Used by the action: 271
 0456: [04 EF][11 FF] grabbed the Chilly Dog and swung it around![END]

@@ -1041,6 +1041,8 @@ org $809E3A8; bl battle_hacks.save_current_enemy_19      //Dancing
 org $809D47E; bl battle_hacks.save_current_enemy_20      //Feeling strange character (eating)
 org $809D48C; bl battle_hacks.save_current_enemy_21      //Feeling strange character (acting)
 org $80BB916; bl battle_hacks.save_current_enemy_22      //Time bomb explodes
+org $8078602; bl battle_hacks.save_current_enemy_23      //Target
+org $809C670; bl battle_hacks.save_current_enemy_24      //Salsa's Mimic
 //org $806074C; //Getting revived from items
 
 // this code actually executes the custom control codes
@@ -1575,7 +1577,6 @@ org $9199FD4; dd $00E3CBF0
 org $9199FD8; dd $00E3CC04
 org $9FD5800; incbin logic_pointer_277.bin
 org $9FD5814; incbin logic_code_277.bin
-
 
 //Fix issue with Thomas in block 91 disappearing if the pigmask notebook is collected and the sprite table is reloaded
 org $9222696; db $93 //Jump to next instruction set
