@@ -32,7 +32,7 @@ mul  r1,r0
 ldr  r0,[r4,#0x04]
 add  r0,r0,r1
 add  r0,#2
-pop {pc}                     // return
+pop  {pc}                    // return
 
 
 //=========================================================================================== 
@@ -63,12 +63,12 @@ beq  +                       // then we need to include the partial tile too
 add  r0,r0,#0x01             // this includes the partial tile
 
 +
-cmp r0,#0x16                 // 0x16 is the highest possible, any higher and other stuff gets erased
-bls +
-mov r0,#0x16
+cmp  r0,#0x16                // 0x16 is the highest possible, any higher and other stuff gets erased
+bls  +
+mov  r0,#0x16
 
 +
-pop {pc}                     // end of routine! r0 now has the correct # of tiles to erase
+pop  {pc}                    // end of routine! r0 now has the correct # of tiles to erase
 
 
 
@@ -180,75 +180,73 @@ pop  {pc}
 .custom_cc:
 sub  r2,#1                   // need to subtract 1 to counter the raw custom control code itself
 
-ldrb r0,[r1,#0]              // load the current low byte of the custom control code
-
-mov r4,#0x1F
-and r0,r4                    // Load the first 5 bits of the custom codes
-ldrb r4,[r1,#0]
+ldrb r4,[r1,#0]              // load the current low byte of the custom control code
+mov  r0,#0x1F
+and  r0,r4                   // Load the first 5 bits of the custom codes
 
 cmp  r0,#0x00                // check for 0xEF00, which will print the current enemy's name
-bne +
-b  .cc_enemy_name
+bne  +
+b    .cc_enemy_name
 +
 
 cmp  r4,#0x21                // check for 0xEF21, which will print the pigmask's article
-bne +
-b .cc_en_articles
+bne  +
+b    .cc_en_articles
 +
 
 cmp  r0,#0x01                // check for 0xEF01, which will print the cohorts string
-bne +
-b  .cc_cohorts
+bne  +
+b    .cc_cohorts
 +
 
 cmp  r0,#0x02                // check for 0xEF02, which will print an initial uppercase article if need be
-bne +
-b  .cc_en_articles
+bne  +
+b    .cc_en_articles
 +
 
 cmp  r0,#0x03                // check for 0xEF03, which will print an initial lowercase article if need be
-bne +
-b  .cc_en_articles
+bne  +
+b    .cc_en_articles
 +
 
 cmp  r0,#0x04                // check for 0xEF04, which will print an uppercase article if need be
-bne +
-b  .cc_en_articles
+bne  +
+b    .cc_en_articles
 +
 
 cmp  r0,#0x05                // check for 0xEF05, which will print a lowercase article if need be
-bne +
-b  .cc_en_articles
+bne  +
+b    .cc_en_articles
 +
 
 cmp  r0,#0x06                // check for 0xEF06, which will print a lowercase possessive if need be
-bne +
-b  .cc_en_articles
+bne  +
+b    .cc_en_articles
 +
 
 cmp  r0,#0x10                // check for 0xEF10, which will print an initial uppercase article for items
-bne +
-b  .cc_it_articles
+bne  +
+b    .cc_it_articles
 +
 
 cmp  r0,#0x11                // check for 0xEF11, which will print an initial lowercase article for items
-bne +
-b  .cc_it_articles
+bne  +
+b    .cc_it_articles
 +
 
 cmp  r0,#0x12                // check for 0xEF12, which will print an uppercase article for items
-bne +
-b  .cc_it_articles
+bne  +
+b    .cc_it_articles
 +
 
 cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
-bne +
-b  .cc_it_articles
+bne  +
+b    .cc_it_articles
 +
 
 cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
-bne +
-b  .cc_it_articles
+bne  +
+b    .cc_it_articles
 +
 
 mov  r0,#0                   // if this executes, it's an unknown control code, so treat it normally
@@ -262,13 +260,13 @@ push {r1-r2}
 sub  r0,#0x10
 mov  r2,r0                   // r2 will be an offset into the extra item data slot
 ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
-cmp  r4,#0x20                 // check if this is EF 30 or more
+cmp  r4,#0x20                // check if this is EF 30 or more
 blt  +
-ldr  r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
+ldr  r0,=#0x2014724          // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
-ldrh r0,[r0,#0]              // load the current item #
-mov  r1,#7
-mul  r0,r1                   // offset = item ID * 7 bytes
+ldrh r1,[r0,#0]              // load the current item #
+lsl  r0,r1,#3
+sub  r0,r0,r1                // offset = item ID * 7 bytes
 ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
 add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
 ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
@@ -287,25 +285,25 @@ b    .main_loop_next         // now jump back to the part of the main loop that 
 push {r1-r2}
 ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
-cmp  r4,#0x20                 // is this the pigmask code?
+cmp  r4,#0x20                // is this the pigmask code?
 bne  +
-cmp  r0,#6                    // is the actor the Pork Tank?
+cmp  r0,#6                   // is the actor the Pork Tank?
 bne  +
-mov  r0,#149                  // if it is, then change it to the Pigmask
+mov  r0,#149                 // if it is, then change it to the Pigmask
 +
 ldr  r2,=#0x149
-cmp  r0,r2                    // If the actor id is > 0x149, it's going to be a character. Let's call them properly
+cmp  r0,r2                   // If the actor id is > 0x149, it's going to be a character. Let's call them properly
 blt  +
 
 ldr  r1,=#0x2004110          // Character data address
-sub  r0,r0,r2                 // Remove 0x149 to get their ID
+sub  r0,r0,r2                // Remove 0x149 to get their ID
 mov  r2,#0x6C
-mul  r0,r2                    // Multiply it by 0x6C, each character's data length
-add  r0,#2                    // Add 2 to get their name
+mul  r0,r2                   // Multiply it by 0x6C, each character's data length
+add  r0,#2                   // Add 2 to get their name
 add  r0,r0,r1                // r0 now has the address of the character's name
 pop  {r1-r2}
 bl   custom_strlen_party     // count the length of our special string, store its length in r2, this is special because party member can have non 0xFFFF terminated names
-b .end_cc_enemy_name
+b    .end_cc_enemy_name
 
 +
 mov  r1,#50
@@ -387,15 +385,16 @@ ldr  r0,=#0x2014320          // this is where the routines save the other ID #
 add  r0,r0,r4
 ldrh r0,[r0,#0]              // load the current #
 mov  r4,r1
-mov  r1,#5
-cmp  r4,#0x1F                 // is this the pigmask's article code?
+cmp  r4,#0x1F                // is this the pigmask's article code?
 bne  +
-mov  r2,#2                    // Change the code so it makes sense
-cmp  r0,#6                    // is the actor the Pork Tank?
+mov  r2,#2                   // Change the code so it makes sense
+cmp  r0,#6                   // is the actor the Pork Tank?
 bne  +
-mov  r0,#149                  // if it is, then change it to the Pigmask
+mov  r0,#149                 // if it is, then change it to the Pigmask
 +
-mul  r0,r1                   // offset = enemy ID * 5 bytes
+mov  r1,r0
+lsl  r0,r0,#2
+add  r0,r0,r1                // offset = enemy ID * 5 bytes
 ldr  r1,=#0x9FD4930          // this is the base address of our extra enemy data table in ROM
 add  r0,r0,r1                // r0 now has address of this enemy's extra data entry
 ldrb r0,[r0,r2]              // r0 now has the proper line # to use from custom_text.bin
@@ -708,7 +707,7 @@ mov  r7,r1                   // last_space = curr_char_address
 b    .no_wrap_needed
 
 .space_found:
-mov r7,r1                    // last_space = curr_char_address
+mov  r7,r1                   // last_space = curr_char_address
                      
 //--------------------------------------------------------------------------------------------
 // Here is the real meat of the auto word wrap routine
@@ -777,12 +776,12 @@ bx   lr
 
 .main_vwf2:
 push {r5,lr}                 // We're going to use r5, so we need to keep it in 
-ldr r5,[sp,#0x08]            // Load r5 with our former LR value? 
-mov lr,r5                    // Move the former LR value back into LR 
-ldr r5,[sp,#0x04]            // Grab the LR value for THIS function 
-str r5,[sp,#0x08]            // Store it over the previous one 
-pop {r5}                     // Get back r5 
-add sp,#0x04                 // Get the un-needed value off the stack
+ldr  r5,[sp,#0x08]           // Load r5 with our former LR value? 
+mov  lr,r5                   // Move the former LR value back into LR 
+ldr  r5,[sp,#0x04]           // Grab the LR value for THIS function 
+str  r5,[sp,#0x08]           // Store it over the previous one 
+pop  {r5}                    // Get back r5 
+add  sp,#0x04                // Get the un-needed value off the stack
 
 push {r5-r6}                 // we really need these registers right now
 
@@ -892,12 +891,12 @@ bx   lr
 
 .clear_battle_window:
 push {r5,lr}                 // We're going to use r5, so we need to keep it in 
-ldr r5,[sp,#0x08]            // Load r5 with our former LR value? 
-mov lr,r5                    // Move the former LR value back into LR 
-ldr r5,[sp,#0x04]            // Grab the LR value for THIS function 
-str r5,[sp,#0x08]            // Store it over the previous one 
-pop {r5}                     // Get back r5 
-add sp,#0x04                 // Get the un-needed value off the stack
+ldr  r5,[sp,#0x08]           // Load r5 with our former LR value? 
+mov  lr,r5                   // Move the former LR value back into LR 
+ldr  r5,[sp,#0x04]           // Grab the LR value for THIS function 
+str  r5,[sp,#0x08]           // Store it over the previous one 
+pop  {r5}                    // Get back r5 
+add  sp,#0x04                // Get the un-needed value off the stack
 
 //--------------------------------------------------------------------------------------------
 
@@ -1008,15 +1007,15 @@ ldr  r0,[r6,#0]              // row 11
 str  r0,[r5,#0]
 str  r3,[r6,#0]
 
-add r1,#1
-cmp r1,#0x1E
-blt -                        // r1++, if r1 < 1E (# of tiles wide the screen is) then loop back
+add  r1,#1
+cmp  r1,#0x1E
+blt  -                       // r1++, if r1 < 1E (# of tiles wide the screen is) then loop back
 
-pop {r3}
-pop {r6}
-pop {r5}
-pop {r0}
-bx  lr
+pop  {r3}
+pop  {r6}
+pop  {r5}
+pop  {r0}
+bx   lr
 
 
 //=============================================================================================
@@ -1077,13 +1076,13 @@ sub  r2,r2,r5
 // this new snippet fixes the weird bug where the far-left name in a 4-member team
 // can mess up if the name is too wide. The problem is that the game would try to
 // print at a negative X position, so we'll just set it to 0 in those cases.
-cmp r2,#00
-bge +
-mov r2,#0
+cmp  r2,#00
+bge  +
+mov  r2,#0
 
 +
 mov  r7,#0x30
-add  r7,r8 // this line assembles weird with goldroad. Hexedit to [47 44] if it doesn't assemble as that.
+add  r7,r8                   // this line assembles weird with goldroad. Hexedit to [47 44] if it doesn't assemble as that.
 mov  r12,r7
 
 pop {r0,r1,r3,r4,r5,pc}
@@ -1147,13 +1146,13 @@ bx   lr
 
 .save_current_item:
 push {r3}
-ldr  r0,=#0x2014324 //Get ex current item
+ldr  r0,=#0x2014324          //Get ex current item
 ldrh r3,[r0,#0]
-ldr  r0,=#0x2014724 //Write it in this location of the RAM
+ldr  r0,=#0x2014724          //Write it in this location of the RAM
 strh r3,[r0,#0]
-ldr  r0,=#0x2014324 //Save the new current item
+ldr  r0,=#0x2014324          //Save the new current item
 strh r1,[r0,#0]
-pop {r3}
+pop  {r3}
 bx   lr
 
 
@@ -1236,68 +1235,68 @@ mov  r0,#0x1F
 and  r0,r7                   // load the important part of the byte
 
 cmp  r0,#0x00                // check for 0xEF00, which will print the current enemy's name
-bne +
-b  .ecc_enemy_name
+bne  +
+b    .ecc_enemy_name
 +
 
 cmp  r7,#0x21                // check for 0xEF21, which will print the Pigmask's uppercase article if need be
-bne +
-b  .ecc_en_articles
+bne  +
+b    .ecc_en_articles
 +
 
 cmp  r0,#0x01                // check for 0xEF01, which will print "and cohort/and cohorts" if need be
-bne +
-b  .ecc_cohorts
+bne  +
+b    .ecc_cohorts
 +
 
 cmp  r0,#0x02                // check for 0xEF02, which will print an initial uppercase article if need be
-bne +
-b  .ecc_en_articles
+bne  +
+b    .ecc_en_articles
 +
 
 cmp  r0,#0x03                // check for 0xEF03, which will print an initial lowercase article if need be
-bne +
-b  .ecc_en_articles
+bne  +
+b    .ecc_en_articles
 +
 
 cmp  r0,#0x04                // check for 0xEF04, which will print an uppercase article if need be
-bne +
-b  .ecc_en_articles
+bne  +
+b    .ecc_en_articles
 +
 
 cmp  r0,#0x05                // check for 0xEF05, which will print a lowercase article if need be
-bne +
-b  .ecc_en_articles
+bne  +
+b    .ecc_en_articles
 +
 
 cmp  r0,#0x06                // check for 0xEF06, which will print a lowercase possessive if need be
-bne +
-b  .ecc_en_articles
+bne  +
+b    .ecc_en_articles
 +
 
 cmp  r0,#0x10                // check for 0xEF10, which will print an initial uppercase article for items
-bne +
-b  .ecc_it_articles
+bne  +
+b    .ecc_it_articles
 +
 
 cmp  r0,#0x11                // check for 0xEF11, which will print an initial lowercase article for items
-bne +
-b  .ecc_it_articles
+bne  +
+b    .ecc_it_articles
 +
 
 cmp  r0,#0x12                // check for 0xEF12, which will print an uppercase article for items
-bne +
-b  .ecc_it_articles
+bne  +
+b    .ecc_it_articles
 +
 
 cmp  r0,#0x13                // check for 0xEF13, which will print a lowercase article for items
-bne +
-b  .ecc_it_articles
+bne  +
+b    .ecc_it_articles
 +
 
 cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
-bne +
-b  .ecc_it_articles
+bne  +
+b    .ecc_it_articles
 +
 
 b    .ecc_inc                // treat this code normally if it's not a valid custom control code
@@ -1323,13 +1322,13 @@ push {r1-r2}
 sub  r0,#0x10
 mov  r2,r0                   // r2 will be an offset into the extra item data slot
 ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
-cmp r7,#0x20                 // check if this is > EF 30
-blt +
-ldr r0,=#0x2014724           // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
+cmp  r7,#0x20                // check if this is > EF 30
+blt  +
+ldr  r0,=#0x2014724          // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
-ldrh r0,[r0,#0]              // load the current item #
-mov  r1,#7
-mul  r0,r1                   // offset = item ID * 7 bytes
+ldrh r1,[r0,#0]              // load the current item #
+lsl  r0,r1,#3
+sub  r0,r0,r1                // offset = item ID * 7 bytes
 ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
 add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
 ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
@@ -1348,26 +1347,26 @@ b    .customcc_inc           // go to the common custom CC incrementing, etc. co
 push {r1-r2}
 ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
 ldrh r0,[r0,#0]              // load the current #
-cmp r7,#0x20                 // is this the pigmask code?
-bne +
-cmp r0,#6                    // is the actor the Pork Tank?
-bne +
-mov r0,#149                  // if it is, then change it to the Pigmask
+cmp  r7,#0x20                // is this the pigmask code?
+bne  +
+cmp  r0,#6                   // is the actor the Pork Tank?
+bne  +
+mov  r0,#149                 // if it is, then change it to the Pigmask
 +
-ldr r2,=#0x149
-cmp r0,r2                     // If the actor id is > 0x149, it's going to be a character. Let's call them properly
-blt +
+ldr  r2,=#0x149
+cmp  r0,r2                   // If the actor id is > 0x149, it's going to be a character. Let's call them properly
+blt  +
 
 ldr  r1,=#0x2004110          // Character data address
-sub r0,r0,r2                 // Remove 0x149 to get their ID
-mov r2,#0x6C
-mul r0,r2                    // Multiply it by 0x6C, each character's data length
-add r0,#2                    // Add 2 to get their name
+sub  r0,r0,r2                // Remove 0x149 to get their ID
+mov  r2,#0x6C
+mul  r0,r2                   // Multiply it by 0x6C, each character's data length
+add  r0,#2                   // Add 2 to get their name
 add  r0,r0,r1                // r0 now has the address of the character's name
 pop  {r1-r2}
-bl custom_strcopy_party      // This is a special case. We cannot use the normal strcopy because party members can have non 0xFFFF terminated names
+bl   custom_strcopy_party    // This is a special case. We cannot use the normal strcopy because party members can have non 0xFFFF terminated names
 
-b .end_ecc_enemy_name
+b    .end_ecc_enemy_name
 
 +
 mov  r1,#50
@@ -1447,15 +1446,16 @@ lsl  r7,r7,#5
 ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
 add  r0,r0,r7
 ldrh r0,[r0,#0]              // load the current #
-cmp  r1,#0x1F                 // is this the pigmask's article code?
+cmp  r1,#0x1F                // is this the pigmask's article code?
 bne  +
-mov  r2,#2                    // Change the code so it makes sense
-cmp  r0,#6                    // is the actor the Pork Tank?
+mov  r2,#2                   // Change the code so it makes sense
+cmp  r0,#6                   // is the actor the Pork Tank?
 bne  +
-mov  r0,#149                  // if it is, then change it to the Pigmask
+mov  r0,#149                 // if it is, then change it to the Pigmask
 +
-mov  r1,#5
-mul  r0,r1                   // offset = enemy ID * 5 bytes
+mov  r1,r0
+lsl  r0,r0,#2
+add  r0,r0,r1                // offset = enemy ID * 5 bytes
 ldr  r1,=#0x9FD4930          // this is the base address of our extra enemy data table in ROM
 add  r0,r0,r1                // r0 now has address of this enemy's extra data entry
 ldrb r0,[r0,r2]              // r0 now has the proper line # to use from custom_text.bin
@@ -1534,12 +1534,12 @@ bx   lr
 
 .toomany_vwf1:
 push {r5,lr}                 // We're going to use r5, so we need to keep it in 
-ldr r5,[sp,#0x08]            // Load r5 with our former LR value? 
-mov lr,r5                    // Move the former LR value back into LR 
-ldr r5,[sp,#0x04]            // Grab the LR value for THIS function 
-str r5,[sp,#0x08]            // Store it over the previous one 
-pop {r5}                     // Get back r5 
-add sp,#0x04                 // Get the un-needed value off the stack
+ldr  r5,[sp,#0x08]           // Load r5 with our former LR value? 
+mov  lr,r5                   // Move the former LR value back into LR 
+ldr  r5,[sp,#0x04]           // Grab the LR value for THIS function 
+str  r5,[sp,#0x08]           // Store it over the previous one 
+pop  {r5}                    // Get back r5 
+add  sp,#0x04                // Get the un-needed value off the stack
 
 lsl  r1,r1,#1                // this is code we clobbered while linking here
 ldr  r0,[r0,#0]
@@ -1598,7 +1598,7 @@ cmp  r0,r1                   // see if this is a [BREAK] code (0xFF01)
 beq  .tm_set_newline
 lsr  r0,r0,#8                // shift right 1 byte
 cmp  r0,#0xFF                // is this a control code? 
-beq  .tm_move_to_next_char      // if so, manually move to the next char
+beq  .tm_move_to_next_char   // if so, manually move to the next char
 b    .end_toomany_vwf1
 
 //--------------------------------------------------------------------------------------------
@@ -1719,12 +1719,12 @@ pop  {pc}                    // time to leave!
 
 .toomany_vwf_clear_window:
 push {r5,lr}                 // We're going to use r5, so we need to keep it in 
-ldr r5,[sp,#0x08]            // Load r5 with our former LR value? 
-mov lr,r5                    // Move the former LR value back into LR 
-ldr r5,[sp,#0x04]            // Grab the LR value for THIS function 
-str r5,[sp,#0x08]            // Store it over the previous one 
-pop {r5}                     // Get back r5 
-add sp,#0x04                 // Get the un-needed value off the stack
+ldr  r5,[sp,#0x08]           // Load r5 with our former LR value? 
+mov  lr,r5                   // Move the former LR value back into LR 
+ldr  r5,[sp,#0x04]           // Grab the LR value for THIS function 
+str  r5,[sp,#0x08]           // Store it over the previous one 
+pop  {r5}                    // Get back r5 
+add  sp,#0x04                // Get the un-needed value off the stack
 
 push {r0-r3}
 
@@ -1869,12 +1869,12 @@ pop  {r5-r6,pc}              // time to leave!
 
 .3line_vwf2:
 push {r5,lr}                 // We're going to use r5, so we need to keep it in 
-ldr r5,[sp,#0x08]            // Load r5 with our former LR value? 
-mov lr,r5                    // Move the former LR value back into LR 
-ldr r5,[sp,#0x04]            // Grab the LR value for THIS function 
-str r5,[sp,#0x08]            // Store it over the previous one 
-pop {r5}                     // Get back r5 
-add sp,#0x04                 // Get the un-needed value off the stack
+ldr  r5,[sp,#0x08]           // Load r5 with our former LR value? 
+mov  lr,r5                   // Move the former LR value back into LR 
+ldr  r5,[sp,#0x04]           // Grab the LR value for THIS function 
+str  r5,[sp,#0x08]           // Store it over the previous one 
+pop  {r5}                    // Get back r5 
+add  sp,#0x04                // Get the un-needed value off the stack
 
 push {r5-r6}                 // we really need these registers right now
 
@@ -2109,14 +2109,14 @@ ldr  r0,[r6,#0x14]           // row 10
 str  r0,[r5,#0x8]
 str  r3,[r6,#0x14]
 
-ldr  r0,[r6,#0x18]            // row 11
+ldr  r0,[r6,#0x18]           // row 11
 str  r0,[r5,#0xC]
 str  r3,[r6,#0x18]
 
-add r1,#1
-cmp r1,#0x1E
-bge +
-b   -            // r1++, if r1 < 1E (# of tiles wide the screen is) then loop back
+add  r1,#1
+cmp  r1,#0x1E
+bge  +
+b    -                       // r1++, if r1 < 1E (# of tiles wide the screen is) then loop back
 
 +
 pop {r0-r6,pc}
@@ -2262,7 +2262,7 @@ strh r0,[r6,#0x0C]
 .end_fb_vwf1:
 ldr  r1,=#0x5000003
 mov  r0,#0x7C
-strb r0,[r1,#0]       // turn palette purple for test purposes
+strb r0,[r1,#0]              // turn palette purple for test purposes
 
 
 
@@ -2293,7 +2293,7 @@ ldr  r6,=#0x2014300          // Load r6 with the base address of our custom RAM 
 
 //--------------------------------------------------------------------------------------------
 
-bl   .fb_process_line           // see if we need to move to a new line, and if so, do stuff accordingly
+bl   .fb_process_line        // see if we need to move to a new line, and if so, do stuff accordingly
 
 ldr  r1,[r6,#0x4]            // load the x and y coordinates into r1, these were updated by process_line
 mov  r0,r4
@@ -2320,7 +2320,7 @@ strh r0,[r6,#0xC]            // store it back in our RAM block
 
 ldrh r1,[r6,#0xE]            // load r1 with the total length of this string
 cmp  r0,r1                   // see if current character count >= the length of this string
-bcc  .end_fb_vwf2          // go to the last part of our code if we're under the total length
+bcc  .end_fb_vwf2            // go to the last part of our code if we're under the total length
 
 mov  r0,#0                   // set init_flag to 0 so that things here will get re-initialized next string
 strb r0,[r6,#1]
@@ -2331,7 +2331,7 @@ strb r0,[r6,#1]
 .end_fb_vwf2:
 ldrh r1,[r6,#0x2]            // load r1 with the current character, the game expects this
 
-pop  {r5-r6,pc}                 // get the original values back in these registers
+pop  {r5-r6,pc}              // get the original values back in these registers
 
 
 
@@ -2340,7 +2340,7 @@ pop  {r5-r6,pc}                 // get the original values back in these registe
 push {lr}
 ldrb r1,[r6,#0x12]           // load newline_encountered_flag
 cmp  r1,#0                   // compare it to 0
-beq  .fb_end_process_line       // don't do any of this code if it's set to FALSE
+beq  .fb_end_process_line    // don't do any of this code if it's set to FALSE
 
 ldrh r0,[r6,#0x6]            // load current y, add 11
 add  r0,#12
@@ -2642,291 +2642,291 @@ pop     {pc}
 .costant_save:               // A piece of code every one of these hacks besides SP shares
 push {lr}
 push {r2}
-mov r4,#1
-lsl r4,r4,#27                // Is this an enemy? If they are, then they have their identifiers in the ROM
-add r1,#0xFC
-ldr r1,[r1,#0]
+mov  r4,#1
+lsl  r4,r4,#27               // Is this an enemy? If they are, then they have their identifiers in the ROM
+add  r1,#0xFC
+ldr  r1,[r1,#0]
 ldrb r2,[r1,#0]
-cmp r1,r4
-bge +
-ldr r1,=#0x149
-add r2,r2,r1                 // Character's articles are at enemy_extras + 0x149
+cmp  r1,r4
+bge  +
+ldr  r1,=#0x149
+add  r2,r2,r1                // Character's articles are at enemy_extras + 0x149
 +
-mov r1,r2                    // Keep this in r1 in case the other functions want to do stuff with it
+mov  r1,r2                   // Keep this in r1 in case the other functions want to do stuff with it
 ldr  r4,=#0x2014320          // this is the address where we'll store the current enemy's value
 strh r1,[r4,#0]              // store the value. How easy!
-pop {r2}
-pop {pc}
+pop  {r2}
+pop  {pc}
 
-.costant_save_target:       // A piece of code for the target of the action
+.costant_save_target:        // A piece of code for the target of the action
 push {lr}
 push {r2}
-mov r4,#1
-lsl r4,r4,#27                // Is this an enemy? If they are, then they have their identifiers in the ROM
-add r1,#0xFC
-ldr r1,[r1,#0]
+mov  r4,#1
+lsl  r4,r4,#27               // Is this an enemy? If they are, then they have their identifiers in the ROM
+add  r1,#0xFC
+ldr  r1,[r1,#0]
 ldrb r2,[r1,#0]
-cmp r1,r4
-bge +
-ldr r1,=#0x149
-add r2,r2,r1                 // Character's articles are at enemy_extras + 0x149
+cmp  r1,r4
+bge  +
+ldr  r1,=#0x149
+add  r2,r2,r1                // Character's articles are at enemy_extras + 0x149
 +
-mov r1,r2                    // Keep this in r1 in case the other functions want to do stuff with it
+mov  r1,r2                   // Keep this in r1 in case the other functions want to do stuff with it
 ldr  r4,=#0x2014360          // this is the address where we'll store the current target's value
 strh r1,[r4,#0]              // store the value. How easy!
-pop {r2}
-pop {pc}
+pop  {r2}
+pop  {pc}
 
 .base_saving_enemy:          // Saves the phrase protagonist. r0 has the address
 push {lr}
 push {r1-r4}
-mov r1,r0                    // r0 has the base address of the main character in the phrase
-bl .costant_save
-pop {r1-r4}
-pop {pc}
+mov  r1,r0                   // r0 has the base address of the main character in the phrase
+bl   .costant_save
+pop  {r1-r4}
+pop  {pc}
 
-.base_saving_target:          // Saves the phrase target. r0 has the address
+.base_saving_target:         // Saves the phrase target. r0 has the address
 push {lr}
 push {r1-r4}
-mov r1,r0                    // r0 has the base address of the main character in the phrase
-bl .costant_save_target
-pop {r1-r4}
-pop {pc}
+mov  r1,r0                   // r0 has the base address of the main character in the phrase
+bl   .costant_save_target
+pop  {r1-r4}
+pop  {pc}
 
 .base_saving_enemy_2:        // Saves the phrase protagonist. r1 already has the address
 push {lr}
 push {r1-r4}
-bl .costant_save
-pop {r1-r4}
-pop {pc}
+bl   .costant_save
+pop  {r1-r4}
+pop  {pc}
 
 .base_saving_enemy_3:        // Saves the phrase protagonist. r7 has the address
 push {lr}
 push {r1-r4}
-mov r1,r7                    // r0 has the base address of the main character in the phrase
-bl .costant_save
-pop {r1-r4}
-pop {pc}
+mov  r1,r7                   // r0 has the base address of the main character in the phrase
+bl   .costant_save
+pop  {r1-r4}
+pop  {pc}
 
 .base_saving_enemy_SP:       // Saves the old phrase protagonist
 push {lr}
 push {r1-r4}
 ldr  r4,=#0x2014320          // this is the address where we'll store the previous current enemy's value
 ldrh r1,[r4,#0]              // Load the value. How easy!
-add r4,#0x20                 // The new place for the value
+add  r4,#0x20                // The new place for the value
 strh r1,[r4,#0]              // store the value. How easy!
-pop {r1-r4}
-pop {pc}
+pop  {r1-r4}
+pop  {pc}
 
-.base_saving_enemy_Dual:   // Saves both the new and the old phrase protagonists. r1 already contains the address
+.base_saving_enemy_Dual:     // Saves both the new and the old phrase protagonists. r1 already contains the address
 push {lr}
 push {r1-r4}
-mov r1,r0
-bl .costant_save
-add r4,#0x20
+mov  r1,r0
+bl   .costant_save
+add  r4,#0x20
 strh r1,[r4,#0]
-pop {r1-r4}
-pop {pc}
+pop  {r1-r4}
+pop  {pc}
 
 .base_saving_enemy_2_Dual:   // Saves both the new and the old phrase protagonists. r1 already contains the address
 push {lr}
 push {r1-r4}
-bl .costant_save
-add r4,#0x20
+bl   .costant_save
+add  r4,#0x20
 strh r1,[r4,#0]
-pop {r1-r4}
-pop {pc}
+pop  {r1-r4}
+pop  {pc}
 
 .base_saving_enemy_3_Dual:   // Saves both the new and the old phrase protagonists. r7 has the address
 push {lr}
 push {r1-r4}
-mov r1,r7                    // r7 has the base address of the main character in the phrase
-bl .costant_save
-add r4,#0x20
+mov  r1,r7                   // r7 has the base address of the main character in the phrase
+bl   .costant_save
+add  r4,#0x20
 strh r1,[r4,#0]
-pop {r1-r4}
-pop {pc}
+pop  {r1-r4}
+pop  {pc}
 
 .base_saving_enemy_4_Dual:   // Saves both the new and the old phrase protagonists. r5 has the address
 push {lr}
 push {r1-r4}
-mov r1,r5                    // r5 has the base address of the main character in the phrase
-bl .costant_save
-add r4,#0x20
+mov  r1,r5                   // r5 has the base address of the main character in the phrase
+bl   .costant_save
+add  r4,#0x20
 strh r1,[r4,#0]
-pop {r1-r4}
-pop {pc}
+pop  {r1-r4}
+pop  {pc}
 
 .save_current_enemy_1:
 push {lr}
-bl .base_saving_enemy
-mov r4,r0
-ldr r1,[r4,#0x1C]
-pop {pc}
+bl   .base_saving_enemy
+mov  r4,r0
+ldr  r1,[r4,#0x1C]
+pop  {pc}
 
 .save_current_enemy_2:
 push {lr}
-bl .base_saving_enemy
-mov r5,r0
-mov r4,r1
-pop {pc}
+bl   .base_saving_enemy
+mov  r5,r0
+mov  r4,r1
+pop  {pc}
 
 .save_current_enemy_3:
 push {lr}
-bl .base_saving_enemy
-mov r7,r0
-mov r6,r1
-pop {pc}
+bl   .base_saving_enemy
+mov  r7,r0
+mov  r6,r1
+pop  {pc}
 
 .save_current_enemy_4:
 push {lr}
-bl .base_saving_enemy
-mov r4,r0
-lsl r1,r1,#0x10
-pop {pc}
+bl   .base_saving_enemy
+mov  r4,r0
+lsl  r1,r1,#0x10
+pop  {pc}
 
 .save_current_enemy_5:
 push {lr}
-bl .base_saving_enemy
-mov r6,r0
-mov r4,r1
-pop {pc}
+bl   .base_saving_enemy
+mov  r6,r0
+mov  r4,r1
+pop  {pc}
 
 .save_current_enemy_6:
 push {lr}
-bl .base_saving_enemy
-mov r7,r0
-bl $8072778
-pop {pc}
+bl   .base_saving_enemy
+mov  r7,r0
+bl   $8072778
+pop  {pc}
 
 .save_current_enemy_7:
 push {lr}
-bl .base_saving_enemy_2
-mov r4,r0
-mov r5,r1
-pop {pc}
+bl   .base_saving_enemy_2
+mov  r4,r0
+mov  r5,r1
+pop  {pc}
 
 .save_current_enemy_8:
 push {lr}
-bl .base_saving_enemy
-mov r7,r0
-mov r0,#0
-pop {pc}
+bl   .base_saving_enemy
+mov  r7,r0
+mov  r0,#0
+pop  {pc}
 
 .save_current_enemy_9:
 push {lr}
-bl .base_saving_enemy_SP
-mov r1,r0
-ldr r2,[r1,#0x1C]
-pop {pc}
+bl   .base_saving_enemy_SP
+mov  r1,r0
+ldr  r2,[r1,#0x1C]
+pop  {pc}
 
 .save_current_enemy_10:
 push {lr}
-bl .base_saving_enemy_2_Dual
-mov r7,r10
-mov r6,r9
-pop {pc}
+bl   .base_saving_enemy_2_Dual
+mov  r7,r10
+mov  r6,r9
+pop  {pc}
 
 .save_current_enemy_11:
 push {lr}
-bl .base_saving_enemy_2_Dual
-mov r1,r0
-ldr r2,[r1,#0x1C]
-pop {pc}
+bl   .base_saving_enemy_2_Dual
+mov  r1,r0
+ldr  r2,[r1,#0x1C]
+pop  {pc}
 
 .save_current_enemy_12:
 push {lr}
-bl .base_saving_enemy_2_Dual
-mov r5,r0
-mov r0,r1
-pop {pc}
+bl   .base_saving_enemy_2_Dual
+mov  r5,r0
+mov  r0,r1
+pop  {pc}
 
 .save_current_enemy_13:
 push {lr}
-bl .base_saving_enemy_3_Dual
-mov r5,r0
-ldr r1,[r5,#0x1C]
-pop {pc}
+bl   .base_saving_enemy_3_Dual
+mov  r5,r0
+ldr  r1,[r5,#0x1C]
+pop  {pc}
 
 .save_current_enemy_14:
 push {lr}
-bl .base_saving_enemy_3
-mov r7,r0
-ldr r1,[r7,#0x1C]
-pop {pc}
+bl   .base_saving_enemy_3
+mov  r7,r0
+ldr  r1,[r7,#0x1C]
+pop  {pc}
 
 .save_current_enemy_15:
 push {lr}
-bl .base_saving_enemy_Dual
-mov r0,r1
-ldr r1,[r0,#0x1C]
-pop {pc}
+bl   .base_saving_enemy_Dual
+mov  r0,r1
+ldr  r1,[r0,#0x1C]
+pop  {pc}
 
 .save_current_enemy_16:
 push {lr}
-bl .base_saving_enemy_2_Dual
-mov r6,r0
-mov r4,r1
-pop {pc}
+bl   .base_saving_enemy_2_Dual
+mov  r6,r0
+mov  r4,r1
+pop  {pc}
 
 .save_current_enemy_17:
 push {lr}
-bl .base_saving_enemy_2_Dual
-mov r6,r0
-mov r5,r1
-pop {pc}
+bl   .base_saving_enemy_2_Dual
+mov  r6,r0
+mov  r5,r1
+pop  {pc}
 
 .save_current_enemy_18:
 push {lr}
-bl $80741AC
-bl .base_saving_enemy_3
-pop {pc}
+bl   $80741AC
+bl   .base_saving_enemy_3
+pop  {pc}
 
 .save_current_enemy_19:
 push {lr}
-bl .base_saving_enemy_2_Dual
-mov r4,r0
-mov r6,r1
-pop {pc}
+bl   .base_saving_enemy_2_Dual
+mov  r4,r0
+mov  r6,r1
+pop  {pc}
 
 .save_current_enemy_20:
 push {lr}
-bl .base_saving_enemy_3
-mov r1,r0
-mov r0,r4
-pop {pc}
+bl   .base_saving_enemy_3
+mov  r1,r0
+mov  r0,r4
+pop  {pc}
 
 .save_current_enemy_21:
 push {lr}
-bl $8073F88
-bl .base_saving_enemy_3
-pop {pc}
+bl   $8073F88
+bl   .base_saving_enemy_3
+pop  {pc}
 
 .save_current_enemy_22:
 push {lr}
-bl .base_saving_enemy_4_Dual
-ldr r2,[r4,#0x1C]
-mov r0,#0x94
-pop {pc}
+bl   .base_saving_enemy_4_Dual
+ldr  r2,[r4,#0x1C]
+mov  r0,#0x94
+pop  {pc}
 
 .save_current_enemy_23:
 push {lr}
-bl .base_saving_target
-ldr r2,[r0,#0x1C]
-add r2,#0xF0
-pop {pc}
+bl   .base_saving_target
+ldr  r2,[r0,#0x1C]
+add  r2,#0xF0
+pop  {pc}
 
 .save_current_enemy_24:
 push {lr}
 push {r0}
-mov r0,r2
-bl .base_saving_target
-mov r0,r6
-bl .base_saving_enemy
-pop {r0}
-lsl r0,r0,#0x18
-lsr r0,r0,#0x18
-pop {pc}
+mov  r0,r2
+bl   .base_saving_target
+mov  r0,r6
+bl   .base_saving_enemy
+pop  {r0}
+lsl  r0,r0,#0x18
+lsr  r0,r0,#0x18
+pop  {pc}
 
 //---------------------------------------------------------------------------------------------
 //Multiple PK Thunders fix
@@ -2935,207 +2935,207 @@ fix_synchronization:
 
 .update_value:
 push {lr}
-sub r0,r2,#1
-str r0,[r3,#4] //Default update
+sub  r0,r2,#1
+str  r0,[r3,#4]              //Default update
 push {r2,r5}
-mov r2,#1
-lsl r2,r2,#27                // Is this an enemy? If they are, then they have their identifiers in the ROM
-mov r1,#0x10
-sub r1,r3,r1
-ldr r1,[r1,#0]
-add r1,#0xFC
-ldr r1,[r1,#0] //Load the acter's data
-cmp r1,r2 //If this is an enemy, don't update them!
-bge .update_end
+mov  r2,#1
+lsl  r2,r2,#27               // Is this an enemy? If they are, then they have their identifiers in the ROM
+mov  r1,#0x10
+sub  r1,r3,r1
+ldr  r1,[r1,#0]
+add  r1,#0xFC
+ldr  r1,[r1,#0]              //Load the acter's data
+cmp  r1,r2                   //If this is an enemy, don't update them!
+bge  .update_end
 ldrb r2,[r1,#0]
-cmp r2,#0x11
-bge .update_end //Let's be safe, don't go where you shouldn't!
-lsl r2,r2,#4
-ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
-add r2,r2,r1
-ldr r5,[r2,#0]
-cmp r5,r3 //Is it an already stored address? If it isn't, it's probably Duster's beginning of battle. We don't need it.
-bne .update_end
+cmp  r2,#0x11
+bge  .update_end             //Let's be safe, don't go where you shouldn't!
+lsl  r2,r2,#4
+ldr  r1,=#0x2005CB0          //Area that gets reloaded after each battle and is not used. Really handy!
+add  r2,r2,r1
+ldr  r5,[r2,#0]
+cmp  r5,r3                   //Is it an already stored address? If it isn't, it's probably Duster's beginning of battle. We don't need it.
+bne  .update_end
 .update_value_found:
-str r0,[r2,#4] //Update what's stored
-cmp r0,#0
-bne .update_end
-str r0,[r2,#0] //If this is 0, the person already acted and the memory will be freed.
-str r0,[r2,#8] //Same as above
-str r0,[r2,#0xC] //Same as above
-ldr r2,=#0x110
-add r2,r2,r1
-ldr r5,[r2,#0] //Update the entry count
-sub r5,r5,#1
-str r5,[r2,#0]
+str  r0,[r2,#4]              //Update what's stored
+cmp  r0,#0
+bne  .update_end
+str  r0,[r2,#0]              //If this is 0, the person already acted and the memory will be freed.
+str  r0,[r2,#8]              //Same as above
+str  r0,[r2,#0xC]            //Same as above
+ldr  r2,=#0x110
+add  r2,r2,r1
+ldr  r5,[r2,#0]              //Update the entry count
+sub  r5,r5,#1
+str  r5,[r2,#0]
 
 .update_end:
-pop {r2,r5}
-pop {pc}
+pop  {r2,r5}
+pop  {pc}
 
 //------------------------------------------------------------------------------------------------
 
 .refresh:
 push {lr,r0-r1}
 push {r3-r7}
-ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
-ldr r4,=#0x110
-add r4,r4,r1
-ldr r4,[r4,#0] //Total count
-mov r5,#0 //Current count
-mov r0,#0
+ldr  r1,=#0x2005CB0          //Area that gets reloaded after each battle and is not used. Really handy!
+ldr  r4,=#0x110
+add  r4,r4,r1
+ldr  r4,[r4,#0]              //Total count
+mov  r5,#0                   //Current count
+mov  r0,#0
 -
-lsl r0,r0,#4
-add r3,r0,r1
-ldr r2,[r3,#0]
-cmp r2,#0 //If address is 0, then there is nothing to refresh.
-beq +
-mov r7,#0x3C
-sub r7,r2,r7
-ldr r6,=#0x20657375 //"use " string used by the game
-ldr r7,[r7,#0] //Load the status of the memory zone
-cmp r7,r6 //Is it still in use?
-bne .remove_action_done
-ldr r6,[r3,#0xC]
-mov r7,#0x3C
-sub r7,r2,r7
-ldr r7,[r7,#4] //Load the size of the memory zone
-cmp r6,r7 //Is the size still it?
-bne .remove_action_done
-mov r7,#0x10
-sub r7,r2,r7
-ldr r7,[r7,#0] //Load the character's address from the action
-ldr r6,[r3,#8] //Load the character's address
-cmp r7,r6 //If it's in use, is the character's address still there? It won't be if the action's been completed.
-bne .remove_action_done
-bl .refresh_value
-add r5,#1
-b .cont_alive
+lsl  r0,r0,#4
+add  r3,r0,r1
+ldr  r2,[r3,#0]
+cmp  r2,#0                   //If address is 0, then there is nothing to refresh.
+beq  +
+mov  r7,#0x3C
+sub  r7,r2,r7
+ldr  r6,=#0x20657375         //"use " string used by the game
+ldr  r7,[r7,#0]              //Load the status of the memory zone
+cmp  r7,r6                   //Is it still in use?
+bne  .remove_action_done
+ldr  r6,[r3,#0xC]
+mov  r7,#0x3C
+sub  r7,r2,r7
+ldr  r7,[r7,#4]              //Load the size of the memory zone
+cmp  r6,r7                   //Is the size still it?
+bne  .remove_action_done
+mov  r7,#0x10
+sub  r7,r2,r7
+ldr  r7,[r7,#0]              //Load the character's address from the action
+ldr  r6,[r3,#8]              //Load the character's address
+cmp  r7,r6                   //If it's in use, is the character's address still there? It won't be if the action's been completed.
+bne  .remove_action_done
+bl   .refresh_value
+add  r5,#1
+b    .cont_alive
 .remove_action_done:
-sub r4,r4,#1 //Someone completed their action! Don't do them! Update total count!
-mov r6,#0
-str r6,[r3,#0] //Remove the entry!
-str r6,[r3,#4]
-str r6,[r3,#8]
-str r6,[r3,#0xC]
-ldr r6,=#0x110
-add r6,r6,r1
-str r4,[r6,#0] //Store new total count too!
+sub  r4,r4,#1                //Someone completed their action! Don't do them! Update total count!
+mov  r6,#0
+str  r6,[r3,#0]              //Remove the entry!
+str  r6,[r3,#4]
+str  r6,[r3,#8]
+str  r6,[r3,#0xC]
+ldr  r6,=#0x110
+add  r6,r6,r1
+str  r4,[r6,#0]              //Store new total count too!
 .cont_alive:
 +
-cmp r5,r4
-bge .refresh_end //We refreshed them all!
-lsr r0,r0,#4
-add r0,#1
-cmp r0,#0x11 //Refresh all the addresses that are not 0
-blt -
-b .refresh_end
+cmp  r5,r4
+bge  .refresh_end            //We refreshed them all!
+lsr  r0,r0,#4
+add  r0,#1
+cmp  r0,#0x11                //Refresh all the addresses that are not 0
+blt  -
+b    .refresh_end
 
 .refresh_value:
 push {lr}
-ldr r3,[r3,#4]
-str r3,[r2,#4] //The actual refresh
-pop {pc}
+ldr  r3,[r3,#4]
+str  r3,[r2,#4]              //The actual refresh
+pop  {pc}
 
 .refresh_end:
-pop {r3-r7}
-pop {pc,r0-r1}
+pop  {r3-r7}
+pop  {pc,r0-r1}
 
 .call_refresh_enemy_joins_by_itself: //When an enemy joins the fight by itself from outside the screen (Happens when 2 enemies are called and at the beginning of battle too)
 push {lr}
-bl .refresh
-mov r3,r8 //Clobbered code
-ldr r2,[r3,#4]
-pop {pc}
+bl   .refresh
+mov  r3,r8                   //Clobbered code
+ldr  r2,[r3,#4]
+pop  {pc}
 
 .call_refresh_enemy_is_called: //When a single enemy is called into the fight or joins it (Ceiling or PORKYs)
 push {lr}
-bl .refresh
-mov r8,r0 //Clobbered code
-ldr r1,[r5,#0x1C]
-pop {pc}
+bl   .refresh
+mov  r8,r0                   //Clobbered code
+ldr  r1,[r5,#0x1C]
+pop  {pc}
 
 //---------------------------------------------------------------------------------------------
 
 .setup: //0s the area we'll use
 push {lr}
-ldr r1,=#0x2005CB0 //Area that gets reloaded after each battle and is not used. Really handy!
-mov r0,#0
+ldr  r1,=#0x2005CB0          //Area that gets reloaded after each battle and is not used. Really handy!
+mov  r0,#0
 push {r0}
-mov r0,sp
-mov r2,#0x45
+mov  r0,sp
+mov  r2,#0x45
 mov  r3,#5
 lsl  r3,r3,#24
 orr  r2,r3                   // set the 24th bit of r2 so it'll know to fill instead of copy, The 26th bit is also set so it uses Words.
-swi #0xB
-pop {r0}
-pop {pc}
+swi  #0xB
+pop  {r0}
+pop  {pc}
 
 //----------------------------------------------------------------------------------------------------
 
-.first_setup: //Happens at start of battle, sets the zone we'll use to all 0s.
+.first_setup:                //Happens at start of battle, sets the zone we'll use to all 0s.
 push {lr}
-bl .setup
-bl $8072B70 //Clobbered code
-pop {pc}
+bl   .setup
+bl   $8072B70                //Clobbered code
+pop  {pc}
 
 //-----------------------------------------------------------------------------------------------------
 
-.battle_turn_setup: //Happens at end of turn. Sets the zone back to all 0s.
+.battle_turn_setup:          //Happens at end of turn. Sets the zone back to all 0s.
 push {lr}
-cmp r5,#0
-bne +
+cmp  r5,#0
+bne  +
 push {r2-r3}
-bl .setup
-pop {r2-r3}
+bl   .setup
+pop  {r2-r3}
 +
-lsl r0,r5,#3 //Clobbered code
-ldr r4,[r6,#8]
-pop {pc}
+lsl  r0,r5,#3                //Clobbered code
+ldr  r4,[r6,#8]
+pop  {pc}
 
 //------------------------------------------------------------------------------------------------------
 
-.end_choice_register: //Stores the action count for the characters
+.end_choice_register:        //Stores the action count for the characters
 push {lr,r1-r3,r5}
-bl $8091938
-cmp r0,#0
-beq .end_choice_end //No action = no registration of it needed (sleeping/solidified characters)
-mov r1,r4
-add r1,#0xFC
-ldr r1,[r1,#0]
-mov r2,#1
-lsl r2,r2,#27
-cmp r1,r2
-bge .end_choice_end //How did an enemy get here?! I don't know, but let's be safe
-mov r2,r1
+bl   $8091938
+cmp  r0,#0
+beq  .end_choice_end         //No action = no registration of it needed (sleeping/solidified characters)
+mov  r1,r4
+add  r1,#0xFC
+ldr  r1,[r1,#0]
+mov  r2,#1
+lsl  r2,r2,#27
+cmp  r1,r2
+bge  .end_choice_end         //How did an enemy get here?! I don't know, but let's be safe
+mov  r2,r1
 ldrb r1,[r1,#0]
-cmp r1,#0x11
-bge .end_choice_end //Let's be safe, don't go where you shouldn't!
-mov r3,r2
-lsl r1,r1,#4 //get the address
-ldr r2,=#0x2005CB0
-mov r5,r2
-add r5,#0x11
-add r5,#0xFF
-add r1,r1,r2
-mov r2,r0
-add r2,#0x34
-mov r3,r2 //r3 has the action address now.
-ldr r2,[r3,#4] //Load the action count!
-cmp r2,#0 //If no action is performed anyway (Final battle) don't save addresses. A failsafe in case someone cheats stuff.
-beq +
-str r3,[r1,#0] //Store the address!
-str r2,[r1,#4] //Store the action count!
-str r4,[r1,#8] //Store the character address! Useful to check if the action still has to be done!
-mov r2,#0x8
-sub r3,r0,r2
-ldr r3,[r3,#4]
-str r3,[r1,#0xC] //Store the memory region's size. Another failsafe.
-ldr r2,[r5,#0] //Store how many people we must update in total! Saves time!
-add r2,#1
-str r2,[r5,#0]
+cmp  r1,#0x11
+bge  .end_choice_end         //Let's be safe, don't go where you shouldn't!
+mov  r3,r2
+lsl  r1,r1,#4                //get the address
+ldr  r2,=#0x2005CB0
+mov  r5,r2
+add  r5,#0x11
+add  r5,#0xFF
+add  r1,r1,r2
+mov  r2,r0
+add  r2,#0x34
+mov  r3,r2                   //r3 has the action address now.
+ldr  r2,[r3,#4]              //Load the action count!
+cmp  r2,#0                   //If no action is performed anyway (Final battle) don't save addresses. A failsafe in case someone cheats stuff.
+beq  +
+str  r3,[r1,#0]              //Store the address!
+str  r2,[r1,#4]              //Store the action count!
+str  r4,[r1,#8]              //Store the character address! Useful to check if the action still has to be done!
+mov  r2,#0x8
+sub  r3,r0,r2
+ldr  r3,[r3,#4]
+str  r3,[r1,#0xC]            //Store the memory region's size. Another failsafe.
+ldr  r2,[r5,#0]              //Store how many people we must update in total! Saves time!
+add  r2,#1
+str  r2,[r5,#0]
 +
 
 
 .end_choice_end:
-pop {pc,r1-r3,r5}
+pop  {pc,r1-r3,r5}

@@ -1010,10 +1010,10 @@ org $807D31E
   nop
 
 // these hacks save/clear data for the custom CC hacks
-org $807A746; bl battle_hacks.clear_current_enemy  // clears current enemy #, fixes "The Flint"
-org $80809FC; bl battle_hacks.save_current_enemy   // saves current enemy #, needs improvement
-org $8062C26; bl battle_hacks.save_total_enemies   // saves total # of enemies
-org $8064984; bl battle_hacks.save_current_item    // saves current item #
+org $807A746; bl battle_hacks.clear_current_enemy        // clears current enemy #, fixes "The Flint"
+org $80809FC; bl battle_hacks.save_current_enemy         // saves current enemy #, needs improvement
+org $8062C26; bl battle_hacks.save_total_enemies         // saves total # of enemies
+org $8064984; bl battle_hacks.save_current_item          // saves current item #
 org $807B16C; bl battle_hacks.save_current_enemy_1       //General menus
 org $8073E40; bl battle_hacks.save_current_enemy_2
 org $8073740; bl battle_hacks.save_current_enemy_3       //Damage
