@@ -2922,7 +2922,7 @@ push {r0}
 mov  r0,r2
 bl   .base_saving_target
 mov  r0,r6
-bl   .base_saving_enemy
+bl   .base_saving_enemy_Dual
 pop  {r0}
 lsl  r0,r0,#0x18
 lsr  r0,r0,#0x18
