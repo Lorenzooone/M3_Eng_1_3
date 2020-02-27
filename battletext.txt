@@ -3100,8 +3100,8 @@
 // Used by the action: 22
 04B2: [10 FF] and company joined the fight![END]
 04B2-E: [10 FF] and company joined the fight![END]
-04B3: [04 EF][11 FF] stomped its feet![WAIT][12 FF] and company were hit by a shock wave![END]
-04B3-E: [04 EF][11 FF] stomped its feet![WAIT][12 FF] and company were hit by a shock wave![END]
+04B3: [04 EF][11 FF] stomped [06 EF]feet![WAIT][44 EF][12 FF] and company were hit by a shock wave![END]
+04B3-E: [04 EF][11 FF] stomped [06 EF]feet![WAIT][44 EF][12 FF] and company were hit by a shock wave![END]
 // Used by the enemy:  King Statue
 // Used by the actions: 566, 573
 04B4: [04 EF][11 FF] swung both arms all around![END]
@@ -3126,8 +3126,8 @@
 04B9-E: [04 EF][11 FF] came crashing down![END]
 // Used by the enemy:  Minerali
 // Used by the action: 645
-04BA: [04 EF][11 FF] crashed into the ground![WAIT][12 FF] and company were hit by a shock wave![END]
-04BA-E: [04 EF][11 FF] crashed into the ground![WAIT][12 FF] and company were hit by a shock wave![END]
+04BA: [04 EF][11 FF] crashed into the ground![WAIT][44 EF][12 FF] and company were hit by a shock wave![END]
+04BA-E: [04 EF][11 FF] crashed into the ground![WAIT][44 EF][12 FF] and company were hit by a shock wave![END]
 // Used by the action: 646
 04BB: [04 EF][11 FF] sent rock fragments flying![END]
 04BB-E: [04 EF][11 FF] sent rock fragments flying![END]
