@@ -2268,8 +2268,8 @@
 03B1-E: [04 EF][11 FF] is trembling with fear![END]
 // Used by the enemy:  Big Bro
 // Used by the action: 203
-03B2: [11 FF] is acting nervous![END]
-03B2-E: [11 FF] is acting nervous![END]
+03B2: [04 EF][11 FF] is acting nervous![END]
+03B2-E: [04 EF][11 FF] is acting nervous![END]
 // Used by the enemy:  Big Bro
 // Used by the action: 204
 03B3: [04 EF][11 FF] is having trouble balancing![END]
