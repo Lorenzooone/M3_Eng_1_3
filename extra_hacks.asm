@@ -727,3 +727,32 @@ mov  r0,#1                 // if we made it this far, the strings are equal
 +
 pop  {r1-r4}
 bx   lr
+
+//---------------------------------------------------------------------------------------
+// Sets the current money on hand to an arbitrary value - 04 00 9E 00
+//---------------------------------------------------------------------------------------
+.set_money_on_hand:
+push {lr}
+mov  r1,#0
+bl   $8021914
+ldr  r2,=#0x2004860
+str  r0,[r2,#8]
+mov  r0,#0
+pop  {pc}
+
+//---------------------------------------------------------------------------------------
+// Pushes the current money on hand. If it's too high, set it to 10000 - 04 00 9F 00
+//---------------------------------------------------------------------------------------
+.push_money_on_hand:
+push {lr}
+ldr  r2,=#0x2004860
+ldr  r0,[r2,#8]
+ldr  r1,=#0xF423F          // Maximum money is 999999
+cmp  r0,r1
+ble  +
+ldr  r1,=#0x2710           // Set it to 10000
+str  r1,[r2,#8]
++
+bl   $80218E8
+mov  r0,#0
+pop  {pc}

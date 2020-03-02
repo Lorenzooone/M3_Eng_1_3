@@ -20507,8 +20507,9 @@
 
 [Container 894]
 894-0:◆ＮＯ　ＯＰＥＲＡＴＩＯＮ[END]
-894-0E:@NO OPERATION[END]
-// Repeats: 894-0, 894-9
+894-0E:@What do you want to do?[WAIT][MENU 03 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Change table[RIGHT][BREAK]  [LEFT]Attract mode[RIGHT][BREAK][ENDCHOICES][END]
+// This line goes unused, so we reuse it for our purposes
+// It said:@NO OPERATION[END]
 894-1:◆ＣＨＡＰＴＥＲ１　ＳＴＡＲＴ[WAIT][MENU 02 00]　　　いいえ　　　はい[ENDCHOICES][END]
 894-1E:@CHAPTER 1    START[WAIT][MENU 02 00][MENUSPACEYES]No[MENUSPACENO]Yes[ENDCHOICES][END]
 894-2:◆ＣＨＡＰＴＥＲ２　ＳＴＡＲＴ[WAIT][MENU 02 00]　　　いいえ　　　はい[ENDCHOICES][END]
@@ -20526,8 +20527,9 @@
 894-8:◆ＣＨＡＰＴＥＲ８　ＳＴＡＲＴ[WAIT][MENU 02 00]　　　いいえ　　　はい[ENDCHOICES][END]
 894-8E:@CHAPTER 8    START[WAIT][MENU 02 00][MENUSPACEYES]No[MENUSPACENO]Yes[ENDCHOICES][END]
 894-9:◆ＮＯ　ＯＰＥＲＡＴＩＯＮ[END]
-894-9E:@NO OPERATION[END]
-// Repeats: 894-0, 894-9
+894-9E:@Which table?[WAIT][MENU 06 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Table 1[RIGHT][BREAK]  [LEFT]Table 2[RIGHT][BREAK]  [LEFT]Table 3[RIGHT][BREAK]  [LEFT]Table 4[RIGHT][BREAK]  [LEFT]Table 5[RIGHT][BREAK][ENDCHOICES][END]
+// There is an entry associated with this, however it goes unused (And it did nothing), so we reuse the line for our purposes.
+// It said:@NO OPERATION[END]
 894-10:◆ＧＥＴ　ＩＴＥＭ　[ITEM 5D 00][WAIT][MENU 02 00]　　　いいえ　　　はい[ENDCHOICES][END]
 894-10E:@GET ITEM [ITEM 5D 00]?[WAIT][MENU 02 00][MENUSPACENO]No[MENUSPACENO]Yes[ENDCHOICES][END]
 894-11:◇[ITEM 6F 00]を　てにいれた！[END]
@@ -20562,7 +20564,9 @@
 894-25:◆リュカ・クマトラの年代を切り替えます。[BREAK][MENU 02 00]　　　少年　　　青年[BREAK][ENDCHOICES][END]
 894-25E:@Select Lucas and Kumatora's ages:[BREAK][MENU 02 00][MENUSPACEYES]Kids[MENUSPACENO]Adolescents[ENDCHOICES][END]
 894-26:◆フラグ５０をオフにしました。[END]
-894-26E:@Turned off 50 flags.[END]
+894-26E:@Which attract mode?[WAIT][MENU 03 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Family[RIGHT][BREAK]  [LEFT]Others[RIGHT][BREAK][ENDCHOICES][END]
+// This line goes unused, so we reuse it for our purposes
+// It said:@Turned off 50 flags.[END]
 894-27:◆すべてのメモフラグをＯＮ[BREAK]　すべての地図を取得します。[WAIT][MENU 02 00]　　　はい　　　いいえ[ENDCHOICES][END]
 894-27E:@Turn on all memo flags and obtain all maps.[WAIT][MENU 02 00][MENUSPACEYES]No[MENUSPACENO]Yes[ENDCHOICES][END]
 894-28:◆エンディング開始しますか？[WAIT][MENU 02 00]　　　はい　　　いいえ[ENDCHOICES][END]

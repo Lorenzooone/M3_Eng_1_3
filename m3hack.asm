@@ -1507,7 +1507,7 @@ org $9166398; dd $00000000
 org $8C9505A; db $A2
 
 //Add Multi Debug room: selected table = money on hand - 1'000'000 | money on hand address: 0x02004868
-org $9364430; incbin multi_debug.bin
+org $9364430; incbin logic_multi_debug.bin
 org $9360076; db $EC //Change pointer to another script that does the exact same thing.
 
 //Update K9000's battle and overworld sprites
@@ -1527,7 +1527,7 @@ org $93285C0; incbin data_ghost_fix.bin
 //org $80D3594; dw $0268
 //org $80D6204; dw $0268
 
-//Fix "Multiple PK Thunders" bug
+//Fix "Multiple PK Thunders" bug - REDO: The issue is that whenever an enemy joins, the game updates the target values, however PK Thunder and PK Ground have no target and instead use that field to store the amount of times the attack will hit
 org $805F670; bl fix_synchronization.end_choice_register
 org $8062C6E; bl fix_synchronization.call_refresh_enemy_joins_by_itself
 org $80627E0; bl fix_synchronization.call_refresh_enemy_is_called
@@ -1535,7 +1535,7 @@ org $8078502; bl fix_synchronization.update_value
 org $805DE2C; bl fix_synchronization.first_setup
 org $805F58C; bl fix_synchronization.battle_turn_setup
 
-//Fix flickering in Fassad's low voice talk with Lucas. (Script: 32-21)
+//Fix flickering in Fassad's low voice talk with Lucas. (Script: 32-21) - REDO: Create a new branch for the display command that lets the character talk but doesn't display the grey bar!
 org $91E0FE5; db $30 //Adds 16 more frames to allow for the text prompt to properly close
 
 //Fix Debug Room's Staff roll
@@ -1572,7 +1572,7 @@ org $91F2B71; db $07 //Four people
 //Fix issue where losing in the prologue removes all Claus' PPs.
 org $8001D5A; bl claus_pp_fix.main; pop {r1}; bx r1
 
-//Fix issue with mouse in block 632 always displaying "Talking to Salsa"'s line when it can never be interacted with as Salsa
+//Fix issue with mouse in block 632 always displaying "Talking to Salsa/Boney"'s line when it can never be interacted with as Salsa
 org $9199FD4; dd $00E3CBF0
 org $9199FD8; dd $00E3CC04
 org $9FD5800; incbin logic_pointer_277.bin
@@ -1581,6 +1581,22 @@ org $9FD5814; incbin logic_code_277.bin
 //Fix issue with Thomas in block 91 disappearing if the pigmask notebook is collected and the sprite table is reloaded
 org $9222696; db $93 //Jump to next instruction set
 org $92226B4; dd $0093000C //Jump to next instruction set
+
+//Add new npc to swap table in debug room
+org $93699D4; incbin logic_new_npc_debug.bin
+org $9360070; db $19
+org $93600A2; dw $264C
+org $9368049; db $0D
+org $8D2DCCC; dd $8005B35 //04 00 9D 00 - Resets the drawing mode
+org $8D2DCD0; dd extra_hacks.set_money_on_hand+1 //04 00 9E 00
+org $8D2DCD4; dd extra_hacks.push_money_on_hand+1 //04 00 9F 00
+org $8D2D8CC; dd $0
+org $8D2D8D0; dd $1
+org $8D2D8D4; dd $0
+org $9FD6B98; incbin object_tables_debug.bin
+org $9137120; dd $9FD6B98-$9132B58, $9FD6B98+$1E0-$9132B58, $9FD6B98+$2A0-$9132B58, $9FD6B98+$348-$9132B58, $9FD6B98+$3F0-$9132B58
+org $9FD7078; incbin logic_blocks_37F_380.bin
+org $919A80C; dd $9FD7078-$9198C10, $9FD7078+$C-$9198C10, $9FD7078+$74-$9198C10, $9FD7078+$84-$9198C10
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
