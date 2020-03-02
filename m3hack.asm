@@ -1594,9 +1594,9 @@ org $8D2D8CC; dd $0
 org $8D2D8D0; dd $1
 org $8D2D8D4; dd $0
 org $9FD6B98; incbin object_tables_debug.bin
-org $9137120; dd $9FD6B98-$9132B58, $9FD6B98+$1E0-$9132B58, $9FD6B98+$2A0-$9132B58, $9FD6B98+$348-$9132B58, $9FD6B98+$3F0-$9132B58
+org $9137120; dd $00EA4040, $00EA4220, $00EA42E0, $00EA4388, $00EA4430
 org $9FD7078; incbin logic_blocks_37F_380.bin
-org $919A80C; dd $9FD7078-$9198C10, $9FD7078+$C-$9198C10, $9FD7078+$74-$9198C10, $9FD7078+$84-$9198C10
+org $919A80C; dd $00E3E468, $00E3E474, $00E3E4DC, $00E3E4EC
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
