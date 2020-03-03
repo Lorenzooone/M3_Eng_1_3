@@ -466,6 +466,7 @@
 00E2-E: [END]
 00E3: It didn't work on [25 EF][12 FF]![END]
 00E3-E: It didn't work on [25 EF][12 FF]![END]
+//Used if a status move is used on a resistant entity or if said entity is already afflicted by said status (even used after 3 buffs/debuffs are applied)
 00E4: [END]
 00E4-E: [END]
 00E5: [END]
@@ -2418,21 +2419,27 @@
 // Used by the action: 244
 03DB: [04 EF][11 FF] clung to [12 FF]![END]
 03DB-E: [04 EF][11 FF] clung to [12 FF]![END]
+// Used by the enemy: Cuddle Bomb
 // Used by the actions: 245, 510, 511, 512, 513
 03DC: [04 EF][11 FF] murmured, "Three..."[END]
 03DC-E: [04 EF][11 FF] murmured, "Three..."[END]
+// Used by the enemy: Cuddle Bomb
 // Used by the action: 246
 03DD: [04 EF][11 FF] murmured, "Two..."[END]
 03DD-E: [04 EF][11 FF] murmured, "Two..."[END]
+// Used by the enemy: Cuddle Bomb
 // Used by the action: 247
 03DE: [04 EF][11 FF] murmured, "One..."[END]
 03DE-E: [04 EF][11 FF] murmured, "One..."[END]
+// Used by the enemy: Cuddle Bomb
 // Used by the action: 248
 03DF: [04 EF][11 FF] was shaken off![END]
 03DF-E: [04 EF][11 FF] was shaken off![END]
+// Used by the enemy: Cuddle Bomb
 // Used by the action: 249
 03E0: [04 EF][11 FF] is acting flustered![END]
 03E0-E: [04 EF][11 FF] is acting flustered![END]
+// Used by the enemy: Cuddle Bomb
 // Used by the action: 250
 03E1: [04 EF][11 FF]'s batteries died![31 FF][END]
 03E1-E: [04 EF][11 FF]'s batteries died![31 FF][END]
