@@ -1602,9 +1602,17 @@ org $919A80C; dd $00E3E468, $00E3E474, $00E3E4DC, $00E3E4EC
 org $93682E8; dd $0000130E, $0000130E, $0000130E
 org $93683F4; dd $0000130E, $0000130E, $0000130E
 
-//Fix Boney not having the right sprite if chapter 4 is accessed via the debug room's option "Violet's Room"
+//Fix Boney not having the right sprite if chapter 4 is accessed via the debug room option "Violet Room"
 org $9366519; db $05
 org $9366601; db $05
+
+//Change missing mice lines to have a "One" mouse missing and a "X" mice missing
+org $92EA6D9; db $06
+org $92EA6E0; dd $00B9000D, $00A7000C
+org $92EA8E1; db $06
+org $92EA8E8; dd $0133000D, $0129000C
+org $92EA949; db $00
+org $92EA952; db $67
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
