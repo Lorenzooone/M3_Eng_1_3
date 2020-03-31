@@ -1615,6 +1615,10 @@ org $92EA949; db $00
 org $92EA94D; db $0B
 org $92EA952; db $67
 
+//Make it so Boney's minimum level at the beginning of Chapter 4 is standardized
+org $91DF29D; db $0A
+org $91DF2AD; db $0A
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
