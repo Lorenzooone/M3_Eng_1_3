@@ -1516,67 +1516,67 @@ bx   lr
 .execute_custom_cc:
 push {r0-r3,lr}
 
-ldrb r0,[r4,#1]              // load the high byte of the current letter
-cmp  r0,#0xEF                // if it isn't 0xEF, do normal stuff and then leave
+ldrb r0,[r4,#1]                  // load the high byte of the current letter
+cmp  r0,#0xEF                    // if it isn't 0xEF, do normal stuff and then leave
 beq  +
 
-ldrh r0,[r4,#0]              // load the correct letter again
-strh r0,[r5,#0]              // store the letter
-add  r4,#2                   // increment the read address
-add  r5,#2                   // increment the write address
-b    .ecc_end                // leave this subroutine
+ldrh r0,[r4,#0]                  // load the correct letter again
+strh r0,[r5,#0]                  // store the letter
+add  r4,#2                       // increment the read address
+add  r5,#2                       // increment the write address
+b    .ecc_end                    // leave this subroutine
 
 //---------------------------------------------------------------------------------------------
 
 +
-ldrb r0,[r4,#0]              // load the low byte of the current letter, this is our argument
-cmp  r0,#0x20                // if this is EF20, go do that code elsewhere
+ldrb r0,[r4,#0]                  // load the low byte of the current letter, this is our argument
+cmp  r0,#0x20                    // if this is EF20, go do that code elsewhere
 beq  +
 
 mov  r2,#0x10
-sub  r2,r0,r2                // r2 = argument - #0x10, this will make it easier to work with
+sub  r2,r0,r2                    // r2 = argument - #0x10, this will make it easier to work with
 
-ldr  r0,=#0x201A1FD          // this gets the current item #
+ldr  r0,=#0x201A1FD              // this gets the current item #
 ldrb r0,[r0,#0]
 
-mov  r1,#7                   // 7 article entries per letter
-mul  r0,r1                   // r3 = item num * 7
-ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
-add  r0,r0,r1                // r0 now has the address of the correct item table
-ldrb r0,[r0,r2]              // r0 now has the proper article entry #
+mov  r1,#7                       // 7 article entries per letter
+mul  r0,r1                       // r3 = item num * 7
+ldr  r1,=#{item_extras_address}  // this is the base address of our extra item data table in ROM
+add  r0,r0,r1                    // r0 now has the address of the correct item table
+ldrb r0,[r0,r2]                  // r0 now has the proper article entry #
 mov  r1,#40
-mul  r0,r1                   // calculate the offset into custom_text.bin
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
-add  r0,r0,r1                // r0 now has the address of the string we want
+mul  r0,r1                       // calculate the offset into custom_text.bin
+ldr  r1,=#{custom_text_address}  // load r1 with the base address of our custom text array in ROM
+add  r0,r0,r1                    // r0 now has the address of the string we want
 
-mov  r1,r5                   // r1 now has the address to write to
-bl   custom_strcopy          // r0 returns with the # of bytes copied
+mov  r1,r5                       // r1 now has the address to write to
+bl   custom_strcopy              // r0 returns with the # of bytes copied
 
-add  r5,r5,r0                // update the write address
-add  r4,#2                   // increment the read address
+add  r5,r5,r0                    // update the write address
+add  r4,#2                       // increment the read address
 b    .ecc_end
 
 //---------------------------------------------------------------------------------------------
 
-+                            // all this code here prints the proper "is equipment" message
-ldr  r0,=#0x201A1FD          // this gets the current item #
++                                // all this code here prints the proper "is equipment" message
+ldr  r0,=#0x201A1FD              // this gets the current item #
 ldrb r0,[r0,#0]
-ldr  r1,=#0x80E510C          // start of item data blocks + item_type address
-mov  r2,#0x6C                // size of each item data block
-mul  r0,r2                   // item_num * 6C
-add  r0,r0,r1                // stored at this address is the current item's type
-ldrb r0,[r0,#0]              // load the item type
-add  r0,#20                  // add 20 -- starting on line 20 of item_extras.txt are the strings we want
+ldr  r1,=#0x80E510C              // start of item data blocks + item_type address
+mov  r2,#0x6C                    // size of each item data block
+mul  r0,r2                       // item_num * 6C
+add  r0,r0,r1                    // stored at this address is the current item's type
+ldrb r0,[r0,#0]                  // load the item type
+add  r0,#20                      // add 20 -- starting on line 20 of item_extras.txt are the strings we want
 mov  r1,#40
 mul  r0,r1
-ldr  r1,=#0x8D0829C          // this is the base address of our custom text array
-add  r0,r0,r1                // r0 now has the correct address
+ldr  r1,=#{custom_text_address}  // this is the base address of our custom text array
+add  r0,r0,r1                    // r0 now has the correct address
 
 mov  r1,r5
-bl   custom_strcopy          // r0 returns the # of bytes copied
+bl   custom_strcopy              // r0 returns the # of bytes copied
 
-add  r5,r5,r0                // update the write address
-add  r4,#2                   // increment the read address
+add  r5,r5,r0                    // update the write address
+add  r4,#2                       // increment the read address
 
 //---------------------------------------------------------------------------------------------
 

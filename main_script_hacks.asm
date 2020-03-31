@@ -300,48 +300,73 @@ bl $08021B1C
 .custom_cc:
 push {r1-r2}
 
-ldrb r0,[r5,#0]        // load the argument byte
+ldrb r0,[r5,#0]                   // load the argument byte
 bl   .decode_byte
-sub  r0,#0x10
 
-mov  r2,r0             // r2 will be an offset into the extra item data slot
+mov  r2,r0                        // r2 will be an offset into the extra item data slot
 
 // ----------------
-lsr  r0,r0,#7          // Jeff hack - if bit 0x80 of the arg byte is set,
-cmp  r0,#0             // use 201AAF8 instead for the item address
+lsr  r0,r0,#7                     // Jeff hack - if bit 0x80 of the arg byte is set,
+cmp  r0,#0                        // use 201AAF8 instead for the address
 beq  +
 ldr  r0,=#0x201AAF8
-sub  r2,#0x80          // re-adjust r2 by unsetting the 0x80 flag
-lsr  r1,r2,#5          // allow for more CCs based on the stack position
+sub  r2,#0x80                     // re-adjust r2 by unsetting the 0x80 flag
+lsr  r1,r2,#5                     // allow for more CCs based on the stack position
 lsl  r1,r1,#2
 add  r0,r0,r1
 mov  r1,#0x1F
-and  r2,r1             // re-adjust
+and  r2,r1                        // re-adjust
 b    .custom_cc_adrcheck
 +
-ldr  r0,=#0x2014324    // this is where the current item # will be saved by another hack
+ldr  r0,=#0x2014324               // this is where the current item # will be saved by another hack
 .custom_cc_adrcheck:
 // ----------------
 
-ldrh r0,[r0,#0x0]      // load the current item #
-mov  r1,#7
-mul  r0,r1             // offset = item ID * 7 bytes
-ldr  r1,=#0x8D090D9    // this is the base address of our extra item data table in ROM
-add  r0,r0,r1          // r0 now has the proper address of the current item's data slot
-ldrb r0,[r0,r2]        // load the proper line # to use from custom_text.bin
-mov  r1,#40
-mul  r0,r1             // calculate the offset into custom_text.bin
-ldr  r1,=#0x8D0829C    // load r1 with the base address of our custom text array in ROM
-add  r0,r0,r1          // r0 now has the address of the string we want
+cmp  r2,#0x10
+blt  +
+b    .custom_cc_item
++
 
+.custom_cc_enemy:
+cmp  r2,#2
+bge  +
+mov  r2,#2                        //Make it so this is a valid enemy article EF
++
+ldr  r1,=#0x201AAF8
+cmp  r0,r1                        //Make sure enemies don't look at the item address, but only look at the stack
+bge  +
+mov  r0,r1
++
+sub  r2,r2,#2
+ldrh r0,[r0,#0]
+mov  r1,r0
+lsl  r0,r0,#2
+add  r0,r0,r1                     // offset = enemy ID * 5 bytes
+ldr  r1,=#{enemy_extras_address}  // this is the base address of our extra enemy data table in ROM
+b    .custom_cc_end
+
+.custom_cc_item:
+sub  r2,#0x10
+ldrh r0,[r0,#0]                   // load the current item #
+lsl  r1,r0,#3
+sub  r0,r1,r0                     // offset = item ID * 7 bytes
+ldr  r1,=#{item_extras_address}   // this is the base address of our extra item data table in ROM
+
+.custom_cc_end:
+add  r0,r0,r1                     // r0 now has the proper address of the current entry's data slot
+ldrb r0,[r0,r2]                   // load the proper line # to use from custom_text.bin
+mov  r1,#40
+mul  r0,r1                        // calculate the offset into custom_text.bin
+ldr  r1,=#{custom_text_address}   // load r1 with the base address of our custom text array in ROM
+add  r0,r0,r1                     // r0 now has the address of the string we want
 mov  r1,r4
-bl   custom_strcopy    // r0 returns from this with the # of bytes copied
+
+bl   custom_strcopy               // r0 returns from this with the # of bytes copied
 add  r4,r4,r0
 add  r5,#1
 
 pop  {r1-r2}
 b    .load_loop
-
 
 //===========================================================================================
 // This is Jeff's fix for the PK [FAVORITETHING] stuff. The game had a couple hard-coded
@@ -523,37 +548,68 @@ push {r0}
 push {r1-r2,r5}
 
 add  r5,r0,#1
-ldrb r0,[r0,#1]              // load the argument byte
+ldrb r0,[r0,#1]                   // load the argument byte
 bl   .decode_byte
-sub  r0,#0x10
 
-mov  r2,r0                   // r2 will be an offset into the extra item data slot
+mov  r2,r0                        // r2 will be an offset into the extra item data slot
 
 // ----------------
-lsr  r0,r0,#7                // Jeff hack - if bit 0x80 of the arg byte is set,
-cmp  r0,#0                   // use 201AAF8 instead for the item address
+lsr  r0,r0,#7                     // Jeff hack - if bit 0x80 of the arg byte is set,
+cmp  r0,#0                        // use 201AAF8 instead for the address
 beq  +
 ldr  r0,=#0x201AAF8
-sub  r2,#0x80                // re-adjust r2 by unsetting the 0x80 flag
+sub  r2,#0x80                     // re-adjust r2 by unsetting the 0x80 flag
+lsr  r1,r2,#5                     // allow for more CCs based on the stack position
+lsl  r1,r1,#2
+add  r0,r0,r1
+mov  r1,#0x1F
+and  r2,r1                        // re-adjust
 b    .chap_end_custom_cc_adrcheck
 +
-ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
+ldr  r0,=#0x2014324               // this is where the current item # will be saved by another hack
 .chap_end_custom_cc_adrcheck:
 // ----------------
 
-ldrh r0,[r0,#0]              // load the current item #
-mov  r1,#7
-mul  r0,r1                   // offset = item ID * 7 bytes
-ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
-add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
-ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
+cmp  r2,#0x10
+blt  +
+b    .chap_end_custom_cc_item
++
+
+.chap_end_custom_cc_enemy:
+cmp  r2,#2
+bge  +
+mov  r2,#2                        //Make it so this is a valid enemy article EF
++
+ldr  r1,=#0x201AAF8
+cmp  r0,r1                        //Make sure enemies don't look at the item address, but only look at the stack
+bge  +
+mov  r0,r1
++
+sub  r2,r2,#2
+ldrh r0,[r0,#0]
+mov  r1,r0
+lsl  r0,r0,#2
+add  r0,r0,r1                     // offset = enemy ID * 5 bytes
+ldr  r1,=#{enemy_extras_address}  // this is the base address of our extra enemy data table in ROM
+b    .chap_end_custom_cc_end
+
+.chap_end_custom_cc_item:
+sub  r2,#0x10
+ldrh r0,[r0,#0]                   // load the current item #
+lsl  r1,r0,#3
+sub  r0,r1,r0                     // offset = item ID * 7 bytes
+ldr  r1,=#{item_extras_address}   // this is the base address of our extra item data table in ROM
+
+.chap_end_custom_cc_end:
+add  r0,r0,r1                     // r0 now has the proper address of the current entry's data slot
+ldrb r0,[r0,r2]                   // load the proper line # to use from custom_text.bin
 mov  r1,#40
-mul  r0,r1                   // calculate the offset into custom_text.bin
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
-add  r0,r0,r1                // r0 now has the address of the string we want
+mul  r0,r1                        // calculate the offset into custom_text.bin
+ldr  r1,=#{custom_text_address}   // load r1 with the base address of our custom text array in ROM
+add  r0,r0,r1                     // r0 now has the address of the string we want
 
 pop  {r1-r2,r5}
-bl   custom_strcopy          // r0 gets the # of bytes copied as the return value
+bl   custom_strcopy               // r0 gets the # of bytes copied as the return value
 add  r1,r1,r0
 
 pop  {r0}

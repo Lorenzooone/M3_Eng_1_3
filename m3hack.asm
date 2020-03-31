@@ -1248,8 +1248,9 @@ org $8D1EE90; dd $00FE4F6E
 org $9D03DE6; incbin text_charnames.bin
 
 // insert translated enemy names
+define enemynames_address $9CFFDA0
 org $8D1EE98; dd $00FE0F28
-org $9CFFDA0; incbin text_enemynames.bin
+org {enemynames_address}; incbin text_enemynames.bin
 
 // insert the abbreviated enemy names
 org $8D23494; incbin text_enemynames_short.bin
@@ -1300,13 +1301,16 @@ org $9C92698; dd $0031FAA0
 org $9FB0400; incbin text_battletext.bin
 
 // insert special text used by custom control codes
-org $8D0829C; incbin text_custom_text.bin
+define custom_text_address $8D0829C
+org {custom_text_address}; incbin text_custom_text.bin
 
 // insert a custom enemy data table, used by our custom control codes Prev=8D08A6C
-org $9FD4930; incbin data_enemy_extras.bin
+define enemy_extras_address $9FD4930
+org {enemy_extras_address}; incbin data_enemy_extras.bin
 
 // insert a custom item data table, used by our custom control codes
-org $8D090D9; incbin data_item_extras.bin
+define item_extras_address $8D090D9
+org {item_extras_address}; incbin data_item_extras.bin
 
 // insert menu text
 org $9B90124; dd $FF175818

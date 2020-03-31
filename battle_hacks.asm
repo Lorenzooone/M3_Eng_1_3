@@ -258,154 +258,158 @@ b    .main_loop_next         // jump back to the part of the main loop that incr
 push {r1-r2}
 
 sub  r0,#0x10
-mov  r2,r0                   // r2 will be an offset into the extra item data slot
-ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
-cmp  r4,#0x20                // check if this is EF 30 or more
+mov  r2,r0                       // r2 will be an offset into the extra item data slot
+ldr  r0,=#0x2014324              // this is where the current item # will be saved by another hack
+cmp  r4,#0x20                    // check if this is EF 30 or more
 blt  +
-ldr  r0,=#0x2014724          // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
+ldr  r0,=#0x2014724              // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
-ldrh r1,[r0,#0]              // load the current item #
+ldrh r1,[r0,#0]                  // load the current item #
 lsl  r0,r1,#3
-sub  r0,r0,r1                // offset = item ID * 7 bytes
-ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
-add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
-ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
+sub  r0,r0,r1                    // offset = item ID * 7 bytes
+ldr  r1,=#{item_extras_address}  // this is the base address of our extra item data table in ROM
+add  r0,r0,r1                    // r0 now has the proper address of the current item's data slot
+ldrb r0,[r0,r2]                  // load the proper line # to use from custom_text.bin
 mov  r1,#40
-mul  r0,r1                   // calculate the offset into custom_text.bin
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
-add  r0,r0,r1                // r0 now has the address of the string we want
+mul  r0,r1                       // calculate the offset into custom_text.bin
+ldr  r1,=#{custom_text_address}  // load r1 with the base address of our custom text array in ROM
+add  r0,r0,r1                    // r0 now has the address of the string we want
 pop  {r1-r2}
 
-bl   custom_strlen           // count the length of our special string, store its length in r2
-b    .main_loop_next         // now jump back to the part of the main loop that increments and such
+bl   custom_strlen               // count the length of our special string, store its length in r2
+b    .main_loop_next             // now jump back to the part of the main loop that increments and such
 
 //--------------------------------------------------------------------------------------------
 
 .cc_enemy_name:
 push {r1-r2}
-ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
-ldrh r0,[r0,#0]              // load the current #
-cmp  r4,#0x20                // is this the pigmask code?
+ldr  r0,=#0x2014320               // this is where current_enemy_save.asm saves the current enemy's ID #
+ldrh r0,[r0,#0]                   // load the current #
+cmp  r4,#0x20                     // is this the pigmask code?
 bne  +
-cmp  r0,#6                   // is the actor the Pork Tank?
+cmp  r0,#6                        // is the actor the Pork Tank?
 bne  +
-mov  r0,#149                 // if it is, then change it to the Pigmask
+mov  r0,#149                      // if it is, then change it to the Pigmask
 +
 ldr  r2,=#0x149
-cmp  r0,r2                   // If the actor id is > 0x149, it's going to be a character. Let's call them properly
+cmp  r0,r2                        // If the actor id is > 0x149, it's going to be a character. Let's call them properly
 blt  +
 
-ldr  r1,=#0x2004110          // Character data address
-sub  r0,r0,r2                // Remove 0x149 to get their ID
+ldr  r1,=#0x2004110               // Character data address
+sub  r0,r0,r2                     // Remove 0x149 to get their ID
 mov  r2,#0x6C
-mul  r0,r2                   // Multiply it by 0x6C, each character's data length
-add  r0,#2                   // Add 2 to get their name
-add  r0,r0,r1                // r0 now has the address of the character's name
+mul  r0,r2                        // Multiply it by 0x6C, each character's data length
+add  r0,#2                        // Add 2 to get their name
+add  r0,r0,r1                     // r0 now has the address of the character's name
 pop  {r1-r2}
-bl   custom_strlen_party     // count the length of our special string, store its length in r2, this is special because party member can have non 0xFFFF terminated names
+bl   custom_strlen_party          // count the length of our special string, store its length in r2, this is special because party member can have non 0xFFFF terminated names
 b    .end_cc_enemy_name
 
 +
 mov  r1,#50
-mul  r0,r1                   // offset = enemy ID * 50 bytes
-ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-add  r0,r0,r1                // r0 now has the address of the enemy's name
+mul  r0,r1                        // offset = enemy ID * 50 bytes
+ldr  r1,=#{enemynames_address}+4  // this is the base address of the enemy name array in ROM
+add  r0,r0,r1                     // r0 now has the address of the enemy's name
 pop  {r1-r2}
 
 .count_and_inc:
-bl   custom_strlen           // count the length of our special string, store its length in r2
+bl   custom_strlen                // count the length of our special string, store its length in r2
 
 .end_cc_enemy_name:
-b    .main_loop_next         // now jump back to the part of the main loop that increments and such
+b    .main_loop_next              // now jump back to the part of the main loop that increments and such
 
 //--------------------------------------------------------------------------------------------
 
 .cc_cohorts:
 push {r1-r3}
-mov  r3,#0                   // r3 will be our total # of bytes changed
+mov  r3,#0                       // r3 will be our total # of bytes changed
 
-ldr  r0,=#0x2014322          // load the # of enemies
+ldr  r0,=#0x2014322              // load the # of enemies
 ldrb r0,[r0,#0]
 cmp  r0,#1
-beq  .cc_cohorts_end         // don't print anything if there's only one enemy
+beq  .cc_cohorts_end             // don't print anything if there's only one enemy
 
-ldr  r0,=#0x8D08314          // copy "and "
-bl   custom_strlen           // count the length of our special string, store its length in r2
+mov  r0,#3
+mov  r2,#40
+mul  r0,r2
+ldr  r2,=#{custom_text_address}
+add  r0,r0,r2                    // r0 now has " and "
+bl   custom_strlen               // count the length of our special string, store its length in r2
 add  r3,r3,r0
 
-ldr  r0,=#0x2014320          // load our current enemy #
+ldr  r0,=#0x2014320              // load our current enemy #
 ldrb r0,[r0,#0]
 mov  r2,#5
 mul  r0,r2
-ldr  r2,=#0x9FD4930
+ldr  r2,=#{enemy_extras_address}
 add  r0,r0,r2
-ldrb r0,[r0,#0x4]            // load the line # for this enemy's possessive pronoun
+ldrb r0,[r0,#0x4]                // load the line # for this enemy's possessive pronoun
 mov  r2,#40
 mul  r0,r2
-ldr  r2,=#0x8D0829C
-add  r0,r0,r2                // r0 now has the address to the appropriate possessive pronoun string
-bl   custom_strlen           // count the length of our special string, store its length in r2
+ldr  r2,=#{custom_text_address}
+add  r0,r0,r2                    // r0 now has the address to the appropriate possessive pronoun string
+bl   custom_strlen               // count the length of our special string, store its length in r2
 add  r3,r3,r0
 
-ldr  r0,=#0x2014322          // load the # of enemies
+ldr  r0,=#0x2014322              // load the # of enemies
 ldrb r0,[r0,#0]
-sub  r0,#1                   // subtract one for ease of use
+sub  r0,#1                       // subtract one for ease of use
 
 push {r1}
 
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
+ldr  r1,=#{custom_text_address}  // load r1 with the base address of our custom text array in ROM
 mov  r2,#40
 mul  r0,r2
-add  r0,r0,r1                // r0 now has the address of the proper cohorts string
-pop  {r1}                    // restore r1 with the target address
-bl   custom_strlen           // count the length of our special string, store its length in r2
-add  r3,r3,r0                // update special string length
+add  r0,r0,r1                    // r0 now has the address of the proper cohorts string
+pop  {r1}                        // restore r1 with the target address
+bl   custom_strlen               // count the length of our special string, store its length in r2
+add  r3,r3,r0                    // update special string length
 
 .cc_cohorts_end:
-mov  r0,r3                   // r0 now has the total # of bytes we added
+mov  r0,r3                       // r0 now has the total # of bytes we added
 
 pop  {r1-r3}
-b    .main_loop_next         // now jump back to the part of the main loop that increments and such
+b    .main_loop_next             // now jump back to the part of the main loop that increments and such
 
 //--------------------------------------------------------------------------------------------
 
 .cc_en_articles:
 push {r1-r2}
 
-sub  r2,r0,#2                // r2 will be an offset into the extra enemy data slot
-                             // this is a quicker method of doing a bunch of related codes at once
-                             // we take the low byte of the current CC and subtract 2, and that'll
-                             // be our offset
+sub  r2,r0,#2                      // r2 will be an offset into the extra enemy data slot
+                                   // this is a quicker method of doing a bunch of related codes at once
+                                   // we take the low byte of the current CC and subtract 2, and that'll
+                                   // be our offset
 sub  r4,r4,#2
 
 mov  r1,r4
 lsr  r4,r4,#5
 lsl  r4,r4,#5
-ldr  r0,=#0x2014320          // this is where the routines save the other ID #
+ldr  r0,=#0x2014320                // this is where the routines save the other ID #
 add  r0,r0,r4
-ldrh r0,[r0,#0]              // load the current #
+ldrh r0,[r0,#0]                    // load the current #
 mov  r4,r1
-cmp  r4,#0x1F                // is this the pigmask's article code?
+cmp  r4,#0x1F                      // is this the pigmask's article code?
 bne  +
-mov  r2,#2                   // Change the code so it makes sense
-cmp  r0,#6                   // is the actor the Pork Tank?
+mov  r2,#2                         // Change the code so it makes sense
+cmp  r0,#6                         // is the actor the Pork Tank?
 bne  +
-mov  r0,#149                 // if it is, then change it to the Pigmask
+mov  r0,#149                       // if it is, then change it to the Pigmask
 +
 mov  r1,r0
 lsl  r0,r0,#2
-add  r0,r0,r1                // offset = enemy ID * 5 bytes
-ldr  r1,=#0x9FD4930          // this is the base address of our extra enemy data table in ROM
-add  r0,r0,r1                // r0 now has address of this enemy's extra data entry
-ldrb r0,[r0,r2]              // r0 now has the proper line # to use from custom_text.bin
+add  r0,r0,r1                      // offset = enemy ID * 5 bytes
+ldr  r1,=#{enemy_extras_address}   // this is the base address of our extra enemy data table in ROM
+add  r0,r0,r1                      // r0 now has address of this enemy's extra data entry
+ldrb r0,[r0,r2]                    // r0 now has the proper line # to use from custom_text.bin
 mov  r1,#40
-mul  r0,r1                   // calculate the offset into custom_text.bin
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
-add  r0,r0,r1                // r0 now has the address of the string we want
+mul  r0,r1                         // calculate the offset into custom_text.bin
+ldr  r1,=#{custom_text_address}    // load r1 with the base address of our custom text array in ROM
+add  r0,r0,r1                      // r0 now has the address of the string we want
 pop  {r1-r2}
 
-bl   custom_strlen           // count the length of our special string, store its length in r2
-b    .main_loop_next         // now jump back to the part of the main loop that increments and such
+bl   custom_strlen                 // count the length of our special string, store its length in r2
+b    .main_loop_next               // now jump back to the part of the main loop that increments and such
 
 //=========================================================================================== 
 // This code applies a VWF to battle menus and other stuff. It doesn't apply to battle text.
@@ -1320,153 +1324,157 @@ b    .ecc_len_check
 push {r1-r2}
 
 sub  r0,#0x10
-mov  r2,r0                   // r2 will be an offset into the extra item data slot
-ldr  r0,=#0x2014324          // this is where the current item # will be saved by another hack
-cmp  r7,#0x20                // check if this is > EF 30
+mov  r2,r0                       // r2 will be an offset into the extra item data slot
+ldr  r0,=#0x2014324              // this is where the current item # will be saved by another hack
+cmp  r7,#0x20                    // check if this is > EF 30
 blt  +
-ldr  r0,=#0x2014724          // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
+ldr  r0,=#0x2014724              // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
-ldrh r1,[r0,#0]              // load the current item #
+ldrh r1,[r0,#0]                  // load the current item #
 lsl  r0,r1,#3
-sub  r0,r0,r1                // offset = item ID * 7 bytes
-ldr  r1,=#0x8D090D9          // this is the base address of our extra item data table in ROM
-add  r0,r0,r1                // r0 now has the proper address of the current item's data slot
-ldrb r0,[r0,r2]              // load the proper line # to use from custom_text.bin
+sub  r0,r0,r1                    // offset = item ID * 7 bytes
+ldr  r1,=#{item_extras_address}  // this is the base address of our extra item data table in ROM
+add  r0,r0,r1                    // r0 now has the proper address of the current item's data slot
+ldrb r0,[r0,r2]                  // load the proper line # to use from custom_text.bin
 mov  r1,#40
-mul  r0,r1                   // calculate the offset into custom_text.bin
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
-add  r0,r0,r1                // r0 now has the address of the string we want
+mul  r0,r1                       // calculate the offset into custom_text.bin
+ldr  r1,=#{custom_text_address}  // load r1 with the base address of our custom text array in ROM
+add  r0,r0,r1                    // r0 now has the address of the string we want
 pop  {r1-r2}
 
-bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
-b    .customcc_inc           // go to the common custom CC incrementing, etc. code
+bl   custom_strcopy              // r0 gets the # of bytes copied afterwards
+b    .customcc_inc               // go to the common custom CC incrementing, etc. code
 
 //--------------------------------------------------------------------------------------------
 
 .ecc_enemy_name:
 push {r1-r2}
-ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
-ldrh r0,[r0,#0]              // load the current #
-cmp  r7,#0x20                // is this the pigmask code?
+ldr  r0,=#0x2014320               // this is where current_enemy_save.asm saves the current enemy's ID #
+ldrh r0,[r0,#0]                   // load the current #
+cmp  r7,#0x20                     // is this the pigmask code?
 bne  +
-cmp  r0,#6                   // is the actor the Pork Tank?
+cmp  r0,#6                        // is the actor the Pork Tank?
 bne  +
-mov  r0,#149                 // if it is, then change it to the Pigmask
+mov  r0,#149                      // if it is, then change it to the Pigmask
 +
 ldr  r2,=#0x149
-cmp  r0,r2                   // If the actor id is > 0x149, it's going to be a character. Let's call them properly
+cmp  r0,r2                        // If the actor id is > 0x149, it's going to be a character. Let's call them properly
 blt  +
 
-ldr  r1,=#0x2004110          // Character data address
-sub  r0,r0,r2                // Remove 0x149 to get their ID
+ldr  r1,=#0x2004110               // Character data address
+sub  r0,r0,r2                     // Remove 0x149 to get their ID
 mov  r2,#0x6C
-mul  r0,r2                   // Multiply it by 0x6C, each character's data length
-add  r0,#2                   // Add 2 to get their name
-add  r0,r0,r1                // r0 now has the address of the character's name
+mul  r0,r2                        // Multiply it by 0x6C, each character's data length
+add  r0,#2                        // Add 2 to get their name
+add  r0,r0,r1                     // r0 now has the address of the character's name
 pop  {r1-r2}
-bl   custom_strcopy_party    // This is a special case. We cannot use the normal strcopy because party members can have non 0xFFFF terminated names
+bl   custom_strcopy_party         // This is a special case. We cannot use the normal strcopy because party members can have non 0xFFFF terminated names
 
 b    .end_ecc_enemy_name
 
 +
 mov  r1,#50
-mul  r0,r1                   // offset = enemy ID * 50 bytes
-ldr  r1,=#0x9CFFDA4          // this is the base address of the enemy name array in ROM
-add  r0,r0,r1                // r0 now has the address of the enemy's name
+mul  r0,r1                        // offset = enemy ID * 50 bytes
+ldr  r1,=#{enemynames_address}+4  // this is the base address of the enemy name array in ROM
+add  r0,r0,r1                     // r0 now has the address of the enemy's name
 pop  {r1-r2}
-bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
+bl   custom_strcopy               // r0 gets the # of bytes copied afterwards
 
 .end_ecc_enemy_name:
-b    .customcc_inc           // go to the common custom CC incrementing, etc. code
+b    .customcc_inc                // go to the common custom CC incrementing, etc. code
 
 //--------------------------------------------------------------------------------------------
 
 .ecc_cohorts:
 push {r1-r3}
-mov  r3,#0                   // r3 will be our total # of bytes changed
+mov  r3,#0                       // r3 will be our total # of bytes changed
 
-ldr  r0,=#0x2014322          // load the # of enemies
+ldr  r0,=#0x2014322              // load the # of enemies
 ldrb r0,[r0,#0]
 cmp  r0,#1
-beq  +                       // don't print anything if there's only one enemy
+beq  +                           // don't print anything if there's only one enemy
 
-ldr  r0,=#0x8D08314          // copy "and "
-bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
+mov  r0,#3
+mov  r2,#40
+mul  r0,r2
+ldr  r2,=#{custom_text_address}
+add  r0,r0,r2                    // r0 now has the address of " and "
+bl   custom_strcopy              // r0 gets the # of bytes copied afterwards
 add  r1,r1,r0
 add  r3,r3,r0
 
-ldr  r0,=#0x2014320          // load our current enemy #
+ldr  r0,=#0x2014320              // load our current enemy #
 ldrb r0,[r0,#0]
 mov  r2,#5
 mul  r0,r2
-ldr  r2,=#0x9FD4930
+ldr  r2,=#{enemy_extras_address}
 add  r0,r0,r2
-ldrb r0,[r0,#0x4]            // load the line # for this enemy's possessive pronoun
+ldrb r0,[r0,#0x4]                // load the line # for this enemy's possessive pronoun
 mov  r2,#40
 mul  r0,r2
-ldr  r2,=#0x8D0829C
-add  r0,r0,r2                // r0 now has the address to the appropriate possessive pronoun string
-bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
+ldr  r2,=#{custom_text_address}
+add  r0,r0,r2                    // r0 now has the address to the appropriate possessive pronoun string
+bl   custom_strcopy              // r0 gets the # of bytes copied afterwards
 add  r1,r1,r0
 add  r3,r3,r0
 
-ldr  r0,=#0x2014322          // load the # of enemies
+ldr  r0,=#0x2014322              // load the # of enemies
 ldrb r0,[r0,#0]
-sub  r0,#1                   // subtract one for ease of use
+sub  r0,#1                       // subtract one for ease of use
 
-push {r1}                    // now we're going to print "cohort/cohorts" stuff
+push {r1}                        // now we're going to print "cohort/cohorts" stuff
 
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
+ldr  r1,=#{custom_text_address}  // load r1 with the base address of our custom text array in ROM
 mov  r2,#40
 mul  r0,r2
-add  r0,r0,r1                // r0 now has the address of the proper cohorts string
-pop  {r1}                    // restore r1 with the target address
-bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
-add  r3,r3,r0                // we just copied the possessive pronoun now
+add  r0,r0,r1                    // r0 now has the address of the proper cohorts string
+pop  {r1}                        // restore r1 with the target address
+bl   custom_strcopy              // r0 gets the # of bytes copied afterwards
+add  r3,r3,r0                    // we just copied the possessive pronoun now
 
 +
-mov  r0,r3                   // r0 now has the total # of bytes we added
+mov  r0,r3                       // r0 now has the total # of bytes we added
 
 pop  {r1-r3}
-b    .customcc_inc           // go to the common custom CC incrementing, etc. code
+b    .customcc_inc               // go to the common custom CC incrementing, etc. code
 
 //--------------------------------------------------------------------------------------------
 
 .ecc_en_articles:
 push {r1-r2}
 
-sub  r2,r0,#2                // r2 will be an offset into the extra enemy data slot
-                             // this is a quicker method of doing a bunch of related codes at once
-                             // we take the low byte of the current CC and subtract 2, and that'll
-                             // be our offset
+sub  r2,r0,#2                     // r2 will be an offset into the extra enemy data slot
+                                  // this is a quicker method of doing a bunch of related codes at once
+                                  // we take the low byte of the current CC and subtract 2, and that'll
+                                  // be our offset
 sub  r7,r7,#2
 mov  r1,r7
 lsr  r7,r7,#5
 lsl  r7,r7,#5
-ldr  r0,=#0x2014320          // this is where current_enemy_save.asm saves the current enemy's ID #
+ldr  r0,=#0x2014320               // this is where current_enemy_save.asm saves the current enemy's ID #
 add  r0,r0,r7
-ldrh r0,[r0,#0]              // load the current #
-cmp  r1,#0x1F                // is this the pigmask's article code?
+ldrh r0,[r0,#0]                   // load the current #
+cmp  r1,#0x1F                     // is this the pigmask's article code?
 bne  +
-mov  r2,#2                   // Change the code so it makes sense
-cmp  r0,#6                   // is the actor the Pork Tank?
+mov  r2,#2                        // Change the code so it makes sense
+cmp  r0,#6                        // is the actor the Pork Tank?
 bne  +
-mov  r0,#149                 // if it is, then change it to the Pigmask
+mov  r0,#149                      // if it is, then change it to the Pigmask
 +
 mov  r1,r0
 lsl  r0,r0,#2
-add  r0,r0,r1                // offset = enemy ID * 5 bytes
-ldr  r1,=#0x9FD4930          // this is the base address of our extra enemy data table in ROM
-add  r0,r0,r1                // r0 now has address of this enemy's extra data entry
-ldrb r0,[r0,r2]              // r0 now has the proper line # to use from custom_text.bin
+add  r0,r0,r1                     // offset = enemy ID * 5 bytes
+ldr  r1,=#{enemy_extras_address}  // this is the base address of our extra enemy data table in ROM
+add  r0,r0,r1                     // r0 now has address of this enemy's extra data entry
+ldrb r0,[r0,r2]                   // r0 now has the proper line # to use from custom_text.bin
 mov  r1,#40
-mul  r0,r1                   // calculate the offset into custom_text.bin
-ldr  r1,=#0x8D0829C          // load r1 with the base address of our custom text array in ROM
-add  r0,r0,r1                // r0 now has the address of the string we want
+mul  r0,r1                        // calculate the offset into custom_text.bin
+ldr  r1,=#{custom_text_address}   // load r1 with the base address of our custom text array in ROM
+add  r0,r0,r1                     // r0 now has the address of the string we want
 pop  {r1-r2}
 
-bl   custom_strcopy          // r0 gets the # of bytes copied afterwards
-b    .customcc_inc           // go to the common custom CC incrementing, etc. code
+bl   custom_strcopy               // r0 gets the # of bytes copied afterwards
+b    .customcc_inc                // go to the common custom CC incrementing, etc. code
 
 
 //--------------------------------------------------------------------------------------------
