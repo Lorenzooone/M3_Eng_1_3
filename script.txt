@@ -4813,7 +4813,8 @@
 61-16:◆バウ。[WAIT]（オイラも　あんまりしゃべること[BREAK]　ないんだよ）[END]
 61-16E:@Bow.[WAIT]  (I'm not very talkative either, actually.)[END]
 61-17:◆クンクンクン・・・。[WAIT]（この　ニオイは・・・[BREAK]　[ITEM F0 FF]のニオイ！[WAIT]　そして　オイラは[BREAK]　みてのとおり　イヌ！[WAIT]　もう　やることは　ひとつじゃ[BREAK]　ないですか。[BREAK]　その　[ITEM F0 FF]を[BREAK]　オイラに　くださいよ）[WAIT][MENU 02 00]　　　はい　　　いいえ[ENDCHOICES][END]
-61-17E:@*sniff*[PAUSE 10 00] *sniff*[PAUSE 10 00] *sniff*[PAUSE 10 00][WAIT]  (This scent...[PAUSE 10 00] it's the smell of a[BREAK]  [ITEM F0 FF]![WAIT]  And, as you can see, I happen to be a stray[BREAK]  dog![WAIT]  So there's only one logical thing for you to do[BREAK]  now.[WAIT]  Please give me that [ITEM F0 FF].)[WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[ENDCHOICES][END]
+61-17E:@*sniff*[PAUSE 10 00] *sniff*[PAUSE 10 00] *sniff*[PAUSE 10 00][WAIT]  (This scent...[PAUSE 10 00] it's the smell of[BREAK]  [EF 91][ITEM F0 FF]![WAIT]  And, as you can see, I happen to be a stray[BREAK]  dog![WAIT]  So there's only one logical thing for you to do[BREAK]  now.[WAIT]  Please give me that [ITEM F0 FF].)[WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[ENDCHOICES][END]
+// doggy biscuit or doggy jerky
 61-18:◆バウワウ！[WAIT]（ひじょうに　うれしい！[WAIT]　オイラ　きみたちに[BREAK]　なにか　おれいがしたい！[WAIT]　・・・そうだ！[BREAK]　これをあげるよ）[END]
 61-18E:@Bow wow![WAIT]  (I'm exceptionally happy![WAIT]  I want to thank you guys somehow![WAIT]  ...Oh, I know! You can have this!)[END]
 61-19:◆バウワウ！[WAIT]（オイラからの　おれい[BREAK]　だいじに　してくれよ）[END]
@@ -4821,8 +4822,8 @@
 61-20:◆クーン・・・。[BREAK]（よだれが　とまらないよ）[END]
 61-20E:@*sniff*...[BREAK]  (I can't stop drooling...)[END]
 61-21:◇[42 FF F0 FF]たちは[BREAK]　[ITEM F1 FF]をもらった。[END]
-61-21E:@[42 FF F0 FF] and company got a [ITEM F1 FF]![END]
-// pencil rocket for sure, maybe other items too?
+61-21E:@[42 FF F0 FF] and company got [EF B1][ITEM F1 FF]![END]
+// pencil rocket or bomb
 61-22:◇キレイな　けしきを　まもろう！[BREAK]　かんばんを　たてないでください。[END]
 61-22E:@Preserve our beautiful scenery![BREAK]  Please refrain from posting signs.[END]
 61-23:◇ポークビーン[BREAK]　じゅうでんスタンド[END]

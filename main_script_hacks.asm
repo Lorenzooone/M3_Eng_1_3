@@ -312,6 +312,11 @@ cmp  r0,#0             // use 201AAF8 instead for the item address
 beq  +
 ldr  r0,=#0x201AAF8
 sub  r2,#0x80          // re-adjust r2 by unsetting the 0x80 flag
+lsr  r1,r2,#5          // allow for more CCs based on the stack position
+lsl  r1,r1,#2
+add  r0,r0,r1
+mov  r1,#0x1F
+and  r2,r1             // re-adjust
 b    .custom_cc_adrcheck
 +
 ldr  r0,=#0x2014324    // this is where the current item # will be saved by another hack
