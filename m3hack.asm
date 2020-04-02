@@ -1626,6 +1626,10 @@ org $91DF2AD; db $0A
 //Add back Leder's memo unlocking system
 org $91EA604; incbin logic_leder_memo.bin
 
+//Fix 16x16 wall tile being walkable on in Tanetane's cliff
+org $90778E8; incbin gfx_tanetane_cliff_tilemap_[c].bin
+
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
