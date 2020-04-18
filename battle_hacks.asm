@@ -3147,3 +3147,107 @@ str  r2,[r5,#0]
 
 .end_choice_end:
 pop  {pc,r1-r3,r5}
+
+//------------------------------------------------------------------------------------------------------
+
+fix_mementos_item_menu:
+
+//Load the area we'll be using with the stuff we need
+.setup:
+push {lr}
+
+ldr  r0,=#0x2014368
+mov  r4,r1
+ldr  r3,[r1,#0]
+sub  r3,r3,#1
+                             //New item count
+strb r3,[r0,#4]
+                             //Removed item position
+strb r5,[r0,#0]
+add  r3,r3,#1
+
+pop  {pc}
+
+//------------------------------------------------------------------------------------------------------
+
+//Fix the cursor for the item menu when a Memento is used while in it
+.fix:
+push {lr}
+push {r0-r7}
+mov  r1,r0
+add  r1,#0x34
+ldr  r2,[r1,#0xC]
+cmp  r2,#5                   //Is the character's turn ending? (No memento)
+beq  .end
+
+                             //Was the memento the last item?
+ldr  r0,=#0x2014368
+ldrb r2,[r0,#4]
+cmp  r2,#0
+bne  .fix_cursor
+
+                             //Close the menu if the memento was the last item
+mov  r2,#4
+str  r2,[r1,#0xC]
+b    .end
+
+.fix_cursor:
+                             // r2 = How many lines from the top the menu currently is
+                             // r3 = Y Coord in the current menu
+                             // r4 = X Coord in the current menu
+ldrb r2,[r1,#0]
+ldrb r3,[r1,#1]
+ldrb r4,[r1,#2]
+                             // r5 = cursor position
+add  r5,r2,r3
+lsl  r5,r5,#1
+add  r5,r5,r4
+                             // r6 = disappeared item position
+ldrb r6,[r0,#0]
+cmp  r5,r6
+blt  +
+                             //If the cursor position is >= the disappeared item's position, subtract 1 from it
+sub  r5,r5,#1
+cmp  r5,#0
+blt  .end                    //Was the first item a Memento? In that case, don't do a thing
+mov  r4,#1
+and  r4,r5
+strb r4,[r1,#2]
+                             //If x == 1
+cmp  r4,#1
+bne  +
+                             //y -= 1
+sub  r3,r3,#1
+                             //If y < 0
+cmp  r3,#0
+bge  +
+                             //y = 0
+mov  r3,#0
+                             //lines -= 1
+sub  r2,r2,#1
++
+                             // r7 = lowest line showed - 2 to get the item menu to properly show the lowest line if it's changed by the new item count
+mov  r7,#2
+add  r7,r7,r2
+lsl  r7,r7,#1
+                             // r6 = new item count
+ldrb r6,[r0,#4]
+                             //The game never leaves a fully empty line at the bottom. We mustn't allow it to happen either
+cmp  r7,r6
+blt  .next
+sub  r2,r2,#1
+cmp  r2,#0
+bge  +
+mov  r2,#0
+b    .next
++
+add  r3,r3,#1
+
+.next:
+strb r2,[r1,#0]
+strb r3,[r1,#1]
+
+.end:
+pop  {r0-r7}
+bl   $8091938                //Clobbered code
+pop  {pc}

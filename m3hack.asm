@@ -1629,6 +1629,13 @@ org $91EA604; incbin logic_leder_memo.bin
 //Fix 16x16 wall tile being walkable on in Tanetane's cliff
 org $90778E8; incbin gfx_tanetane_cliff_tilemap_[c].bin
 
+//Fix swapped gift box flags in tanetane
+org $91669E8; db $A8
+org $9168758; db $AA
+
+//Fix item menu after memento is used
+org $807C056; bl fix_mementos_item_menu.setup
+org $807EB96; bl fix_mementos_item_menu.fix
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
