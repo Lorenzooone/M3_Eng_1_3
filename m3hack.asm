@@ -1637,6 +1637,16 @@ org $9168758; db $AA
 org $807C056; bl fix_mementos_item_menu.setup
 org $807EB96; bl fix_mementos_item_menu.fix
 
+//Fix Leder's song issue in late chapter 2 and late chapter 3
+org $91A778C; incbin logic_leder_fix_song.bin
+
+//Fix the counter for Leder being active or inactive at wrong times
+org $91E84C4; dd $0000130E, $0000130E //Crossroad when Salsa's escaping
+org $931BD20; dd $04B0000C //Dropping from the fireplace in Lord passion's room
+org $931C194; incbin logic_leder_fix_counter_fireplace.bin
+org $9FD5F00; incbin logic_pointer_283.bin //Move ther pointers of the table next to that one in order to make room for the code
+org $919A02C; dd $00E3D2F0 //Point to the pointers
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
