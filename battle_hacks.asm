@@ -3157,15 +3157,20 @@ fix_mementos_item_menu:
 push {lr}
 
 ldr  r0,=#0x2014368
-mov  r4,r1
 ldr  r3,[r1,#0]
 sub  r3,r3,#1
                              //New item count
-strb r3,[r0,#4]
+strb r3,[r0,#1]
                              //Removed item position
 strb r5,[r0,#0]
+                             //Inventory position in RAM
+mov  r4,#0xC2
+lsl  r4,r4,#1
+sub  r4,r1,r4
+str  r4,[r0,#4]
 add  r3,r3,#1
 
+mov  r4,r1
 pop  {pc}
 
 //------------------------------------------------------------------------------------------------------
@@ -3180,9 +3185,16 @@ ldr  r2,[r1,#0xC]
 cmp  r2,#5                   //Is the character's turn ending? (No memento)
 beq  .end
 
-                             //Was the memento the last item?
+                             //Is this the character that was revived?
+mov  r3,#0x10
+sub  r3,r1,r3
+ldr  r3,[r3,#0]
 ldr  r0,=#0x2014368
-ldrb r2,[r0,#4]
+ldr  r2,[r0,#4]
+cmp  r3,r2
+bne  .end
+                             //Was the memento the last item?
+ldrb r2,[r0,#1]
 cmp  r2,#0
 bne  .fix_cursor
 
@@ -3231,7 +3243,7 @@ mov  r7,#2
 add  r7,r7,r2
 lsl  r7,r7,#1
                              // r6 = new item count
-ldrb r6,[r0,#4]
+ldrb r6,[r0,#1]
                              //The game never leaves a fully empty line at the bottom. We mustn't allow it to happen either
 cmp  r7,r6
 blt  .next
