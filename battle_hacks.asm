@@ -3152,6 +3152,16 @@ pop  {pc,r1-r3,r5}
 
 fix_mementos_item_menu:
 
+//Someone died, set the Character's data position to the proper one, so if they die, it's still okay
+.initial_setup:
+push {lr}
+
+ldr  r6,=#0x2014368
+str  r1,[r6,#4]              //Store the actual character's position
+mov  r7,r10                  //Clobbered code
+mov  r6,r9
+pop  {pc}
+
 //Load the area we'll be using with the stuff we need
 .setup:
 push {lr}
@@ -3163,11 +3173,6 @@ sub  r3,r3,#1
 strb r3,[r0,#1]
                              //Removed item position
 strb r5,[r0,#0]
-                             //Inventory position in RAM
-mov  r4,#0xC2
-lsl  r4,r4,#1
-sub  r4,r1,r4
-str  r4,[r0,#4]
 add  r3,r3,#1
 
 mov  r4,r1

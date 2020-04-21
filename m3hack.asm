@@ -1634,6 +1634,7 @@ org $91669E8; db $A8
 org $9168758; db $AA
 
 //Fix item menu after memento is used
+org $80604CE; bl fix_mementos_item_menu.initial_setup
 org $807C056; bl fix_mementos_item_menu.setup
 org $807EB96; bl fix_mementos_item_menu.fix
 
