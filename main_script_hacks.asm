@@ -991,3 +991,50 @@ pop {pc}
 //.dend:
 //pop  {r1-r3}
 bx   lr
+
+//===========================================================================================
+// This set of hacks makes it so a displayed script can have no speaker displayed while the
+// speaker keeps speaking.
+//===========================================================================================
+
+define arbitrary_value $DA8
+
+//Setup the speaker box block
+.speaker_different_unused_val_setup:
+push {r1-r2,lr}
+mov  r1,r7
+sub  r1,#8
+ldr  r1,[r1,#4]
+ldr  r2,=#{arbitrary_value} //Arbitrary value
+cmp  r1,r2
+bne +
+add  r1,r1,r0
+strh r1,[r5,#2]             //This will be 0xFFFF if we're here
++
+
+mov  r0,r6                  //Clobbered code
+add  r0,#0xBC
+pop  {r1-r2,pc}
+
+//If we did the setup, skip printing the speaker box
+.speaker_different_unused_val_block:
+push {lr}
+push {r2}
+mov  r3,#2
+ldsh r2,[r1,r3]
+ldr  r3,=#{arbitrary_value} //Arbitrary value
+add  r3,r3,r0
+cmp  r2,r3
+bne  +
+
+ldr  r0,=#0x8023E27         //Avoid printing a speaker box
+pop {r1}
+pop {r1}
+bx   r0
+
++
+
+mov  r3,#0                  //Reset value and do the normal stuff
+pop  {r2}
+bl   $8036BD8
+pop  {pc}
