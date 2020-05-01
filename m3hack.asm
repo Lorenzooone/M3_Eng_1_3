@@ -1600,24 +1600,13 @@ org $8D2D8CC; dd $0
 org $8D2D8D0; dd $1
 org $8D2D8D4; dd $0
 org $9FD6B98; incbin object_tables_debug.bin
-org $9137120; dd $00EA4040
-org $9137124; dd $00EA4220
-org $9137128; dd $00EA42E0
-org $913712C; dd $00EA4388
-org $9137130; dd $00EA4430
+org $9137120; dd $00EA4040; dd $00EA4220; dd $00EA42E0; dd $00EA4388; dd $00EA4430
 org $9FD7078; incbin logic_blocks_37F_380.bin
-org $919A80C; dd $00E3E468
-org $919A810; dd $00E3E474
-org $919A814; dd $00E3E4DC
-org $919A818; dd $00E3E4EC
+org $919A80C; dd $00E3E468; dd $00E3E474; dd $00E3E4DC; dd $00E3E4EC
 
 //Fix pigmask in debug room changing sprite
-org $93682E8; dd $0000130E
-org $93682EC; dd $0000130E
-org $93682F0; dd $0000130E
-org $93683F4; dd $0000130E
-org $93683F8; dd $0000130E
-org $93683FC; dd $0000130E
+org $93682E8; dd $0000130E; dd $0000130E; dd $0000130E
+org $93683F4; dd $0000130E; dd $0000130E; dd $0000130E
 
 //Fix Boney not having the right sprite if chapter 4 is accessed via the debug room option "Violet's Room"
 org $9366519; db $05
@@ -1625,11 +1614,9 @@ org $9366601; db $05
 
 //Change missing mice lines to have a "One" mouse missing and a "X" mice missing
 org $92EA6D9; db $06
-org $92EA6E0; dd $00B9000D
-org $92EA6E4; dd $00A7000C
+org $92EA6E0; dd $00B9000D; dd $00A7000C
 org $92EA8E1; db $06
-org $92EA8E8; dd $0133000D
-org $92EA8EC; dd $0129000C
+org $92EA8E8; dd $0133000D; dd $0129000C
 org $92EA949; db $00
 org $92EA94D; db $0B
 org $92EA952; db $67
@@ -1657,8 +1644,7 @@ org $807EB96; bl fix_mementos_item_menu.fix
 org $91A778C; incbin logic_leder_fix_song.bin
 
 //Fix the counter for Leder being active or inactive at wrong times
-org $91E84C4; dd $0000130E //Crossroad when Salsa's escaping
-org $91E84C8; dd $0000130E
+org $91E84C4; dd $0000130E; dd $0000130E //Crossroad when Salsa's escaping
 org $931BD20; dd $04B0000C //Dropping from the fireplace in Lord passion's room
 org $931C194; incbin logic_leder_fix_counter_fireplace.bin
 org $9FD5F00; incbin logic_pointer_283.bin //Move ther pointers of the table next to that one in order to make room for the code
