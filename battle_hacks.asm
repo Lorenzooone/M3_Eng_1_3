@@ -2963,10 +2963,17 @@ push {r3,lr}
 mov  r6,r0
 
 ldr  r2,=#{thunder_fix_address}
-ldrh r2,[r2,#2]                   //Check if the stack is currently occupied. Happens if this is an HP threshold action.
-cmp  r2,#1
-beq  .end_end
+ldrh r1,[r2,#2]                   //Check if the stack is currently occupied. Happens if this is an HP threshold action.
+cmp  r1,#1
+bne  +
 
+add  r0,#0x34                     //Inside the chain of action, has an HP threshold been triggered for the original actor?
+ldr  r1,[r2,#4]
+cmp  r0,r1
+bne  .end_end
+mov  r0,r6                        //If it did, the old action doesn't exist anymore. Reset the counter and continue normally.
+
++
 add  r0,#0x34
 ldr  r1,[r0,#0x14]
 ldr  r2,=#0x80CF728               //Battle skills table
