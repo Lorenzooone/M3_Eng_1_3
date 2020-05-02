@@ -1651,6 +1651,13 @@ org $931C194; incbin logic_leder_fix_counter_fireplace.bin
 org $9FD5F00; incbin logic_pointer_283.bin //Move ther pointers of the table next to that one in order to make room for the code
 org $919A02C; dd $00E3D2F0 //Point to the pointers
 
+//Fix issue in highway with slope that can be walked on
+org $9013AB4; incbin gfx_highway_layer3_[c].bin
+org $90D0140; incbin gfx_highway_graphics_[c].bin
+org $8D3D91C; dd $00394C60
+org $9FD738C; incbin gfx_highway_tilemap_[c].bin
+org $904E01C; dd $00F899C0
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
