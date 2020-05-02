@@ -2945,15 +2945,31 @@ fix_synchronization:
 define thunder_fix_address $2014348
 
 .setup:
-push {lr}
-push {r0,r1}
+push {r0-r1,lr}
 mov  r0,#0
 ldr  r1,=#{thunder_fix_address}   //Setup the zone so it's not locking
 str  r0,[r1,#0]
 str  r0,[r1,#4]
-pop  {r0,r1}
+pop  {r0-r1,pc}
 
+.setup_action_beginning:
+push {lr}
+bl   .setup
 bl   $8091938
+pop  {pc}
+
+//Only this setup is ever going to be really needed. The others are there just as safety measures in case something goes wrong in the game itself and the end of the actual routine is skipped (should never ever really happen)
+.setup_battle_beginning:
+push {lr}
+bl   .setup
+bl   $8072B70
+pop  {pc}
+
+.setup_turn_beginning:
+push {lr}
+bl   .setup
+mov  r7,r10
+mov  r6,r9
 pop  {pc}
 
 //------------------------------------------------------------------------------------------------------

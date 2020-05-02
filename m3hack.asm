@@ -1535,7 +1535,9 @@ org $93285C0; incbin data_ghost_fix.bin
 define target_num_table $9FD5F80
 define target_num_table_size $1C
 org {target_num_table}; incbin data_target_table.bin
-org $8075024; bl fix_synchronization.setup
+org $8075024; bl fix_synchronization.setup_action_beginning
+org $805DE2C; bl fix_synchronization.setup_battle_beginning
+org $805F47A; bl fix_synchronization.setup_turn_beginning
 org $8078418; bl fix_synchronization.fix_value_beginning_of_action_routine
 org $8078502; bl fix_synchronization.update_value
 org $8078582; bl fix_synchronization.end_routine
