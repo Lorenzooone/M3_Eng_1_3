@@ -2936,220 +2936,191 @@ lsl  r0,r0,#0x18
 lsr  r0,r0,#0x18
 pop  {pc}
 
-//---------------------------------------------------------------------------------------------
-//Multiple PK Thunders fix
+//=============================================================================================
+// Multiple PK Thunders fix
+//=============================================================================================
 
 fix_synchronization:
+
+define thunder_fix_address $2014348
+
+.setup:
+push {lr}
+push {r0,r1}
+mov  r0,#0
+ldr  r1,=#{thunder_fix_address}   //Setup the zone so it's not locking
+str  r0,[r1,#0]
+str  r0,[r1,#4]
+pop  {r0,r1}
+
+bl   $8091938
+pop  {pc}
+
+//------------------------------------------------------------------------------------------------------
+
+.fix_value_beginning_of_action_routine:
+push {r3,lr}
+mov  r6,r0
+
+ldr  r2,=#{thunder_fix_address}
+ldrh r2,[r2,#2]                   //Check if the stack is currently occupied. Happens if this is an HP threshold action.
+cmp  r2,#1
+beq  .end_end
+
+add  r0,#0x34
+ldr  r1,[r0,#0x14]
+ldr  r2,=#0x80CF728               //Battle skills table
+cmp  r1,r2
+blt  .end
+
+ldr  r2,=#0x80D0D27
+cmp  r1,r2
+bgt  +
+
+mov  r2,#4
+b    .decided
+
++
+ldr  r2,=#0x80D9D28               //Battle actions table
+cmp  r1,r2
+blt  .end
+
+ldr  r2,=#0x80E1707
+cmp  r1,r2
+bgt  +
+
+mov  r2,#8
+b    .decided
+
++
+ldr  r2,=#0x80E1908               //PSI data
+cmp  r1,r2
+blt  .end
+
+ldr  r2,=#0x80E5107
+cmp  r1,r2
+bgt  +
+
+mov  r2,#0x10
+b    .decided
+
++
+ldr  r2,=#0x80E5108               //Item data
+cmp  r1,r2
+blt  .end
+
+ldr  r2,=#0x80EBD07
+cmp  r1,r2
+bgt  +
+
+mov  r2,#0x40
+b    .decided
+
++
+b    .end
+
+.decided:
+add  r1,r1,r2
+ldr  r1,[r1,#8]                   //Get target of action
+mov  r2,#{target_num_table_size}
+cmp  r1,r2
+bge  .end                         //The target is invalid. Just future-proof this in case it's used in hacks.
+
+ldr  r2,=#{target_num_table}
+ldrb r1,[r2,r1]                   //Get number of hits
+mov  r3,#0
+lsr  r2,r1,#5                     //Check if it's a special case (party-wide hit)
+cmp  r2,#0
+beq  .got_total_hits
+
+mov  r2,#1
+and  r2,r1
+cmp  r2,#1
+bne  +
+
+ldr  r2,=#0x2002014               //Generic battle data
+ldr  r2,[r2,#0]
+ldr  r2,[r2,#0x4C]                //Party battle data
+ldr  r2,[r2,#0x6C]                //Party counter
+add  r3,r3,r2
+
++
+mov  r2,#2
+and  r2,r1
+cmp  r2,#2
+bne +
+
+ldr  r2,=#0x2002014               //Generic battle data
+ldr  r2,[r2,#0]
+ldr  r2,[r2,#0x54]                //Enemy party battle data
+add  r2,#0x80
+ldr  r2,[r2,#4]                   //Enemy party counter
+add  r3,r3,r2
+
++
+mov  r1,r3                        //Put proper hit count
+
+.got_total_hits:
+
+ldr  r2,[r0,#4]                   //Load in ram hits counter and check whether the normal hits counter is bigger
+cmp  r1,r2
+bgt  .end                         //This shouldn't happen, however in case it does... Just be safe and don't update the counter, since it means the "action stack" is too little
+
+str  r1,[r0,#4]                   //Save the normal hits counter
+
+.end:
+
+ldr  r2,=#{thunder_fix_address}
+ldr  r1,[r0,#4]                   //Load the hits counter and save it elsewhere to check it doesn't get screwed by enemies joining in
+strh r1,[r2,#0]                   //Keep both the hits counter and the address of it. Certain actions happen when an enemy dies or reaches a certain HP threshold, so they interrupt the normal flow
+mov  r1,#1
+strh r1,[r2,#2]                   //Occupied flag
+str  r0,[r2,#4]
+
+.end_end:
+ldr  r1,[r6,#0x1C]                //Clobbered code
+pop  {r3,pc}
+
+//------------------------------------------------------------------------------------------------------
 
 .update_value:
 push {lr}
 sub  r0,r2,#1
-str  r0,[r3,#4]              //Default update
+str  r0,[r3,#4]                   //Default update
 push {r2,r5}
-mov  r2,#1
-lsl  r2,r2,#27               // Is this an enemy? If they are, then they have their identifiers in the ROM
-mov  r1,#0x10
-sub  r1,r3,r1
-ldr  r1,[r1,#0]
-add  r1,#0xFC
-ldr  r1,[r1,#0]              //Load the acter's data
-cmp  r1,r2                   //If this is an enemy, don't update them!
-bge  .update_end
-ldrb r2,[r1,#0]
-cmp  r2,#0x11
-bge  .update_end             //Let's be safe, don't go where you shouldn't!
-lsl  r2,r2,#4
-ldr  r1,=#0x2005CB0          //Area that gets reloaded after each battle and is not used. Really handy!
-add  r2,r2,r1
-ldr  r5,[r2,#0]
-cmp  r5,r3                   //Is it an already stored address? If it isn't, it's probably Duster's beginning of battle. We don't need it.
-bne  .update_end
-.update_value_found:
-str  r0,[r2,#4]              //Update what's stored
-cmp  r0,#0
-bne  .update_end
-str  r0,[r2,#0]              //If this is 0, the person already acted and the memory will be freed.
-str  r0,[r2,#8]              //Same as above
-str  r0,[r2,#0xC]            //Same as above
-ldr  r2,=#0x110
-add  r2,r2,r1
-ldr  r5,[r2,#0]              //Update the entry count
+ldr  r2,=#{thunder_fix_address}
+ldr  r5,[r2,#4]                   //Load the address of the action
+cmp  r5,r3
+bne  .update_end_end              //If the addresses aren't the same, this is an action that happens within another action. Don't worry about it.
+ldrh  r5,[r2,#0]                  //Load what's stored
 sub  r5,r5,#1
-str  r5,[r2,#0]
+cmp  r5,r0
+bgt  .update_end                  //This shouldn't happen, however in case it does... Just be safe and don't update the counter, since it means the "action stack" is too little
+str  r5,[r3,#4]
 
 .update_end:
+ldr  r5,[r3,#4]                   //Load the final value
+strh r5,[r2,#0]                   //Save the final value
+
+.update_end_end:
+mov  r5,#1
+strh r5,[r2,#2]
 pop  {r2,r5}
 pop  {pc}
 
-//------------------------------------------------------------------------------------------------
-
-.refresh:
-push {lr,r0-r1}
-push {r3-r7}
-ldr  r1,=#0x2005CB0          //Area that gets reloaded after each battle and is not used. Really handy!
-ldr  r4,=#0x110
-add  r4,r4,r1
-ldr  r4,[r4,#0]              //Total count
-mov  r5,#0                   //Current count
-mov  r0,#0
--
-lsl  r0,r0,#4
-add  r3,r0,r1
-ldr  r2,[r3,#0]
-cmp  r2,#0                   //If address is 0, then there is nothing to refresh.
-beq  +
-mov  r7,#0x3C
-sub  r7,r2,r7
-ldr  r6,=#0x20657375         //"use " string used by the game
-ldr  r7,[r7,#0]              //Load the status of the memory zone
-cmp  r7,r6                   //Is it still in use?
-bne  .remove_action_done
-ldr  r6,[r3,#0xC]
-mov  r7,#0x3C
-sub  r7,r2,r7
-ldr  r7,[r7,#4]              //Load the size of the memory zone
-cmp  r6,r7                   //Is the size still it?
-bne  .remove_action_done
-mov  r7,#0x10
-sub  r7,r2,r7
-ldr  r7,[r7,#0]              //Load the character's address from the action
-ldr  r6,[r3,#8]              //Load the character's address
-cmp  r7,r6                   //If it's in use, is the character's address still there? It won't be if the action's been completed.
-bne  .remove_action_done
-bl   .refresh_value
-add  r5,#1
-b    .cont_alive
-.remove_action_done:
-sub  r4,r4,#1                //Someone completed their action! Don't do them! Update total count!
-mov  r6,#0
-str  r6,[r3,#0]              //Remove the entry!
-str  r6,[r3,#4]
-str  r6,[r3,#8]
-str  r6,[r3,#0xC]
-ldr  r6,=#0x110
-add  r6,r6,r1
-str  r4,[r6,#0]              //Store new total count too!
-.cont_alive:
-+
-cmp  r5,r4
-bge  .refresh_end            //We refreshed them all!
-lsr  r0,r0,#4
-add  r0,#1
-cmp  r0,#0x11                //Refresh all the addresses that are not 0
-blt  -
-b    .refresh_end
-
-.refresh_value:
-push {lr}
-ldr  r3,[r3,#4]
-str  r3,[r2,#4]              //The actual refresh
-pop  {pc}
-
-.refresh_end:
-pop  {r3-r7}
-pop  {pc,r0-r1}
-
-.call_refresh_enemy_joins_by_itself: //When an enemy joins the fight by itself from outside the screen (Happens when 2 enemies are called and at the beginning of battle too)
-push {lr}
-bl   .refresh
-mov  r3,r8                   //Clobbered code
-ldr  r2,[r3,#4]
-pop  {pc}
-
-.call_refresh_enemy_is_called: //When a single enemy is called into the fight or joins it (Ceiling or PORKYs)
-push {lr}
-bl   .refresh
-mov  r8,r0                   //Clobbered code
-ldr  r1,[r5,#0x1C]
-pop  {pc}
-
-//---------------------------------------------------------------------------------------------
-
-.setup: //0s the area we'll use
-push {lr}
-ldr  r1,=#0x2005CB0          //Area that gets reloaded after each battle and is not used. Really handy!
-mov  r0,#0
-push {r0}
-mov  r0,sp
-mov  r2,#0x45
-mov  r3,#5
-lsl  r3,r3,#24
-orr  r2,r3                   // set the 24th bit of r2 so it'll know to fill instead of copy, The 26th bit is also set so it uses Words.
-swi  #0xB
-pop  {r0}
-pop  {pc}
-
-//----------------------------------------------------------------------------------------------------
-
-.first_setup:                //Happens at start of battle, sets the zone we'll use to all 0s.
-push {lr}
-bl   .setup
-bl   $8072B70                //Clobbered code
-pop  {pc}
-
-//-----------------------------------------------------------------------------------------------------
-
-.battle_turn_setup:          //Happens at end of turn. Sets the zone back to all 0s.
-push {lr}
-cmp  r5,#0
-bne  +
-push {r2-r3}
-bl   .setup
-pop  {r2-r3}
-+
-lsl  r0,r5,#3                //Clobbered code
-ldr  r4,[r6,#8]
-pop  {pc}
-
 //------------------------------------------------------------------------------------------------------
 
-.end_choice_register:        //Stores the action count for the characters
-push {lr,r1-r3,r5}
-bl   $8091938
-cmp  r0,#0
-beq  .end_choice_end         //No action = no registration of it needed (sleeping/solidified characters)
-mov  r1,r4
-add  r1,#0xFC
-ldr  r1,[r1,#0]
-mov  r2,#1
-lsl  r2,r2,#27
-cmp  r1,r2
-bge  .end_choice_end         //How did an enemy get here?! I don't know, but let's be safe
-mov  r2,r1
-ldrb r1,[r1,#0]
-cmp  r1,#0x11
-bge  .end_choice_end         //Let's be safe, don't go where you shouldn't!
-mov  r3,r2
-lsl  r1,r1,#4                //get the address
-ldr  r2,=#0x2005CB0
-mov  r5,r2
-add  r5,#0x11
-add  r5,#0xFF
-add  r1,r1,r2
-mov  r2,r0
-add  r2,#0x34
-mov  r3,r2                   //r3 has the action address now.
-ldr  r2,[r3,#4]              //Load the action count!
-cmp  r2,#0                   //If no action is performed anyway (Final battle) don't save addresses. A failsafe in case someone cheats stuff.
-beq  +
-str  r3,[r1,#0]              //Store the address!
-str  r2,[r1,#4]              //Store the action count!
-str  r4,[r1,#8]              //Store the character address! Useful to check if the action still has to be done!
-mov  r2,#0x8
-sub  r3,r0,r2
-ldr  r3,[r3,#4]
-str  r3,[r1,#0xC]            //Store the memory region's size. Another failsafe.
-ldr  r2,[r5,#0]              //Store how many people we must update in total! Saves time!
-add  r2,#1
-str  r2,[r5,#0]
-+
+.end_routine:
+ldr  r4,=#{thunder_fix_address}
+mov  r3,#0
+strh r3,[r4,#2]                   //Reset the occupied flag to 0
+pop  {r3,r4}
+mov  r8,r3
+bx   lr
 
-
-.end_choice_end:
-pop  {pc,r1-r3,r5}
-
-//------------------------------------------------------------------------------------------------------
-
+//=============================================================================================
+// Fix issue that happens if someone dies and is revived by a memento while viewing their own inventory
+//=============================================================================================
 fix_mementos_item_menu:
 
 //Someone died, set the Character's data position to the proper one, so if they die, it's still okay

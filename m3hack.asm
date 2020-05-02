@@ -1448,9 +1448,9 @@ org $9163DE7; db $00
 //Fix gift boxes issues in room 1D9 and 058 using room 346 as a reference - 346's sprite table = 1162428
 
 //Insert new sprites
-org $9FD2000; incbin GiftBoxGlitch058Table1.bin
-org $9FD21E0; incbin GiftBoxGlitch058Table4.bin
-org $9FD23C0; incbin GiftBoxGlitch1D9Table1.bin
+org $9FD2000; incbin object_table_1_058.bin
+org $9FD21E0; incbin object_table_4_058.bin
+org $9FD23C0; incbin object_table_1_1D9.bin
 org $913323C; dd $00E9F4A8
 org $9133248; dd $00E9F688
 org $9135050; dd $00E9F868
@@ -1531,13 +1531,14 @@ org $93285C0; incbin data_ghost_fix.bin
 //org $80D3594; dw $0268
 //org $80D6204; dw $0268
 
-//Fix "Multiple PK Thunders" bug - REDO: The issue is that whenever an enemy joins, the game updates the target values, however PK Thunder and PK Ground have no target and instead use that field to store the amount of times the attack will hit
-org $805F670; bl fix_synchronization.end_choice_register
-org $8062C6E; bl fix_synchronization.call_refresh_enemy_joins_by_itself
-org $80627E0; bl fix_synchronization.call_refresh_enemy_is_called
+//Fix "Multiple PK Thunders" bug
+define target_num_table $9FD5F80
+define target_num_table_size $1C
+org {target_num_table}; incbin data_target_table.bin
+org $8075024; bl fix_synchronization.setup
+org $8078418; bl fix_synchronization.fix_value_beginning_of_action_routine
 org $8078502; bl fix_synchronization.update_value
-org $805DE2C; bl fix_synchronization.first_setup
-org $805F58C; bl fix_synchronization.battle_turn_setup
+org $8078582; bl fix_synchronization.end_routine
 
 //Fix flickering in Fassad's low voice talk with Lucas. (Script: 32-21)
 org $91E0FD8; dd $000DA801 //Make it so this text box doesn't display its speaker
