@@ -1114,7 +1114,8 @@ org $8D3E09C; dd $01256B20
 org $9F92000; incbin gfx_monotoli_[c].bin
 
 // silver star sprite for the battle memory star hack
-org $9F86120; incbin gfx_starsprite.bin
+define star_sprite_address $9F86120
+org {star_sprite_address}; incbin gfx_starsprite.bin
 
 //Ver 1.3 stuff after this
 
@@ -1367,7 +1368,7 @@ org $9FB0300; incbin text_sleep.bin
 //============================================================================================
 
 // Big cool battle memory star sprite hack
-org $803E6FC; push {lr}; bl extra_hacks.allenemies
+org $804565C; bl extra_hacks.allenemies
 
 // New icon for bell ringer item
 org $8036E90; push {r4,lr}; bl extra_hacks.bellringer; pop {r4,pc}
@@ -1688,6 +1689,18 @@ org $8052AF8; dd $09FAAB3A //Table's third pointer, 14A bytes after the beginnin
 org $804EF30; dd $09FAAB3A //Same thing as before
 
 org $8052ADA; db $52 //Increments the number of loaded memos, so the last one is loaded too
+
+//============================================================================================
+//                                   DELETE ALL SAVES FIXING
+//============================================================================================
+
+//Hacks for the lag in the delete all saves screen
+
+org $804E7A4; mov r0,#0; nop //Remove the window when "No" is pressed
+org $804E67A; mov r0,#0; nop //Remove the window when "Yes" is pressed
+
+org $803DDA0; mov r0,#4; nop  //Remove the window at startup
+org $804CA42; bl fix_lag_delete_all.hack //Set it back once we can read the input
 
 //============================================================================================
 //                                   SUMMARY FIXING
