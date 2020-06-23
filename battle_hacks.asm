@@ -2643,6 +2643,33 @@ bl      $8072628
 
 pop     {pc}
 
+//=============================================================================================
+// Checks if enemy could be damaged. If it cannot, it displays total damage as 0. Fix for when Porky inside the absolute safety capsule is comboed.
+//=============================================================================================
+.fix_total_damage:
+push {r0,lr}
+push {r1-r3}
+ldr  r3,[sp,#0x94]
+ldr  r1,[r3,#0x1C]
+mov  r0,#0xA8
+lsl  r0,r0,#2
+add  r1,r1,r0
+mov  r2,#0
+ldsh r0,[r1,r2]
+add  r0,r3,r0
+ldr  r2,[r1,#4]
+mov  r1,#0x30
+bl   $809193C
+lsl  r0,r0,#0x18
+lsr  r0,r0,#0x18
+pop  {r1-r3}
+cmp  r0,#1                   // If this is 1, then the enemy takes 0 damage
+bne  +
+mov  r1,#0
++
+strh r5,[r2,#0]
+strh r3,[r2,#2]
+pop  {r0,pc}
 
 //=============================================================================================
 // New current enemy saving hacks. In m3hacks.asm there are descriptions about what is what

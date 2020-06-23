@@ -446,7 +446,7 @@ org $804E14A; bl refreshes.inner_equip_scroll
 org $804F704; bl refreshes.inner_equip_a
 
 //Memoes
-org $804D1CC; bl refreshes.b; nop
+org $804D1CC; bl refreshes.b; nop; bl main_menu_hacks.delete_vram_battle_memory_to_inv
 org $804D306; bl refreshes.up_and_down
 
 //PSI
@@ -494,6 +494,9 @@ org $804D8F8; bl refreshes.withdraw_a; nop
 org $804D910; bl refreshes.b; nop
 org $804D994; bl refreshes.up_and_down
 org $804D9CA; bl refreshes.switch_lr; nop
+
+//Remove text issue when going from inventory to battle memory
+org $804EB26; bl main_menu_hacks.delete_vram_inv_to_battle_memory
 
 //============================================================================================
 //                                  NAMING SCREEN HACKS
@@ -1660,6 +1663,13 @@ org $90D0140; incbin gfx_highway_graphics_[c].bin
 org $8D3D91C; dd $00394C60
 org $9FD738C; incbin gfx_highway_tilemap_[c].bin
 org $904E01C; dd $00F899C0
+
+//Fix issue with Porky in Absolutely Safe Capsule when comboed
+org $809F45A; bl battle_hacks.fix_total_damage
+
+//Fix issue with equip and status showing old data when going from a non-valid character to a valid character
+org $80470B4; bl main_menu_hacks.delete_vram_equip; nop //Equip
+org $80472C8; bl main_menu_hacks.delete_vram_status; nop //Status
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF

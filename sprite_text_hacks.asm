@@ -1297,7 +1297,12 @@ push {r4-r7,lr}
 ldr  r4,=#0x2003F04
 ldrb r7,[r4,#0]
 cmp  r7,#2
+bne  +
+ldr  r7,=#0x201A288                       //If this is the naming screen, then stop printing if the flag is active.
+ldrb r7,[r7,#0]
+cmp  r7,#0x11
 beq  .way_out
++
 mov  r7,r10
 mov  r6,r9
 mov  r5,r8
@@ -1306,7 +1311,7 @@ add  sp,#-0x2C
 str  r0,[sp,#0x8]
 ldr  r2,=#0x76D9
 add  r1,r0,r2
-bl   sprite_text_weld.init              // init
+bl   sprite_text_weld.init                // init
 
 ldr  r0,=#0x2016028
 ldr  r3,=#0xC620
@@ -1340,7 +1345,7 @@ b    .mr_exit
 
 //-------------------------------------------------------------------------------------------
 
-.mr_outerloop:                          // start of big loop to do all lines
+.mr_outerloop:                            // start of big loop to do all lines
 ldrb r1,[r6,#0x10]
 mov  r0,#0x80
 and  r0,r1
@@ -1386,7 +1391,7 @@ str  r1,[sp,#0x24]
 //-------------------------------------------------------------------------------------------
 
 .mr_innerloop:
-ldr  r3,[sp,#0]                         // start of big inner loop, does all letters in curr line
+ldr  r3,[sp,#0]                           // start of big inner loop, does all letters in curr line
 bl   sprite_text_weld.efficiency_check
 
 cmp  r1,r0

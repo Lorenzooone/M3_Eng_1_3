@@ -37,11 +37,11 @@ pop  {r1,pc}
 push {r2-r5,lr}
 mov  r4,#0
 -
-ldrh r2,[r0,#0] //Sum is needed because it's not 4 bytes-aligned
+ldrh r2,[r0,#0]                    //Sum is needed because it's not 4 bytes-aligned
 ldrh r3,[r0,#2]
 lsl  r3,r3,#0x10
 add  r2,r2,r3
-ldrh r3,[r1,#0] //Sum is needed because it's not guaranteed 4 bytes-aligned
+ldrh r3,[r1,#0]                    //Sum is needed because it's not guaranteed 4 bytes-aligned
 ldrh r5,[r1,#2]
 lsl  r5,r5,#0x10
 add  r3,r3,r5
@@ -82,7 +82,7 @@ bl   .read_star_sprite
 
 .allenemies_end:
 pop  {r0-r5}
-ldrh r1,[r2,#0x1A] //Clobbered code
+ldrh r1,[r2,#0x1A]                 //Clobbered code
 lsl  r0,r1,#2
 pop  {pc}
 
@@ -95,15 +95,15 @@ cmp  r1,#0
 beq  .end_read_star_sprite
 cmp  r1,#3
 bne  +
-mov  r0,#0xBB // Gold
+mov  r0,#0xBB                      // Gold
 b    .do_set_start_sprite
 +
 cmp  r1,#2
 bne  +
-mov  r0,#0x6B // Silver
+mov  r0,#0x6B                      // Silver
 b    .do_set_start_sprite
 +
-mov  r0,#0xDB // Bronze
+mov  r0,#0xDB                      // Bronze
 
 .do_set_start_sprite:
 bl   .set_start_sprite
@@ -118,8 +118,8 @@ mov  r4,r0
 
 // Load the star sprite into tile memory
 ldr  r0,=#{star_sprite_address}
-ldr  r1,=#0x6016400
-mov  r2,#0x20
+ldr  r1,=#0x60177E0
+mov  r2,#0x8
 swi  #0xC
 mov  r0,r4
 
@@ -130,7 +130,7 @@ ldr  r4,=#0xC620
 add  r2,r3,r4
 ldr  r4,=#0x2C98
 add  r4,r3,r4
-ldrh r1,[r4,#0] // Update objects counter to account for this one
+ldrh r1,[r4,#0]                    // Update objects counter to account for this one
 add  r1,#1
 strh r1,[r4,#0]
 sub  r4,r1,#1
@@ -141,9 +141,8 @@ mov  r4,#0x45
 lsl  r4,r4,#0x10
 add  r4,#0xE
 str  r4,[r3,#0]
-mov  r4,r0
-lsl  r4,r4,#8
-add  r4,#0x20
+lsl  r4,r0,#8
+add  r4,#0xBF
 str  r4,[r3,#4]
 // ----------------------------------------------
 pop  {r4,pc}
@@ -163,13 +162,13 @@ push {r0-r4}
 // Enable VBlank interrupt crap
 ldr  r2,=#0x4000000
 mov  r0,#0xB
-strh r0,[r2,#4] // LCD control
+strh r0,[r2,#4]                    // LCD control
 mov  r1,#2
 lsl  r1,r1,#8
 ldrh r0,[r2,r1]
 mov  r3,#1
 orr  r0,r3
-strh r0,[r2,r1] // Master interrupt control
+strh r0,[r2,r1]                    // Master interrupt control
 
 // Enable BG0
 ldrh r0,[r2,#0]
@@ -187,7 +186,7 @@ strh r0,[r2,#8]
 // Tile data
 ldr  r0,=#0x9FAC000
 ldr  r1,=#0x6008000
-swi  #0x12 // LZ77UnCompVram
+swi  #0x12                         // LZ77UnCompVram
 // ldr  r2,=#0x1FE0
 // swi  #0xC
 
@@ -241,12 +240,12 @@ swi  #0xB
 // Fade in
 ldr  r2,=#0x4000050
 mov  r0,#0x81
-strh r0,[r2,#0] // Set blending mode to whiteness for BG0
+strh r0,[r2,#0]                    // Set blending mode to whiteness for BG0
 mov  r4,#0x10
 -
 strh r4,[r2,#4]
 swi  #5
-swi  #5 // 15 loops with 2 intrs each gives a total fade-in time of 0.5 seconds
+swi  #5                            // 15 loops with 2 intrs each gives a total fade-in time of 0.5 seconds
 sub  r4,#1
 bpl  -
 
@@ -272,7 +271,7 @@ bne  -
 ldr  r2,=#0x4000130
 ldr  r4,=#0x3FF
 -
-swi  #5 // VBlankIntrWait
+swi  #5                            // VBlankIntrWait
 ldrh r0,[r2,#0]
 cmp  r0,r4
 beq  -
@@ -280,12 +279,12 @@ beq  -
 // Fade out
 ldr  r2,=#0x4000050
 mov  r0,#0x81
-strh r0,[r2,#0] // Set blending mode to whiteness for BG0
+strh r0,[r2,#0]                    // Set blending mode to whiteness for BG0
 mov  r4,#0x0
 -
 strh r4,[r2,#4]
 swi  #5
-swi  #5 // 15 loops with 2 intrs each gives a total fade-out time of 0.5 seconds
+swi  #5                            // 15 loops with 2 intrs each gives a total fade-out time of 0.5 seconds
 add  r4,#1
 cmp  r4,#0x10
 bls  -
@@ -370,14 +369,14 @@ push {r0}
 mov  r0,sp
 ldr  r1,=#0x30040F0
 mov  r2,#1
-lsl  r2,r2,#24 // Fill
+lsl  r2,r2,#24                     // Fill
 mov  r3,#0xE4
 orr  r2,r3
 swi  #0xB
 add  sp,#4
 // ----------------------------------------------
 pop  {r0-r4}
-mov  r2,#0 // clobbered code
+mov  r2,#0                         // clobbered code
 mov  r0,#5
 pop  {pc}
 
@@ -398,7 +397,7 @@ pop  {r5,pc}
 
 +
 pop  {r0,r5}
-mov  r1,r0                   // original code
+mov  r1,r0                         // original code
 lsl  r1,r1,#0x10
 lsr  r1,r1,#0x10
 ldr  r0,=#0x8D1EE78
@@ -420,7 +419,7 @@ cmp  r0,#0
 beq  +
 mov  r2,r0
 +
-lsl  r2,r2,#0x10             // clobbered code
+lsl  r2,r2,#0x10                   // clobbered code
 lsr  r5,r2,#0x10
 pop  {r0,pc}
 
@@ -433,7 +432,7 @@ push {lr}
 // r0 is 3 for icons, 1 for everything else
 cmp  r0,#3
 bne  +
-mov  r0,#0x18      // start 0x18 pixels from the left; it does weird things when inside text though
+mov  r0,#0x18                      // start 0x18 pixels from the left; it does weird things when inside text though
 strh r0,[r6,#0]
 pop  {pc}
 +
@@ -452,14 +451,14 @@ push {r0,lr}
 ldr  r0,=#0x4000130
 ldrh r0,[r0,#0]
 lsl  r0,r0,#0x16
-lsr  r0,r0,#0x1E // r0 = (r0 & 0x300) >> 8
-cmp  r0,#0       // we're checking for at least L+R, so other buttons are irrelevant
+lsr  r0,r0,#0x1E                   // r0 = (r0 & 0x300) >> 8
+cmp  r0,#0                         // we're checking for at least L+R, so other buttons are irrelevant
 pop  {r0}
 beq  +
-bl   $804BF34 // Status
+bl   $804BF34                      // Status
 pop  {pc}
 +
-bl   $804BFCC // Memo
+bl   $804BFCC                      // Memo
 pop  {pc}
 
 // ---------------------------------------------------------------------------------------
@@ -477,7 +476,7 @@ and  r0,r1
 ldr  r2,=#0x203FFF8
 ldrh r1,[r2,#0]
 cmp  r1,#0
-bne  + // ignore if not block 0
+bne  +                             // ignore if not block 0
 ldrh r1,[r2,#2]
 
 cmp  r1,#7
@@ -537,7 +536,7 @@ strh r6,[r0,#0]
 strh r7,[r0,#2]
 lsl  r6,r6,#1
 pop  {r0}
-bl   $800289C     // clobbered code
+bl   $800289C                      // clobbered code
 pop  {pc}
 
 
@@ -561,7 +560,7 @@ swi  #0xB
 add  sp,#4
 // ----------------------------------------------
 pop  {r0-r4}
-add  r0,r0,r1     // clobbered code
+add  r0,r0,r1                      // clobbered code
 ldr  r0,[r0,#0]
 pop  {pc}
 
@@ -571,8 +570,8 @@ pop  {pc}
 // ---------------------------------------------------------------------------------------
 
 .keygoods_cursorfix1:
-and  r0,r1       // clobbered code
-mov  r2,#0xFF    // r2 was originally 0, so to move it left we need to make it -1, or 0xFFFF (signed hword)
+and  r0,r1                         // clobbered code
+mov  r2,#0xFF                      // r2 was originally 0, so to move it left we need to make it -1, or 0xFFFF (signed hword)
 lsl  r2,r2,#0x8
 add  r2,#0xFF
 bx   lr
@@ -580,8 +579,8 @@ bx   lr
 // ---------------------------------------------------------------------------------------
 // PSI menu
 .psi_cursorfix1:
-and  r0,r1       // clobbered code
-mov  r2,#0xFF    // we want -3
+and  r0,r1                         // clobbered code
+mov  r2,#0xFF                      // we want -3
 lsl  r2,r2,#0x8
 add  r2,#0xFD
 bx   lr
@@ -589,8 +588,8 @@ bx   lr
 // ---------------------------------------------------------------------------------------
 // Skills (other) menu
 .skills_cursorfix1:
-and  r0,r1       // clobbered code
-mov  r2,#0xFF    // we want -5
+and  r0,r1                         // clobbered code
+mov  r2,#0xFF                      // we want -5
 lsl  r2,r2,#0x8
 add  r2,#0xFB
 bx   lr

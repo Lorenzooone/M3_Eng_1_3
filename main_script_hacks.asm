@@ -1007,7 +1007,7 @@ sub  r1,#8
 ldr  r1,[r1,#4]
 ldr  r2,=#{arbitrary_value} //Arbitrary value
 cmp  r1,r2
-bne +
+bne  +
 add  r1,r1,r0
 strh r1,[r5,#2]             //This will be 0xFFFF if we're here
 +
@@ -1015,6 +1015,8 @@ strh r1,[r5,#2]             //This will be 0xFFFF if we're here
 mov  r0,r6                  //Clobbered code
 add  r0,#0xBC
 pop  {r1-r2,pc}
+
+//------------------------------------------------------------------------------------------------------
 
 //If we did the setup, skip printing the speaker box
 .speaker_different_unused_val_block:
@@ -1028,8 +1030,8 @@ cmp  r2,r3
 bne  +
 
 ldr  r0,=#0x8023E27         //Avoid printing a speaker box
-pop {r1}
-pop {r1}
+pop  {r1}
+pop  {r1}
 bx   r0
 
 +
