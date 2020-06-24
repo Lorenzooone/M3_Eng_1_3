@@ -1836,6 +1836,17 @@ pop  {pc}
 //=============================================================================================
 // This hack changes how up/down scrolling in menus works - Based off of 0x8046D90, which is basic menu printing
 //=============================================================================================
+
+.new_print_menu_offset_table:
+  dd .new_main_inventory_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
+  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
+  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
+  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_withdrawing_scroll_print+1
+  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
+  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
+  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
+  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
+
 .new_print_menu_up_down:
 push {r4,lr}
 ldr  r3,=#0x2016028                    // Base code
@@ -1901,8 +1912,17 @@ mov  r4,#0xB8
 lsl  r4,r4,#6
 add  r1,r3,r4
 add  r0,r0,r1
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]
+lsl  r1,r1,#2
+ldr  r2,=#.new_print_menu_offset_table
+add  r1,r2,r1
+ldrh r2,[r1,#2]
+lsl  r2,r2,#0x10
+ldrh r1,[r1,#0]
+add  r1,r1,r2
 
-bl   .new_main_inventory_scroll_print  // New code!
+bl   $8091938  // New code!
 
 .end_new_print_menu_up_down:
 pop  {r4,pc}
@@ -2035,6 +2055,97 @@ strh r1,[r0,#0]
 add  sp,#0xC
 pop  {r3}
 mov  r8,r3
+pop  {r4-r7,pc}
+
+//=============================================================================================
+// This hack gives a default print scroller
+//=============================================================================================
+.new_default_scroll_print:
+bx   lr
+
+//=============================================================================================
+// This hack changes what the withdrawing scrolling will print, based off of 0x8046EF0
+//=============================================================================================
+.new_withdrawing_scroll_print:
+push {r4-r7,lr}
+mov  r7,r9
+mov  r6,r8
+push {r6,r7}
+add  sp,#-4                            //base code
+mov  r1,r0
+ldr  r3,=#0x2016028
+ldr  r0,=#0x4282
+add  r2,r3,r0
+
+bl   .get_direction                    //New code!
+cmp  r0,#0
+bne  .new_withdrawing_scroll_print_descending
+mov  r0,#2
+ldrh r1,[r1,#8]
+b    +
+.new_withdrawing_scroll_print_descending:
+ldrh r0,[r2,#0]
+ldrh r1,[r1,#8]
+add  r1,#0xE
+sub  r0,r0,r1
+cmp  r0,#2
+ble  +
+mov  r0,#2
++
+
+lsl  r2,r0,#0x10                       //base code
+lsr  r4,r2,#0x10
+mov  r9,r4
+lsl  r1,r1,#2
+ldr  r4,=#0x3DBC
+add  r0,r3,r4
+add  r5,r1,r0
+mov  r7,#0xF
+mov  r6,#0
+lsr  r0,r2,#0x11
+cmp  r6,r0
+bcs  +
+mov  r8,r0                             //Set the thing to print the bottom two items at the right position
+ldrb r1,[r5,#0]
+mov  r0,#2
+bl   $8001C5C
+str  r7,[sp,#0]
+mov  r1,#1
+bl   .get_inventory_height
+mov  r3,#0x16
+bl   $8047B9C
+add  r5,#4
+ldrb r1,[r5,#0]
+mov  r0,#2
+bl   $8001C5C
+str  r7,[sp,#0]
+mov  r1,#0xA
+bl   .get_inventory_height
+mov  r3,#0x16
+bl   $8047B9C
+mov  r0,#0
+mov  r1,#0
+mov  r2,#1
+bl   $8047D90
++
+mov  r0,#1
+mov  r1,r9
+and  r0,r1
+cmp  r0,#0
+beq  +
+ldrb r1,[r5,#0]                        //Set the thing to print the bottom item at the right position
+mov  r0,#2
+bl   $8001C5C
+str  r7,[sp,#0]
+mov  r1,#0x1
+bl   .get_inventory_height
+mov  r3,#0x16
+bl   $8047B9C
++
+add  sp,#4
+pop  {r3,r4}
+mov  r8,r3
+mov  r9,r4
 pop  {r4-r7,pc}
 
 //=============================================================================================
@@ -2171,7 +2282,7 @@ mov  r0,r2
 pop  {r1-r2,pc}
 
 //=============================================================================================
-// This hack gets the height for printing in the inventory menu
+// This hack gets the height for printing in the inventory/withdrawing menu
 //=============================================================================================
 .get_inventory_height:
 push {r0,lr}
@@ -2496,6 +2607,18 @@ bx   lr
 //=============================================================================================
 // This hack gets the tiles which will be empty
 //=============================================================================================
+
+//Table that dictates which menus are valid to read the empty buffer tiles of
+.new_get_empty_tiles_valid:
+  dw $8001, $0000
+
+//Table which dictates the limit value of a menu used to change the valid buffer tiles to the second ones
+.new_get_empty_tiles_limit_values:
+  db $10, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+  db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $0F
+  db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+  db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+
 .new_get_empty_tiles:
 push {r4-r6,lr}
 ldr  r0,=#0x2016078
@@ -2505,9 +2628,17 @@ mov  r3,#0
 bl   $8001378
 ldr  r6,=#0x6008000
 ldr  r1,=#0x201A288
+ldr  r3,=#.new_get_empty_tiles_valid
+ldrh r2,[r3,#2]
+ldrh r3,[r3,#0]
+lsl  r2,r2,#0x10
+orr  r3,r2
 ldrb r2,[r1,#0]
-cmp  r2,#0
-beq  +
+mov  r1,#1
+lsl  r1,r2
+and  r1,r3
+cmp  r1,#0
+bne  +
 mov  r0,r6
 mov  r1,r6
 b    .end_new_get_empty_tiles
@@ -2577,9 +2708,41 @@ add  r1,r3,r6
 mov  r2,#0x10
 lsl  r3,r2,#5
 sub  r1,r1,r3
+ldr  r2,=#0x201A288
+ldrb r2,[r2,#0]
+ldr  r4,=#.new_get_empty_tiles_limit_values
+ldrb r2,[r4,r2]
 
 .end_new_get_empty_tiles:
 pop  {r4-r6,pc}
+
+//=============================================================================================
+// This hack combines all the hacks above.
+// It moves the arrangements around instead of re-printing everything.
+// It only prints what needs to be printed.
+//=============================================================================================
+.up_down_scrolling_print:
+push {lr}
+add  sp,#-0xC
+bl   .new_get_empty_tiles
+str  r2,[sp,#8]
+str  r0,[sp,#4]
+str  r1,[sp,#0]
+bl   .new_print_menu_up_down
+ldr  r4,=#0x201AEF8
+mov  r0,r4
+bl   $803E908
+-
+bl   .new_print_vram_container
+mov  r0,r4
+bl   $803E908
+ldr  r0,=#0x2013040
+ldrb r1,[r0,#2]                        //Unreal, two names with 21 letters on the same line
+ldrb r2,[r0,#3]
+cmp  r1,r2
+bne  -
+add  sp,#0xC
+pop  {pc}
 
 //=============================================================================================
 // This hack fixes 8-letter names on the main file load screen.
@@ -2658,25 +2821,11 @@ mov  r0,#0xD3                //Normal stuff the game expects from us
 bl   $800399C
 pop  {pc}
 
-// Restores the buffer to its default state, then moves the arrangements around instead of re-printing everything.
-// It only prints what needs to be printed.
 .up_and_down:
 push {r0-r2,lr}
-add  sp,#-0xC
 bl   .main
 //bl   $8046D90              //Normal stuff the game expects from us
-bl   main_menu_hacks.new_get_empty_tiles
-str  r2,[sp,#8]
-str  r0,[sp,#4]
-str  r1,[sp,#0]
-bl   main_menu_hacks.new_print_menu_up_down
-ldr  r4,=#0x201AEF8
-mov  r0,r4
-bl   $803E908
-bl   main_menu_hacks.new_print_vram_container
-mov  r0,r4
-bl   $803E908
-add  sp,#0xC
+bl   main_menu_hacks.up_down_scrolling_print
 pop  {r0-r2,pc}
 
 .status_a:

@@ -405,6 +405,8 @@ org $8040624; db $03                             // Goods, X, left column
 org $804062A; db $7B                             // Goods, X, right column
 org $804081C; bl extra_hacks.keygoods_cursorfix1 // Key goods, X, left column
 org $8040824; db $77                             // Key goods, X, right column
+org $80424D6; bl extra_hacks.withdraw_cursorfix1 // Withdraw, X, left column
+org $80424DE; db $69                             // Withdraw, X, right column
 org $8040B04; db $7F                             // Equip, X, main menu
 org $8043064; db $7F                             // Equip, X, sub menu
 org $8040F24; bl extra_hacks.psi_cursorfix1      // PSI, X, left column
