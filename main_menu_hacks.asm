@@ -1838,14 +1838,14 @@ pop  {pc}
 //=============================================================================================
 
 .new_print_menu_offset_table:
-  dd .new_main_inventory_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
-  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
-  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
-  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_withdrawing_scroll_print+1
-  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
-  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
-  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
-  dd .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1, .new_default_scroll_print+1
+  dd .new_main_inventory_scroll_print+1; dd .new_default_scroll_print+1; dd .new_psi_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_withdrawing_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
 
 .new_print_menu_up_down:
 push {r4,lr}
@@ -1904,9 +1904,6 @@ add  r2,r3,r0
 ldrb r0,[r2,#0]
 cmp  r0,#0x12
 bhi  .end_new_print_menu_up_down
-ldr  r1,=#0x9B8FD28
-lsl  r2,r0,#2
-add  r2,r2,r1
 lsl  r0,r0,#5
 mov  r4,#0xB8
 lsl  r4,r4,#6
@@ -2062,6 +2059,103 @@ pop  {r4-r7,pc}
 //=============================================================================================
 .new_default_scroll_print:
 bx   lr
+
+//=============================================================================================
+// This hack changes what the psi scrolling will print, based off of 0x80471B4
+// Base game bug: when you use a party wide PSI in this menu and end up with fewer PPs than
+// the PPs required to use a PSI, this isn't reflected in the PSI's colour.
+// Putting this here in order to fix it at a later date.
+//=============================================================================================
+.new_psi_scroll_print:
+push {r4-r7,lr}
+add  sp,#-4
+mov  r2,r0                             //base code
+ldr  r4,=#0x2016028
+ldrh r3,[r2,#0xA]
+lsl  r0,r3,#1
+ldr  r5,=#0x4270
+add  r1,r4,r5
+add  r1,r0,r1                          //If we're scrolling, the character has for sure > 0 PSI
+
+bl   .get_direction                    //New code!
+cmp  r0,#0
+bne  .new_psi_scroll_print_descending
+mov  r0,#2
+ldrh r1,[r2,#8]
+b    +
+.new_psi_scroll_print_descending:
+ldrh r0,[r1,#0]
+ldrh r1,[r2,#8]
+add  r1,#0xE
+sub  r0,r0,r1
+cmp  r0,#2
+ble  +
+mov  r0,#2
++
+
+lsl  r2,r0,#0x10                       //base code
+lsr  r7,r2,#0x10
+lsl  r3,r3,#7
+lsl  r0,r1,#2
+mov  r5,#0xD4
+lsl  r5,r5,#6
+add  r1,r4,r5
+add  r0,r0,r1
+add  r4,r3,r0
+mov  r6,#0
+lsr  r2,r2,#0x11
+cmp  r6,r2
+bcs  +
+ldrb r1,[r4,#0]                        //Set the thing to print the bottom two psi at the right position
+mov  r0,#8
+bl   $8001C5C
+mov  r3,r0
+bl   .get_inventory_height
+mov  r5,r2
+ldr  r0,[r4,#0]
+bl   .get_psi_usable
+str  r0,[sp,#0]
+mov  r0,r3
+mov  r1,#1
+mov  r3,#0x16
+bl   $8047B9C
+add  r4,#4
+ldrb r1,[r4,#0]
+mov  r0,#8
+bl   $8001C5C
+mov  r3,r0
+mov  r2,r5
+ldr  r0,[r4,#0]
+bl   .get_psi_usable
+str  r0,[sp,#0]
+mov  r0,r3
+mov  r1,#0xA
+mov  r3,#0x16
+bl   $8047B9C
+mov  r0,#0
+mov  r1,#0
+mov  r2,#1
+bl   $8047D90
++
+mov  r5,#1
+mov  r0,r7
+and  r0,r5
+cmp  r0,#0
+beq  +
+ldrb r1,[r4,#0]                        //Set the thing to print the bottom psi at the right position
+mov  r0,#8
+bl   $8001C5C
+mov  r3,r0
+bl   .get_inventory_height
+ldr  r0,[r4,#0]
+bl   .get_psi_usable
+str  r0,[sp,#0]
+mov  r0,r3
+mov  r1,#1
+mov  r3,#0x16
+bl   $8047B9C
+add  sp,#4
+pop  {r4-r7,pc}
 
 //=============================================================================================
 // This hack changes what the withdrawing scrolling will print, based off of 0x8046EF0
@@ -2295,6 +2389,20 @@ b    .get_inventory_height_end
 mov  r2,#0x9
 .get_inventory_height_end:
 pop  {r0,pc}
+
+//=============================================================================================
+// This hack gets the color for the psi when printing in the psi menu. r0 is the input value
+//=============================================================================================
+.get_psi_usable:
+lsl  r0,r0,#0xA
+cmp  r0,#0
+bge  .psi_not_usable
+mov  r0,#0xF
+b    +
+.psi_not_usable:
+mov  r0,#1
++
+bx   lr
 
 //=============================================================================================
 // This hack is called in order to change where everything is printed in VRAM. Based on 0x80487D4
@@ -2610,14 +2718,14 @@ bx   lr
 
 //Table that dictates which menus are valid to read the empty buffer tiles of
 .new_get_empty_tiles_valid:
-  dw $8001, $0000
+  dw $8005; dw $0000
 
 //Table which dictates the limit value of a menu used to change the valid buffer tiles to the second ones
 .new_get_empty_tiles_limit_values:
-  db $10, $FF, $FF, $FF, $FF, $FF, $FF, $FF
-  db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $0F
-  db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
-  db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+  db $10; db $FF; db $0A; db $FF; db $FF; db $FF; db $FF; db $FF
+  db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $0F
+  db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
+  db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
 
 .new_get_empty_tiles:
 push {r4-r6,lr}
@@ -2736,11 +2844,11 @@ bl   $803E908
 bl   .new_print_vram_container
 mov  r0,r4
 bl   $803E908
-ldr  r0,=#0x2013040
-ldrb r1,[r0,#2]                        //Unreal, two names with 21 letters on the same line
-ldrb r2,[r0,#3]
-cmp  r1,r2
-bne  -
+ldr  r0,=#0x2013040                    //Check for two names with a total of 41+ letters on the same line.
+ldrb r1,[r0,#2]                        //Max item name size is 21, so it's possible, but unlikely.
+ldrb r2,[r0,#3]                        //At maximum 2 letters must be printed, so it's fast.
+cmp  r1,r2                             //Can happen with (pickled veggie plate or jar of yummy pickles or saggittarius bracelet
+bne  -                                 //or mole cricket brother) + bag of big city fries on the same line.
 add  sp,#0xC
 pop  {pc}
 
