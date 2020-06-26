@@ -1839,7 +1839,7 @@ pop  {pc}
 
 .new_print_menu_offset_table:
   dd .new_main_inventory_scroll_print+1; dd .new_default_scroll_print+1; dd .new_psi_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_skills_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_withdrawing_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
@@ -2059,6 +2059,164 @@ pop  {r4-r7,pc}
 //=============================================================================================
 .new_default_scroll_print:
 bx   lr
+
+//=============================================================================================
+// This hack changes what the skill scrolling will print, based off of 0x80473EC
+//=============================================================================================
+.new_skills_scroll_print:
+push {r4-r7,lr}
+mov  r7,r9                             //base code
+mov  r6,r8
+push {r6,r7}
+add  sp,#-8
+mov  r4,r0
+ldrh r0,[r4,#0xA]
+bl   $8054FE0
+add  r3,sp,#4
+mov  r2,sp
+add  r2,#6
+mov  r1,#0
+strh r1,[r2,#0]
+ldrh r1,[r2,#0]
+strh r1,[r3,#0]
+ldrb r0,[r0,#0]
+mov  r9,r2
+cmp  r0,#3
+beq  .duster_skills_scroll_print
+cmp  r0,#3
+bgt  +
+cmp  r0,#2
+beq  .psi_skills_scroll_print
+b    .generic_skills_scroll_print
++
+cmp  r0,#4
+bne  .generic_skills_scroll_print
+.psi_skills_scroll_print:
+add  r1,sp,#4
+mov  r0,#1
+b    +
+.duster_skills_scroll_print:
+mov  r0,#1
+mov  r1,r9
++
+strh r0,[r1,#0]
+.generic_skills_scroll_print:
+ldr  r1,=#0x2016028
+ldr  r2,=#0x427A
+
+bl   .get_direction                    //New code!
+cmp  r0,#0
+bne  .new_skills_scroll_print_descending
+mov  r0,#2
+ldrh r2,[r4,#8]
+b    +
+.new_skills_scroll_print_descending:
+add  r0,r1,r2
+ldrh r0,[r0,#0]
+ldrh r2,[r4,#8]
+add  r2,#0xE
+sub  r0,r0,r2
+cmp  r0,#2
+ble  +
+mov  r0,#2
++
+
+lsl  r0,r0,#0x10                       //base code
+lsr  r3,r0,#0x10
+mov  r8,r3
+lsl  r2,r2,#2
+mov  r3,#0xDE
+lsl  r3,r3,#6
+add  r1,r1,r3
+add  r5,r2,r1
+mov  r6,#0
+lsr  r0,r0,#0x11
+cmp  r6,r0
+bcs  .end_double_skills_print
+mov  r7,#0xF                           //Set the thing to print the bottom two skills at the right position
+add  r0,sp,#4                          //But we optimize the code size
+ldrh r0,[r0,#0]
+cmp  r0,#0
+beq  +
+mov  r6,#8
+mov  r4,#0xA
+b    .double_skills_print
++
+mov  r1,r9
+ldrh r0,[r1,#0]
+mov  r4,#0xB
+cmp  r0,#0
+beq  +
+mov  r6,#2
+b    .double_skills_print
++
+mov  r6,#0xD
+
+.double_skills_print:                  //Actual double skills printing
+ldrb r1,[r5,#0]
+mov  r0,r6
+bl   $8001C5C
+str  r7,[sp,#0]
+mov  r1,#1
+bl   .get_inventory_height
+mov  r3,#0x16
+bl   $8047B9C
+add  r5,#4
+ldrb r1,[r5,#0]
+mov  r0,r6
+bl   $8001C5C
+str  r7,[sp,#0]
+mov  r1,r4
+bl   .get_inventory_height
+mov  r3,#0x16
+bl   $8047B9C
+cmp  r6,#0x8
+bne  +
+mov  r0,#0
+mov  r1,#0
+mov  r2,#1
+bl   $8047D90
++
+.end_double_skills_print:
+mov  r0,#1
+mov  r3,r8
+and  r0,r3
+cmp  r0,#0
+beq  .new_skills_scroll_print_end
+
+add  r0,sp,#4                          //Set the thing to print the bottom skill at the right position
+ldrh r0,[r0,#0]                        //But we optimize the code size
+cmp  r0,#0
+beq  +
+mov  r6,#8
+b    .single_skill_print
++
+mov  r1,r9
+ldrh r0,[r1,#0]
+cmp  r0,#0
+beq  +
+mov  r6,#2
+b    .single_skill_print
++
+mov  r6,#0xD
+
+.single_skill_print:                   //Actual single skill printing
+mov  r7,#0xF
+ldrb r1,[r5,#0]
+mov  r0,r6
+bl   $8001C5C
+str  r7,[sp,#0]
+mov  r1,#1
+bl   .get_inventory_height
+mov  r3,#0x16
+bl   $8047B9C
+
+.new_skills_scroll_print_end:
+add  sp,#8
+pop  {r3,r4}
+mov  r8,r3
+mov  r9,r4
+pop  {r4-r7,pc}
 
 //=============================================================================================
 // This hack changes what the psi scrolling will print, based off of 0x80471B4
@@ -2695,6 +2853,23 @@ mov  r10,r5
 pop  {r4-r7,pc}
 
 //=============================================================================================
+// This hack gets the selected character's number.
+//=============================================================================================
+.new_get_menu_character_number:
+push {r1-r3,lr}
+mov  r2,r0
+ldr  r1,=#0x2016028
+mov  r0,#0xB8
+lsl  r0,r0,#6
+add  r0,r0,r1
+lsl  r1,r2,#5
+add  r0,r0,r1
+ldrh r0,[r0,#0xA]
+bl   $8054FE0
+ldrb r0,[r0,#0]
+pop  {r1-r3,pc}
+
+//=============================================================================================
 // This hack changes the target vram address to whatever we want it to be.
 // It uses the values found by new_get_empty_tiles
 //=============================================================================================
@@ -2718,23 +2893,23 @@ bx   lr
 
 //Table that dictates which menus are valid to read the empty buffer tiles of
 .new_get_empty_tiles_valid:
-  dw $8005; dw $0000
+  dw $8015; dw $0000
 
 //Table which dictates the limit value of a menu used to change the valid buffer tiles to the second ones
 .new_get_empty_tiles_limit_values:
-  db $10; db $FF; db $0A; db $FF; db $FF; db $FF; db $FF; db $FF
+  db $10; db $FF; db $0F; db $FF; db $0F; db $FF; db $FF; db $FF
   db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $0F
   db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
   db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
 
 .new_get_empty_tiles:
 push {r4-r6,lr}
+add  sp,#-4
 ldr  r0,=#0x2016078
 mov  r1,#1
 mov  r2,#0
 mov  r3,#0
 bl   $8001378
-ldr  r6,=#0x6008000
 ldr  r1,=#0x201A288
 ldr  r3,=#.new_get_empty_tiles_valid
 ldrh r2,[r3,#2]
@@ -2747,6 +2922,7 @@ lsl  r1,r2
 and  r1,r3
 cmp  r1,#0
 bne  +
+ldr  r6,=#0x6008000
 mov  r0,r6
 mov  r1,r6
 b    .end_new_get_empty_tiles
@@ -2755,26 +2931,51 @@ mov  r3,r0
 add  r3,#0x82
 ldr  r4,=#0xFFF00003                   //Bitmap for occupied/not occupied zone
 mov  r5,#0
+ldr  r6,=#.new_get_empty_tiles_limit_values
+ldrb r6,[r6,r2]
+cmp  r2,#4
+bne +
+mov  r0,r2
+bl   .new_get_menu_character_number    //All characters in skills besides the PSI users use 0x10 as a base
+cmp  r0,#2
+beq  +
+cmp  r0,#4
+beq  +
+add  r6,#1
++
+str  r6,[sp,#0]
+lsl  r6,r6,#1
+sub  r6,#2
 -
 add  r3,#0x80
-ldrh r1,[r3,#0x1E]
 ldrh r0,[r3,#0]
-lsr  r0,r0,#4
-mov  r2,#1
-and  r2,r0
-lsr  r0,r0,#1
-orr  r0,r2
-mov  r2,#1
-lsl  r2,r0 
-orr  r4,r2                             //Set r0-th zone to occupied
-lsr  r1,r1,#4
-mov  r2,#1
-and  r2,r1
-lsr  r1,r1,#1
-orr  r1,r2
-mov  r2,#1
-lsl  r2,r1
-orr  r4,r2                             //Set r1-th zone to occupied
+lsr  r2,r0,#5
+lsl  r1,r2,#5
+sub  r1,r0,r1
+mov  r0,r2
+ldr  r2,[sp,#0]
+cmp  r1,r2
+blt  +
+mov  r1,#1
+orr  r0,r1
++
+mov  r1,#1
+lsl  r1,r0
+orr  r4,r1                             //Set the zone to occupied
+ldsh r0,[r3,r6]
+lsr  r2,r0,#5
+lsl  r1,r2,#5
+sub  r1,r0,r1
+mov  r0,r2
+ldr  r2,[sp,#0]
+cmp  r1,r2
+blt  +
+mov  r1,#1
+orr  r0,r1
++
+mov  r1,#1
+lsl  r1,r0
+orr  r4,r1                             //Set the zone to occupied
 add  r5,#1
 cmp  r5,#8
 blt  -
@@ -2799,29 +3000,50 @@ cmp  r1,#2
 blt  -
 +
 // r2 and r3 have our numbers
+ldr  r6,=#0x6008000
+ldr  r1,[sp,#0]
 mov  r5,#1
 and  r5,r2
 sub  r2,r2,r5
-lsl  r2,r2,#1
-orr  r2,r5
-lsl  r2,r2,#9
+lsl  r2,r2,#5
+cmp  r5,#1
+bne  +
+orr  r2,r1
++
+lsl  r2,r2,#5
 add  r0,r2,r6
 mov  r5,#1
 and  r5,r3
 sub  r3,r3,r5
-lsl  r3,r3,#1
-orr  r3,r5
-lsl  r3,r3,#9
+lsl  r3,r3,#5
+cmp  r5,#1
+bne  +
+orr  r3,r1
++
+lsl  r3,r3,#5
 add  r1,r3,r6
-mov  r2,#0x10
+ldr  r2,=#0x201A288
+ldrb r3,[r2,#0]
+ldr  r4,=#.new_get_empty_tiles_limit_values
+ldrb r2,[r4,r3]
+cmp  r3,#4
+bne +
+mov  r4,r0
+mov  r0,r3
+bl   .new_get_menu_character_number    //All characters in skills besides the PSI users use 0x10 as a base
+mov  r3,r0
+mov  r0,r4
+cmp  r3,#2
+beq  +
+cmp  r3,#4
+beq  +
+add  r2,#1
++
 lsl  r3,r2,#5
 sub  r1,r1,r3
-ldr  r2,=#0x201A288
-ldrb r2,[r2,#0]
-ldr  r4,=#.new_get_empty_tiles_limit_values
-ldrb r2,[r4,r2]
 
 .end_new_get_empty_tiles:
+add  sp,#4
 pop  {r4-r6,pc}
 
 //=============================================================================================
