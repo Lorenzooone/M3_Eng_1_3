@@ -211,6 +211,8 @@ org $8042498; db $6C
 org $8041506; db $6C
 org $80413F0; db $6C
 org $8040FCE; db $6C
+org $8041D8C; db $97
+org $8041D8E; db $49
 
 // move stuff in the sub menus to the right 2 pixels
 // NOTE! There's still a TON of other variations of this that
@@ -252,20 +254,22 @@ org $80461E4; db $3B
 
 // Shop menu realignments
 // Move the upper cursor left by four pixels in main shop menu
-org $804184C; db $00
+org $804184C; db $01
 // Move the character cursor left by four pixels in the Buy/Sell shop submenus
-org $80418BA; db $00
+org $80418BA; db $01
 // Move the upper cursor left by four pixels in the Buy/Sell shop submenus
-org $80418DE; db $00
+org $80418DE; db $01
 // Move the cursors left in Buy submenu
-org $8041BE2; db $00
-org $8041C0A; db $00
+org $8041B90; db $4F
+org $8041BE2; db $01
+org $8041C0A; db $01
 // Move the cursors left in Sell submenu
-org $8041E98; db $00
-org $8041EC0; db $00
+org $8041DE2; db $57
+org $8041E98; db $01
+org $8041EC0; db $01
 // Move the cursors left when inventory is full
-org $8041A6a; db $00
-org $8041A92; db $00
+org $8041A6A; db $01
+org $8041A92; db $01
 // 'Buy' X coord when in main shop menu
 org $80446FE; db $12
 // 'Sell' X coord when in main shop menu
@@ -276,9 +280,9 @@ org $8044726; db $12
 org $8044774; db $12
 // Item dude realignments
 // Fix the cursor alignment
-org $8041F68; db $00
-org $8041FD6; db $00
-org $8041FFA; db $00
+org $8041F68; db $01
+org $8041FD6; db $01
+org $8041FFA; db $01
 // 'Deposit' X coord when in main item dude menu
 org $80447BA; db $12
 // 'Withdraw' X coord when in main item dude menu
@@ -287,6 +291,21 @@ org $80447CE; db $12
 org $80447E2; db $12
 // Character names X coord when in Deposit/Withdraw item dude submenus
 org $8044830; db $12 
+// Saving/loading menu realignments
+// Fix the cursor alignment when selecting a file in the saving menu
+org $80427EE; db $0B
+// Fix the cursor alignment when overwriting a file in the saving menu
+org $80C6800; db $4B
+org $80C6804; db $7F
+// Fix the cursor alignment when choosing to delete/copy a file in the loading menu
+org $80C6830; db $4B
+org $80C6834; db $7F
+// Fix the cursor alignment when a file is selected in the loading menu
+org $80425FE; db $3F
+// Fix the cursor alignment when choosing a window colour in the loading menu
+org $804270E; db $47
+// Fix the cursor alignment when choosing a text speed in the loading menu
+org $8042686; db $57
 
 // apply a VWF to the non-sprite text on the Battle Memory screen
 org $8049966; push {lr}; bl main_menu_hacks.battle_mem_vwf
@@ -407,6 +426,8 @@ org $804081C; bl extra_hacks.keygoods_cursorfix1 // Key goods, X, left column
 org $8040824; db $77                             // Key goods, X, right column
 org $80424D6; bl extra_hacks.withdraw_cursorfix1 // Withdraw, X, left column
 org $80424DE; db $69                             // Withdraw, X, right column
+org $8042164; db $03                             // Deposit, X, left column
+org $804216A; db $7B                             // Deposit, X, right column
 org $8040B04; db $7F                             // Equip, X, main menu
 org $8043064; db $7F                             // Equip, X, sub menu
 org $8040F24; bl extra_hacks.psi_cursorfix1      // PSI, X, left column
@@ -878,8 +899,10 @@ org $80C20F0; db $C1         // Sleep
 // centers all the Sleep Mode confirm text better
 org $8038578; db $55
 org $803858C; db $91
-org $80C20D8; db $43
-org $80C20DC; db $7F
+
+// centers all the Sleep Mode confirm text cursors better
+org $80C20D8; db $44
+org $80C20DC; db $80
 
 // move the names in outside nameboxes up 1 pixel to look nicer
 org $8038B1A; add r2,r5,#3

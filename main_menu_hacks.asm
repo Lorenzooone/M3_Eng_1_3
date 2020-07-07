@@ -1840,12 +1840,18 @@ pop  {pc}
 .new_print_menu_offset_table:
   dd .new_main_inventory_scroll_print+1; dd .new_default_scroll_print+1; dd .new_psi_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_skills_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_sell_scroll_print+1; dd .new_sell_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_withdrawing_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  
+.new_print_menu_addition_value_table:
+  dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
+  dw $41EC; dw $41EC; dw $4204; dw $4204; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
+  dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
+  dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
 
 .new_print_menu_up_down:
 push {r4,lr}
@@ -1866,8 +1872,10 @@ add  r0,r3,r1                          //Get the type of menu this is
 ldrb r0,[r0,#0]
 cmp  r0,#0x10
 bhi  +
+ldr  r2,=#.new_print_menu_addition_value_table
+lsl  r0,r0,#1
+ldsh r2,[r2,r0]
 ldr  r0,=#0x2016078
-ldr  r2,=#0x41EC
 add  r1,r0,r2
 mov  r2,#1
 mov  r3,#0
@@ -1927,6 +1935,17 @@ pop  {r4,pc}
 //=============================================================================================
 // This hack changes how menu clearing works, based off of 0x80012BC
 //=============================================================================================
+
+.new_swap_arrangement_routine_table:
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_shop+1; dd .new_clear_shop+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+
 .new_clear_menu:
 push {r4-r7,lr}
 mov  r7,r8                             //base code
@@ -1980,49 +1999,16 @@ cmp  r6,r0
 bcs  +
 
 //New code!
-bl   .get_direction
-cmp  r0,#0
-bne  .new_clear_menu_descending
-//Swap arrangements' place - if we're ascending
-mov  r1,r5
-mov  r0,#0x38
-lsl  r0,r0,#4
-add  r4,r1,r0                          // Get to bottom
--
-mov  r1,r4
-mov  r0,#0x80
-sub  r4,r4,r0
-mov  r0,r4
-mov  r2,#0x20                          // Put the arrangements one below
-swi  #0xC
-cmp  r4,r5
-bgt  -
-mov  r0,#0
-push {r0}
-mov  r0,sp
-mov  r1,r5
-ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
-swi  #0xC
-pop  {r0}
-b    +
-
-//Swap arrangements' place - if we're descending
-.new_clear_menu_descending:
-mov  r1,r5
-mov  r0,#0x80
-add  r0,r0,r1
-mov  r2,#0xE0                          // Put the arrangements one above
-swi  #0xC
-mov  r0,#0
-push {r0}
-mov  r0,#0x80
-lsl  r1,r0,#3
-sub  r1,r1,r0
-mov  r0,sp
-add  r1,r1,r5
-ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
-swi  #0xC
-pop  {r0}
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
+lsl  r0,r0,#2
+ldr  r1,=#.new_swap_arrangement_routine_table
+add  r1,r1,r0
+ldrh r0,[r1,#0]
+ldrh r1,[r1,#2]
+lsl  r1,r1,#0x10
+add  r1,r1,r0
+bl   $8091938
 b    +
 
 .next_spot:                            //Back to base code
@@ -2053,6 +2039,110 @@ add  sp,#0xC
 pop  {r3}
 mov  r8,r3
 pop  {r4-r7,pc}
+
+//=============================================================================================
+// Swaps the arrangements' place for the inventory
+//=============================================================================================
+.new_clear_inventory:
+push {lr}
+bl   .get_direction
+cmp  r0,#0
+bne  .new_clear_inventory_descending
+//Swap arrangements' place - if we're ascending
+mov  r1,r5
+mov  r0,#0x38
+lsl  r0,r0,#4
+add  r4,r1,r0                          // Get to bottom
+-
+mov  r1,r4
+mov  r0,#0x80
+sub  r4,r4,r0
+mov  r0,r4
+mov  r2,#0x20                          // Put the arrangements one below
+swi  #0xC
+cmp  r4,r5
+bgt  -
+mov  r0,#0
+push {r0}
+mov  r0,sp
+mov  r1,r5
+ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xC
+pop  {r0}
+b    .new_clear_inventory_end
+
+//Swap arrangements' place - if we're descending
+.new_clear_inventory_descending:
+mov  r1,r5
+mov  r0,#0x80
+add  r0,r0,r1
+mov  r2,#0xE0                          // Put the arrangements one above
+swi  #0xC
+mov  r0,#0
+push {r0}
+mov  r0,#0x38
+lsl  r1,r0,#4
+mov  r0,sp
+add  r1,r1,r5
+ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xC
+pop  {r0}
+
+.new_clear_inventory_end:
+pop  {pc}
+
+//=============================================================================================
+// Swaps the arrangements' place for the shop
+//=============================================================================================
+.new_clear_shop:
+push {lr}
+add  r5,#0x2A
+bl   .get_direction
+cmp  r0,#0
+bne  .new_clear_shop_descending
+//Swap arrangements' place - if we're ascending
+mov  r1,r5
+mov  r0,#0x28
+lsl  r0,r0,#4
+add  r4,r1,r0                          // Get to bottom
+-
+mov  r1,r4
+mov  r0,#0x80
+sub  r4,r4,r0
+mov  r0,r4
+mov  r2,#0x20                          // Put the arrangements one below
+swi  #0xC
+cmp  r4,r5
+bgt  -
+mov  r0,#0
+push {r0}
+mov  r0,sp
+mov  r1,r5
+ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xC
+pop  {r0}
+b    .new_clear_shop_end
+
+//Swap arrangements' place - if we're descending
+.new_clear_shop_descending:
+mov  r1,r5
+mov  r0,#0x80
+add  r0,r0,r1
+mov  r2,#0xC0                          // Put the arrangements one above
+swi  #0xC
+mov  r0,#0
+push {r0}
+mov  r0,#0x28
+lsl  r1,r0,#4
+mov  r0,sp
+add  r1,r1,r5
+ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xC
+pop  {r0}
+
+.new_clear_shop_end:
+sub  r5,#0x2A
+pop  {pc}
 
 //=============================================================================================
 // This hack gives a default print scroller
@@ -2217,6 +2307,85 @@ pop  {r3,r4}
 mov  r8,r3
 mov  r9,r4
 pop  {r4-r7,pc}
+
+
+//=============================================================================================
+// This hack changes what the selling menu scrolling will print, based off of 0x80477BC.
+// Also covers buying thanks to .get_x_shop, which is at 0x804774C
+//=============================================================================================
+.new_sell_scroll_print:
+push {r4-r6,lr}
+add  sp,#-4
+mov  r2,r0                             //base code
+ldr  r1,=#0x2016028
+
+bl   .get_direction                    //New code
+cmp  r0,#0
+bne  .new_sell_scroll_print_descending
+ldrh r0,[r2,#8]
+b    +
+.new_sell_scroll_print_descending:
+ldrh r0,[r2,#8]
+add  r0,#5
++
+
+bl   .get_added_value_shop             //Code used in order to cover both buying and selling
+
+lsl  r0,r0,#2                          //base code
+add  r1,r1,r2
+add  r4,r0,r1
+ldrb r1,[r4,#0]                        //If we're scrolling, we have at least one item here
+mov  r0,#2
+bl   $8001C5C
+mov  r1,r0
+
+bl   .get_shop_height                  //New code
+
+ldr  r0,[r4,#0]                        //base code
+lsl  r0,r0,#0xA
+cmp  r0,#0
+bge  +
+mov  r0,#0xF
+b    .new_sell_scroll_print_continue
++
+mov  r0,#1
+.new_sell_scroll_print_continue:
+str  r0,[sp,#0]
+mov  r0,r1
+
+bl   .get_x_shop                       //Covers both buying and selling
+
+mov  r3,#0x16
+bl   $8047B9C
+
+add  sp,#4
+pop  {r4-r6,pc}
+
+//=============================================================================================
+// Returns as the X the menu identifier -1. This is an optimization due to where stuff is normally printed.
+// The two values are not actually related. They're 0xA for selling and 0x9 for buying
+//=============================================================================================
+.get_x_shop:
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]
+sub  r1,#1
+bx   lr
+
+//=============================================================================================
+// Returns the value that has to be added in order to go to the proper shop menu inventory
+//=============================================================================================
+.get_added_value_shop:
+ldr  r2,=#0x201A288
+ldrb r2,[r2,#0]
+cmp  r2,#0xB
+bne  .get_added_value_shop_buy
+mov  r2,#0xD2
+lsl  r2,r2,#6
+b    +
+.get_added_value_shop_buy:
+ldr  r2,=#0x3D44
++
+bx   lr
 
 //=============================================================================================
 // This hack changes what the psi scrolling will print, based off of 0x80471B4
@@ -2546,6 +2715,21 @@ b    .get_inventory_height_end
 .get_inventory_height_descending:
 mov  r2,#0x9
 .get_inventory_height_end:
+pop  {r0,pc}
+
+//=============================================================================================
+// This hack gets the height for printing in the shop menu
+//=============================================================================================
+.get_shop_height:
+push {r0,lr}
+bl   .get_direction
+cmp  r0,#0
+bne  .get_shop_height_descending
+mov  r2,#0x2
+b    .get_shop_height_end
+.get_shop_height_descending:
+mov  r2,#0x7
+.get_shop_height_end:
 pop  {r0,pc}
 
 //=============================================================================================
@@ -2893,14 +3077,18 @@ bx   lr
 
 //Table that dictates which menus are valid to read the empty buffer tiles of
 .new_get_empty_tiles_valid:
-  dw $8015; dw $0000
+  dw $8C15; dw $0000
 
 //Table which dictates the limit value of a menu used to change the valid buffer tiles to the second ones
 .new_get_empty_tiles_limit_values:
   db $10; db $FF; db $0F; db $FF; db $0F; db $FF; db $FF; db $FF
-  db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $0F
+  db $FF; db $FF; db $0D; db $0F; db $FF; db $FF; db $FF; db $0F
   db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
   db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
+  
+//Table that indicates which menus only use one line to the right instead of one to the left (safe) or two
+.new_get_empty_tiles_types:
+  dw $8015; dw $0000
 
 .new_get_empty_tiles:
 push {r4-r6,lr}
@@ -2929,10 +3117,26 @@ b    .end_new_get_empty_tiles
 +
 mov  r3,r0
 add  r3,#0x82
-ldr  r4,=#0xFFF00003                   //Bitmap for occupied/not occupied zone
+ldr  r4,=#.new_get_empty_tiles_types   //Determine if this is a right single column menu or not
+ldrh r0,[r4,#2]
+ldrh r4,[r4,#0]
+lsl  r0,r0,#0x10
+orr  r4,r0
+mov  r0,#1
+lsl  r0,r2
+and  r0,r4
+cmp  r0,#0
+beq  +
+ldr  r4,=#0xFFF00003                   //Bitmap for occupied/not occupied zone when double columned
+b    .new_get_empty_tiles_gotten_type
++
+ldr  r4,=#0xFFF55557                   //Bitmap for occupied/not occupied zone when single columned right
+
+.new_get_empty_tiles_gotten_type:
 mov  r5,#0
 ldr  r6,=#.new_get_empty_tiles_limit_values
-ldrb r6,[r6,r2]
+add  r6,r6,r2
+ldrb r6,[r6,#0]
 cmp  r2,#4
 bne +
 mov  r0,r2
