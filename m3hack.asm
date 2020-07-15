@@ -468,7 +468,7 @@ org $804E092; bl refreshes.b; nop //"specific submenus" wide
 org $804E14A; bl refreshes.inner_equip_scroll
 org $804F704; bl refreshes.inner_equip_a
 
-//Memoes
+//Battle Memoes
 org $804D1CC; bl refreshes.b; nop; bl main_menu_hacks.delete_vram_battle_memory_to_inv
 org $804D306; bl refreshes.up_and_down
 

@@ -1839,7 +1839,7 @@ pop  {pc}
 
 .new_print_menu_offset_table:
   dd .new_main_inventory_scroll_print+1; dd .new_default_scroll_print+1; dd .new_psi_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_skills_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_skills_scroll_print+1; dd .new_memoes_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_sell_scroll_print+1; dd .new_sell_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_withdrawing_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
@@ -1848,7 +1848,7 @@ pop  {pc}
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   
 .new_print_menu_addition_value_table:
-  dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
+  dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41FC; dw $41EC; dw $41EC;
   dw $41EC; dw $41EC; dw $4204; dw $4204; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
   dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
   dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
@@ -1938,7 +1938,7 @@ pop  {r4,pc}
 
 .new_swap_arrangement_routine_table:
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
-  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_memoes+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_shop+1; dd .new_clear_shop+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
@@ -2089,6 +2089,59 @@ swi  #0xC
 pop  {r0}
 
 .new_clear_inventory_end:
+pop  {pc}
+
+//=============================================================================================
+// Swaps the arrangements' place for the memoes
+//=============================================================================================
+.new_clear_memoes:
+push {lr}
+add  r5,#0xBE
+bl   .get_direction
+cmp  r0,#0
+bne  .new_clear_memoes_descending
+//Swap arrangements' place - if we're ascending
+mov  r1,r5
+mov  r0,#0x30
+lsl  r0,r0,#4
+add  r4,r1,r0                          // Get to bottom
+-
+mov  r1,r4
+mov  r0,#0x80
+sub  r4,r4,r0
+mov  r0,r4
+mov  r2,#0x20                          // Put the arrangements one below
+swi  #0xC
+cmp  r4,r5
+bgt  -
+mov  r0,#0
+push {r0}
+mov  r0,sp
+mov  r1,r5
+ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xC
+pop  {r0}
+b    .new_clear_memoes_end
+
+//Swap arrangements' place - if we're descending
+.new_clear_memoes_descending:
+mov  r1,r5
+mov  r0,#0x80
+add  r0,r0,r1
+mov  r2,#0xC0                          // Put the arrangements one above
+swi  #0xC
+mov  r0,#0
+push {r0}
+mov  r0,#0x30
+lsl  r1,r0,#4
+mov  r0,sp
+add  r1,r1,r5
+ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xC
+pop  {r0}
+
+.new_clear_memoes_end:
+sub  r5,#0xBE
 pop  {pc}
 
 //=============================================================================================
@@ -2485,6 +2538,125 @@ add  sp,#4
 pop  {r4-r7,pc}
 
 //=============================================================================================
+// This hack changes what the memoes scrolling will print, based off of 0x80475A4
+//=============================================================================================
+.new_memoes_scroll_print:
+push {r4-r7,lr}
+mov  r7,r8                             //base code
+push {r7}
+add  sp,#-4
+ldr  r3,=#0x2016028
+ldr  r2,=#0x427E
+add  r1,r3,r2
+mov  r2,r0
+
+bl   .get_direction                    //New code!
+cmp  r0,#0
+bne  .new_memoes_scroll_print_descending
+mov  r0,#2
+ldrh r1,[r2,#8]
+b    +
+.new_memoes_scroll_print_descending:
+ldrh r0,[r1,#0]
+ldrh r1,[r2,#8]
+add  r1,#0xC
+sub  r0,r0,r1
+cmp  r0,#2
+ble  +
+mov  r0,#2
++
+
+lsl  r0,r0,#0x10                       //base code
+lsr  r4,r0,#0x10
+mov  r8,r4
+lsl  r2,r1,#2
+ldr  r4,=#0x3BFC
+add  r1,r3,r4
+add  r4,r2,r1
+mov  r7,#0
+lsr  r0,r0,#0x11
+cmp  r7,r0
+bcs  .new_memoes_scroll_print_end_of_double
+ldr  r0,[r4,#0]
+lsl  r0,r0,#0xA
+cmp  r0,#0
+bge  .new_memoes_scroll_print_end_of_double
+ldrb r0,[r4,#0]
+bl   $80486D8
+mov  r3,r0
+bl   .get_memoes_height
+mov  r6,#1
+neg  r6,r6
+ldr  r0,[r4,#0]
+lsl  r0,r0,#9
+bl   .new_memoes_scroll_print_get_colour
+str  r0,[sp,#0]
+mov  r0,r3
+mov  r1,#1
+mov  r3,r6
+bl   $8047B9C
+add  r4,#4
+ldr  r0,[r4,#0]
+lsl  r0,r0,#0xA
+cmp  r0,#0
+bge  .new_memoes_scroll_print_end_of_double
+ldrb r0,[r4,#0]
+bl   $80486D8
+mov  r1,r0
+bl   .get_memoes_height
+mov  r3,#1
+neg  r3,r3
+ldr  r0,[r4,#0]
+lsl  r0,r0,#9
+bl   .new_memoes_scroll_print_get_colour
+str  r0,[sp,#0]
+mov  r0,r1
+mov  r1,#0xB
+bl   $8047B9C
+add  r4,#4
+.new_memoes_scroll_print_end_of_double:
+ldr  r0,[r4,#0]
+lsl  r0,r0,#0xA
+cmp  r0,#0
+bge  .new_memoes_scroll_print_end
+mov  r5,#1
+mov  r0,r8
+and  r0,r5
+cmp  r0,#0
+beq  .new_memoes_scroll_print_end
+ldrb r0,[r4,#0]
+bl   $80486D8
+mov  r1,r0
+bl   .get_memoes_height
+ldr  r0,[r4,#0]
+lsl  r0,r0,#9
+bl   .new_memoes_scroll_print_get_colour
+str  r0,[sp,#0]
+mov  r0,r1
+mov  r1,#0x1
+neg  r3,r1
+bl   $8047B9C
+
+.new_memoes_scroll_print_end:
+add  sp,#4
+pop  {r3}
+mov  r8,r3
+pop  {r4-r7,pc}
+
+//=============================================================================================
+// This hack gets the colour that should be printed for the memo item
+//=============================================================================================
+.new_memoes_scroll_print_get_colour:
+cmp  r0,#0
+bge  +
+mov  r0,#0xF
+b    .new_memoes_scroll_print_get_colour_end
++
+mov  r0,#1
+.new_memoes_scroll_print_get_colour_end:
+bx   lr
+
+//=============================================================================================
 // This hack changes what the withdrawing scrolling will print, based off of 0x8046EF0
 //=============================================================================================
 .new_withdrawing_scroll_print:
@@ -2715,6 +2887,21 @@ b    .get_inventory_height_end
 .get_inventory_height_descending:
 mov  r2,#0x9
 .get_inventory_height_end:
+pop  {r0,pc}
+
+//=============================================================================================
+// This hack gets the height for printing in the memoes menu
+//=============================================================================================
+.get_memoes_height:
+push {r0,lr}
+bl   .get_direction
+cmp  r0,#0
+bne  .get_memoes_height_descending
+mov  r2,#0x3
+b    .get_memoes_height_end
+.get_memoes_height_descending:
+mov  r2,#0x9
+.get_memoes_height_end:
 pop  {r0,pc}
 
 //=============================================================================================
@@ -3077,18 +3264,18 @@ bx   lr
 
 //Table that dictates which menus are valid to read the empty buffer tiles of
 .new_get_empty_tiles_valid:
-  dw $8C15; dw $0000
+  dw $8C35; dw $0000
 
 //Table which dictates the limit value of a menu used to change the valid buffer tiles to the second ones
 .new_get_empty_tiles_limit_values:
-  db $10; db $FF; db $0F; db $FF; db $0F; db $FF; db $FF; db $FF
+  db $10; db $FF; db $0F; db $FF; db $0F; db $10; db $FF; db $FF
   db $FF; db $FF; db $0D; db $0F; db $FF; db $FF; db $FF; db $0F
   db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
   db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
   
 //Table that indicates which menus only use one line to the right instead of one to the left (safe) or two
 .new_get_empty_tiles_types:
-  dw $8015; dw $0000
+  dw $8035; dw $0000
 
 .new_get_empty_tiles:
 push {r4-r6,lr}
