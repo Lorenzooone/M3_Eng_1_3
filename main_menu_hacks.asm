@@ -2534,6 +2534,7 @@ mov  r0,r3
 mov  r1,#1
 mov  r3,#0x16
 bl   $8047B9C
++
 add  sp,#4
 pop  {r4-r7,pc}
 
@@ -2584,14 +2585,16 @@ bge  .new_memoes_scroll_print_end_of_double
 ldrb r0,[r4,#0]
 bl   $80486D8
 mov  r3,r0
-bl   .get_memoes_height
+
+bl   .get_memoes_height                //New code
 mov  r6,#1
 neg  r6,r6
 ldr  r0,[r4,#0]
 lsl  r0,r0,#9
 bl   .new_memoes_scroll_print_get_colour
-str  r0,[sp,#0]
-mov  r0,r3
+str  r0,[sp,#0]                        //Optimize code size
+
+mov  r0,r3                             //base code
 mov  r1,#1
 mov  r3,r6
 bl   $8047B9C
@@ -2603,14 +2606,16 @@ bge  .new_memoes_scroll_print_end_of_double
 ldrb r0,[r4,#0]
 bl   $80486D8
 mov  r1,r0
-bl   .get_memoes_height
+
+bl   .get_memoes_height                //New code
 mov  r3,#1
 neg  r3,r3
 ldr  r0,[r4,#0]
 lsl  r0,r0,#9
 bl   .new_memoes_scroll_print_get_colour
-str  r0,[sp,#0]
-mov  r0,r1
+str  r0,[sp,#0]                        //Optimize code size
+
+mov  r0,r1                             //base code
 mov  r1,#0xB
 bl   $8047B9C
 add  r4,#4
@@ -2627,12 +2632,14 @@ beq  .new_memoes_scroll_print_end
 ldrb r0,[r4,#0]
 bl   $80486D8
 mov  r1,r0
-bl   .get_memoes_height
+
+bl   .get_memoes_height                //New Code
 ldr  r0,[r4,#0]
 lsl  r0,r0,#9
 bl   .new_memoes_scroll_print_get_colour
-str  r0,[sp,#0]
-mov  r0,r1
+str  r0,[sp,#0]                        //Optimize code size
+
+mov  r0,r1                             //base code
 mov  r1,#0x1
 neg  r3,r1
 bl   $8047B9C
