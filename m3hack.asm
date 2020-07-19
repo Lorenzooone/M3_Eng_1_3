@@ -470,7 +470,9 @@ org $804F704; bl refreshes.inner_equip_a
 
 //Battle Memoes
 org $804D1CC; bl refreshes.b; nop; bl main_menu_hacks.delete_vram_battle_memory_to_inv
-org $804D306; bl refreshes.up_and_down
+org $804D2D6; bl refreshes.up_and_down_battle_memoes_left_right; nop; nop
+org $804D2F6; bl refreshes.up_and_down_battle_memoes; nop; nop
+org $804D306; nop; nop
 
 //PSI
 org $804CD5E; bl refreshes.select; nop

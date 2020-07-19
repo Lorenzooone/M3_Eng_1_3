@@ -1324,8 +1324,13 @@ ldr  r6,[sp,#0x1C]           // load in the calling address
 cmp  r5,r6                   // if equal, this is for the battle memory menu
 beq  +
 
-ldr  r5,=#0x8023B1F          // load r5 with 0x8023B1F, which is used for the gray name boxes
+//Load r5 with the scrolling printing routine for the battle memory
+ldr  r5,=#.new_battle_memo_scroll_print_after_function+1
 cmp  r5,r6
+beq  +                       // if equal, this is for the battle memory menu
+
+ldr  r5,=#0x8023B1F          // load r5 with 0x8023B1F, which is used for the gray name boxes
+cmp  r5,r6                    
 bne  .orig_load_code         // if not equal, jump to the original code
 
 +
@@ -1839,16 +1844,16 @@ pop  {pc}
 
 .new_print_menu_offset_table:
   dd .new_main_inventory_scroll_print+1; dd .new_default_scroll_print+1; dd .new_psi_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_skills_scroll_print+1; dd .new_memoes_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_skills_scroll_print+1; dd .new_memoes_scroll_print+1; dd .new_default_scroll_print+1; dd .new_battle_memo_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_sell_scroll_print+1; dd .new_sell_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_withdrawing_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-  
+
 .new_print_menu_addition_value_table:
-  dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41FC; dw $41EC; dw $41EC;
+  dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41FC; dw $41EC; dw $41FC;
   dw $41EC; dw $41EC; dw $4204; dw $4204; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
   dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
   dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC; dw $41EC;
@@ -1933,12 +1938,106 @@ bl   $8091938  // New code!
 pop  {r4,pc}
 
 //=============================================================================================
+// This hack changes how left/right scrolling in menus works - Based off of 0x8046D90, which is basic menu printing
+// Same code as above except for the points in which it's present the comment DIFFERENT!!!
+//=============================================================================================
+
+.new_print_menu_left_right_offset_table:
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_battle_memo_left_right_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+
+.new_print_menu_left_right:
+push {r4,lr}
+ldr  r3,=#0x2016028                    // Base code
+ldr  r0,=#0x44F2
+add  r2,r3,r0
+ldrb r1,[r2,#0]
+lsl  r0,r1,#0x1C
+cmp  r0,#0
+bge  +
+b    .end_new_print_menu_left_right
++
+mov  r0,#8
+orr  r0,r1
+strb r0,[r2,#0]
+ldr  r1,=#0x4260
+add  r0,r3,r1                          //Get the type of menu this is
+ldrb r0,[r0,#0]
+cmp  r0,#0x10
+bhi  +
+ldr  r2,=#.new_print_menu_addition_value_table
+lsl  r0,r0,#1
+ldsh r2,[r2,r0]
+ldr  r0,=#0x2016078
+add  r1,r0,r2
+mov  r2,#1
+mov  r3,#0
+
+bl   .new_clear_menu_left_right        //DIFFERENT!!!
+
++
+bl   $8049D5C                          //Back to base code
+ldr  r3,=#0x2016028
+ldr  r1,=#0x41C6
+add  r0,r3,r1
+ldrb r1,[r0,#0]
+mov  r0,#1
+and  r0,r1
+cmp  r0,#0
+beq  +
+ldr  r2,=#0x41BC
+add  r1,r3,r2
+ldrh r0,[r1,#0]
+cmp  r0,#3
+bhi  .end_new_print_menu_left_right
+ldr  r0,=#0x9B8FD74
+ldrh r1,[r1,#0]
+lsl  r1,r1,#2
+add  r1,r1,r0
+ldr  r4,=#0x3060
+add  r0,r3,r4
+ldr  r1,[r1,#0]
+bl   $8091938
+b    .end_new_print_menu_left_right
++
+ldr  r0,=#0x4260
+add  r2,r3,r0
+ldrb r0,[r2,#0]
+cmp  r0,#0x12
+bhi  .end_new_print_menu_left_right
+lsl  r0,r0,#5
+mov  r4,#0xB8
+lsl  r4,r4,#6
+add  r1,r3,r4
+add  r0,r0,r1
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]
+lsl  r1,r1,#2                          //DIFFERENT!!!
+ldr  r2,=#.new_print_menu_left_right_offset_table
+add  r1,r2,r1
+ldrh r2,[r1,#2]
+lsl  r2,r2,#0x10
+ldrh r1,[r1,#0]
+add  r1,r1,r2
+
+bl   $8091938  // New code!
+
+.end_new_print_menu_left_right:
+pop  {r4,pc}
+
+//=============================================================================================
 // This hack changes how menu clearing works, based off of 0x80012BC
 //=============================================================================================
 
 .new_swap_arrangement_routine_table:
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
-  dd .new_clear_inventory+1; dd .new_clear_memoes+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_memoes+1; dd .new_clear_inventory+1; dd .new_clear_battle_memo+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_shop+1; dd .new_clear_shop+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
@@ -1958,7 +2057,7 @@ lsr  r7,r2,#0x10
 mov  r0,sp
 strh r3,[r0,#0]
 cmp  r5,#0
-beq  .next_spot
+beq  .new_clear_menu_next_spot
 mov  r1,#0
 ldsh r0,[r5,r1]
 cmp  r0,#0
@@ -2011,7 +2110,7 @@ add  r1,r1,r0
 bl   $8091938
 b    +
 
-.next_spot:                            //Back to base code
+.new_clear_menu_next_spot:                            //Back to base code
 mov  r0,r8
 mov  r1,r7
 mov  r2,#0
@@ -2022,6 +2121,7 @@ mov  r1,#0x80
 lsl  r1,r1,#4
 bl   $80019DC
 +
+.new_clear_menu_general:
 mov  r0,sp
 ldrh r0,[r0,#0]
 cmp  r0,#0
@@ -2039,6 +2139,90 @@ add  sp,#0xC
 pop  {r3}
 mov  r8,r3
 pop  {r4-r7,pc}
+
+//=============================================================================================
+// This hack changes how menu clearing works, based off of 0x80012BC
+// Same as above, except where it's commented DIFFERENT!!!
+//=============================================================================================
+
+.new_swap_arrangement_left_right_routine_table:
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_battle_memo_left_right+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+
+.new_clear_menu_left_right:
+push {r4-r7,lr}
+mov  r7,r8                             //base code
+push {r7}
+add  sp,#-0xC
+mov  r8,r0
+mov  r5,r1
+lsl  r2,r2,#0x10
+lsr  r7,r2,#0x10
+mov  r0,sp
+strh r3,[r0,#0]
+cmp  r5,#0
+bne  +
+b    .new_clear_menu_next_spot
++
+mov  r1,#0
+ldsh r0,[r5,r1]
+cmp  r0,#0
+bge  +
+add  r0,#7
++
+lsl  r0,r0,#0xD
+lsr  r0,r0,#0x10
+ldr  r2,=#0xFFFF0000
+ldr  r1,[sp,#4]
+and  r1,r2
+orr  r1,r0
+str  r1,[sp,#4]
+mov  r1,#2
+ldsh r0,[r5,r1]
+cmp  r0,#0
+bge  +
+add  r0,#7
++
+asr  r0,r0,#3
+add  r4,sp,#4
+strh r0,[r4,#2]
+ldrh r0,[r5,#4]
+lsr  r0,r0,#3
+strh r0,[r4,#4]
+ldrh r0,[r5,#6]
+lsr  r0,r0,#3
+strh r0,[r4,#6]
+ldrh r2,[r4,#0]
+ldrh r3,[r4,#2]
+mov  r0,r8
+mov  r1,r7
+bl   $8001378
+mov  r5,r0
+mov  r6,#0
+ldrh r0,[r4,#6]
+cmp  r6,r0
+bcs  +
+
+//New code!
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
+lsl  r0,r0,#2                          //DIFFERENT!!!
+ldr  r1,=#.new_swap_arrangement_left_right_routine_table
+add  r1,r1,r0
+ldrh r0,[r1,#0]
+ldrh r1,[r1,#2]
+lsl  r1,r1,#0x10
+add  r1,r1,r0
+bl   $8091938
++
+
+b    .new_clear_menu_general
 
 //=============================================================================================
 // Swaps the arrangements' place for the inventory
@@ -2089,6 +2273,131 @@ swi  #0xC
 pop  {r0}
 
 .new_clear_inventory_end:
+pop  {pc}
+
+//=============================================================================================
+// Swaps the arrangements' place for the battle memories
+//=============================================================================================
+.new_clear_battle_memo:
+push {lr}
+add  r5,#0x40
+bl   .get_direction
+cmp  r0,#0
+bne  .new_clear_battle_memo_descending
+//Swap arrangements' place - if we're ascending
+mov  r1,r5
+mov  r0,#0x38
+lsl  r0,r0,#4
+add  r4,r1,r0                          // Get to bottom
+-
+mov  r1,r4
+mov  r0,#0x80
+sub  r4,r4,r0
+mov  r0,r4
+mov  r2,#0x20                          // Put the arrangements one below
+swi  #0xC
+cmp  r4,r5
+bgt  -
+mov  r0,#0
+push {r0}
+mov  r0,sp
+mov  r1,r5
+ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xC
+pop  {r0}
+b    .new_clear_battle_memo_end
+
+//Swap arrangements' place - if we're descending
+.new_clear_battle_memo_descending:
+mov  r1,r5
+mov  r0,#0x80
+add  r0,r0,r1
+mov  r2,#0xE0                          // Put the arrangements one above
+swi  #0xC
+mov  r0,#0
+push {r0}
+mov  r0,#0x38
+lsl  r1,r0,#4
+mov  r0,sp
+add  r1,r1,r5
+ldr  r2,=#0x01000020                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xC
+pop  {r0}
+
+.new_clear_battle_memo_end:
+sub  r5,#0x40
+pop  {pc}
+
+//=============================================================================================
+// Swaps the arrangements' place for the battle memories
+// Left/Right scrolling edition
+//=============================================================================================
+.new_clear_battle_memo_left_right:
+push {lr}
+add  r5,#0x40
+bl   .get_direction_left_right
+cmp  r0,#0
+bne  .new_clear_battle_memo_left_right_descending
+//Swap arrangements' place - if we're ascending
+mov  r1,r5
+ldr  r2,[sp,#0x38]
+mov  r0,#8
+sub  r0,r0,r2
+lsl  r0,r0,#7
+add  r4,r1,r0                          // Get to bottom
+-
+mov  r1,r4
+ldr  r2,[sp,#0x38]
+sub  r2,r2,#1
+lsl  r2,r2,#0x7
+add  r1,r1,r2
+mov  r0,#0x80
+sub  r4,r4,r0
+mov  r0,r4
+mov  r2,#0x20                          // Put the arrangements X below
+swi  #0xC
+cmp  r4,r5
+bgt  -
+mov  r0,#0
+push {r0}
+mov  r0,sp
+ldr  r1,[sp,#0x3C]
+lsl  r1,r1,#5
+ldr  r2,=#0x01000000                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+orr  r2,r1
+mov  r1,r5
+swi  #0xC
+pop  {r0}
+b    .new_clear_battle_memo_left_right_end
+
+//Swap arrangements' place - if we're descending
+.new_clear_battle_memo_left_right_descending:
+mov  r1,r5
+ldr  r0,[sp,#0x38]
+mov  r2,#0x1                          // Put the arrangements X above
+lsl  r2,r2,#8
+lsl  r0,r0,#5
+sub  r2,r2,r0
+lsl  r0,r0,#2
+add  r0,r0,r1
+swi  #0xC
+mov  r0,#0
+push {r0}
+ldr  r2,[sp,#0x3C]
+mov  r0,#8
+sub  r0,r0,r2
+lsl  r1,r0,#7
+ldr  r0,[sp,#0x3C]
+lsl  r0,r0,#5
+ldr  r2,=#0x01000000                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+orr  r2,r0
+add  r1,r1,r5
+mov  r0,sp
+swi  #0xC
+pop  {r0}
+
+.new_clear_battle_memo_left_right_end:
+sub  r5,#0x40
 pop  {pc}
 
 //=============================================================================================
@@ -2202,6 +2511,100 @@ pop  {pc}
 //=============================================================================================
 .new_default_scroll_print:
 bx   lr
+
+//=============================================================================================
+// This hack changes what the battle memo scrolling will print, based off of 0x80476C0
+//=============================================================================================
+.new_battle_memo_scroll_print:
+push {r4-r7,lr}
+add  sp,#-4                            //base code
+mov  r2,r0
+ldr  r1,=#0x2016028
+
+mov  r6,#1                             //New code
+bl   .get_direction
+cmp  r0,#0
+bne  .new_battle_memo_scroll_print_descending
+ldrh r0,[r2,#8]
+b    +
+.new_battle_memo_scroll_print_descending:
+ldrh r0,[r2,#8]
+mov  r2,#8
+sub  r2,r2,r6
+add  r0,r0,r2
++
+
+.new_battle_memo_scroll_print_general:
+lsl  r0,r0,#2                          //base code
+mov  r2,#0xE0
+lsl  r2,r2,#6
+add  r1,r1,r2
+add  r4,r0,r1
+mov  r5,#0
+cmp  r5,r6
+bcs  .new_battle_memo_scroll_print_end
+mov  r7,#0xF
+-
+ldr  r0,[r4,#0]
+lsl  r0,r0,#0xA
+cmp  r0,#0
+bge  +
+ldrb r1,[r4,#0]                        //Change a bit how this works in order to save space
+mov  r0,#7
+bl   $8001C5C
+.new_battle_memo_scroll_print_after_function:
+b    .new_battle_memo_scroll_print_single_continue
++
+mov  r0,#1
+bl   $80486A0
+.new_battle_memo_scroll_print_single_continue:
+add  r2,r5,#2
+
+bl   .get_battle_memoes_height         //New code
+
+lsl  r2,r2,#0x10                       //base code
+lsr  r2,r2,#0x10
+str  r7,[sp,#0]
+mov  r1,#1
+mov  r3,#1
+neg  r3,r3
+bl   $8047B9C
+add  r0,r5,#1
+lsl  r0,r0,#0x10
+lsr  r5,r0,#0x10
+add  r4,#4
+cmp  r5,r6
+bcc  -
+
+.new_battle_memo_scroll_print_end:
+add  sp,#4
+pop  {r4-r7,pc}
+
+//=============================================================================================
+// This hack changes what the battle memo scrolling will print, based off of 0x80476C0
+// Same as above, except where it's been commented DIFFERENT!!!
+//=============================================================================================
+.new_battle_memo_left_right_scroll_print:
+push {r4-r7,lr}
+add  sp,#-4                            //base code
+mov  r2,r0
+ldr  r1,=#0x2016028
+
+ldr  r0,[sp,#0x28]                     //DIFFERENT!!!
+mov  r6,r0                             //DIFFERENT!!!
+bl   .get_direction_left_right         //DIFFERENT!!!
+cmp  r0,#0
+bne  .new_battle_memo_left_right_scroll_print_descending
+ldrh r0,[r2,#8]
+b    +
+.new_battle_memo_left_right_scroll_print_descending:
+ldrh r0,[r2,#8]
+mov  r2,#8
+sub  r2,r2,r6
+add  r0,r0,r2
++
+
+b    .new_battle_memo_scroll_print_general
 
 //=============================================================================================
 // This hack changes what the skill scrolling will print, based off of 0x80473EC
@@ -2882,6 +3285,44 @@ mov  r0,r2
 pop  {r1-r2,pc}
 
 //=============================================================================================
+// This hack gets the scrolling direction for any given menu.
+// Left/Right edition
+//=============================================================================================
+.get_direction_left_right:
+push {r1-r2,lr}
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]                        //Get menu type
+lsl  r1,r1,#5
+ldr  r2,=#0x2016028
+ldr  r0,=#0x2DFA
+add  r0,r2,r0                          //Get menu info array in RAM
+add  r1,r0,r1
+mov  r2,#1
+ldrh r0,[r1,#0xE]
+cmp  r0,#0
+bne +
+mov  r2,#0                             //Going up if it's 0! Otherwise, going down!
++
+mov  r0,r2
+pop  {r1-r2,pc}
+
+//=============================================================================================
+// This hack gets the index of the top item for any given menu
+//=============================================================================================
+.get_top_index:
+push {r1-r2,lr}
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]                        //Get menu type
+lsl  r1,r1,#5
+ldr  r2,=#0x2016028
+ldr  r0,=#0x2DFA
+add  r0,r2,r0                          //Get menu info array in RAM
+add  r1,r0,r1
+mov  r2,#1
+ldrh r0,[r1,#0xE]
+pop  {r1-r2,pc}
+
+//=============================================================================================
 // This hack gets the height for printing in the inventory/withdrawing menu
 //=============================================================================================
 .get_inventory_height:
@@ -2894,6 +3335,20 @@ b    .get_inventory_height_end
 .get_inventory_height_descending:
 mov  r2,#0x9
 .get_inventory_height_end:
+pop  {r0,pc}
+
+//=============================================================================================
+// This hack gets the height for printing in the battle memoes menu
+//=============================================================================================
+.get_battle_memoes_height:
+push {r0,lr}
+bl   .get_direction
+cmp  r0,#0
+beq  +
+mov  r0,#8
+sub  r0,r0,r6
+add  r2,r2,r0
++
 pop  {r0,pc}
 
 //=============================================================================================
@@ -2978,6 +3433,7 @@ bl   .new_print_vram                   //New code!
 mov  r0,r4                             //Base code
 bl   $8048EF8
 +
+.new_print_vram_container_general:
 ldr  r1,=#0x6C28
 add  r0,r4,r1
 ldr  r0,[r0,#0]
@@ -3231,6 +3687,270 @@ mov  r10,r5
 pop  {r4-r7,pc}
 
 //=============================================================================================
+// This hack is called in order to change where everything is printed in VRAM. Based on 0x80487D4
+// Same as new_print_vram_container, except where it's present the comment DIFFERENT!!!
+//=============================================================================================
+.new_print_vram_container_left_right:
+push {r4,r5,lr}
+ldr  r4,=#0x201AEF8                    //We avoid printing OAM entries...
+ldr  r0,=#0x76DC                       //Base code
+add  r5,r4,r0
+ldrb r1,[r5,#0]
+mov  r0,#8
+and  r0,r1
+cmp  r0,#0
+beq  +
+mov  r0,r4
+bl   $8048878
+mov  r0,r4
+bl   $80489F8
+mov  r0,r4
+bl   $8048C5C
++
+bl   .load_curr_group_length1          //Hmmm...
+ldr  r3,=#0x76D6
+add  r0,r4,r3
+mov  r2,#0
+strb r1,[r0,#0]
+add  r3,#1
+add  r0,r4,r3
+strb r2,[r0,#0]
+lsl  r1,r1,#0x18
+cmp  r1,#0
+beq  +
+
+mov  r0,r4
+bl   .new_print_vram_left_right        //DIFFERENT!!!
+
+mov  r0,r4                             //Base code
+bl   $8048EF8
++
+
+b    .new_print_vram_container_general //Go back to the other routine!
+
+//=============================================================================================
+// This hack is called in order to change where everything is printed in VRAM. Based on 0x80487D4
+// Same as new_print_vram, except where it's present the comment DIFFERENT!!!
+//=============================================================================================
+.new_print_vram_left_right:
+push {r4-r7,lr}
+mov  r7,r10                            //Base code
+mov  r6,r9
+mov  r5,r8
+push {r5-r7}
+add  sp,#-0x10
+mov  r4,r0
+ldr  r0,=#0x76D7
+add  r1,r4,r0
+mov  r0,#0
+strb r0,[r1,#0]
+ldr  r1,=#0x25F4
+add  r0,r4,r1
+ldr  r6,[r0,#0]
+mov  r2,#0xAA
+lsl  r2,r2,#3
+add  r2,r2,r4
+mov  r9,r2
+ldr  r3,=#0x76D6
+bl   .load_curr_group_length2
+str  r0,[sp,#0xC]
+mov  r1,sp
+mov  r0,#1
+strh r0,[r1,#0]
+ldr  r0,[sp,#0xC]
+cmp  r0,#0
+bne  +
+b    .new_print_vram_out_of_loop_left_right
++
+add  r1,sp,#4
+mov  r10,r1
+add  r2,sp,#8
+mov  r8,r2
+mov  r3,#0xC3
+lsl  r3,r3,#3
+add  r7,r4,r3
+.new_print_vram_start_of_loop_left_right:
+bl   .check_for_eos
+cmp  r0,#0
+bne  +
+b    .new_print_vram_end_of_loop_left_right
++
+ldr  r1,=#0x25F8
+add  r0,r4,r1
+ldr  r1,[r0,#0]
+add  r0,r1,#4
+cmp  r6,r0
+bne  .new_print_vram_keep_going_left_right
+ldr  r0,[r1,#4]
+lsl  r0,r0,#0xC
+cmp  r0,#0
+bge  +
+.new_print_vram_keep_going_left_right:
+mov  r0,r4
+mov  r1,r6
+add  r2,sp,#4
+bl   $8049280
+add  r5,sp,#4
+b    .new_print_vram_keep_going_2_left_right
++
+mov  r0,sp
+ldrh r0,[r0,#0]
+add  r5,sp,#4
+cmp  r0,#0
+beq  .new_print_vram_keep_going_2_left_right
+ldr  r2,=#0x25FC
+add  r0,r4,r2
+ldrh r0,[r0,#0]
+mov  r3,r10
+strh r0,[r3,#0]
+ldr  r1,=#0x25FE
+add  r0,r4,r1
+ldrh r0,[r0,#0]
+strh r0,[r3,#2]
+
+.new_print_vram_keep_going_2_left_right:
+mov  r2,#0
+ldsh r1,[r5,r2]
+cmp  r1,#0
+bge  +
+add  r1,#7
++
+lsl  r1,r1,#0xD
+lsr  r1,r1,#0x10
+ldr  r2,=#0xFFFF0000
+ldr  r0,[sp,#8]
+and  r0,r2
+orr  r0,r1
+str  r0,[sp,#8]
+mov  r0,r5
+mov  r3,#2
+ldsh r0,[r0,r3]
+cmp  r0,#0
+bge  +
+add  r0,#7
++
+asr  r0,r0,#3
+mov  r1,r8
+strh r0,[r1,#2]
+bl   .get_ram_address2
+lsr  r0,r0,#0x1C
+lsl  r0,r0,#3
+ldrb r1,[r7,#0]
+mov  r3,#0x79
+neg  r3,r3
+mov  r2,r3
+and  r1,r2
+orr  r1,r0
+strb r1,[r7,#0]
+mov  r3,r8
+ldrh r0,[r3,#0]
+ldrh r1,[r3,#2]
+
+bl   .new_get_address_left_right       //DIFFERENT!!!
+
+mov  r2,r9
+str  r0,[r2,#0]
+
+//We change the target arrangement to match our expectations
+ldr  r3,=#0x6008000
+sub  r2,r0,r3
+lsl  r2,r2,#2
+ldr  r0,[r7,#0]
+ldr  r1,=#0xFFFE007F
+and  r0,r1
+orr  r0,r2
+str  r0,[r7,#0]                        //Store target arrangement
+
+mov  r3,r8                             //Base code
+ldrh r0,[r3,#0]
+ldrh r1,[r3,#2]
+bl   $80498C4                          //Gets where to put the arrangements - This we keep as is
+mov  r1,r9
+str  r0,[r1,#4]
+ldrh r0,[r5,#0]
+mov  r2,#7
+and  r2,r0
+ldrb r0,[r7,#0]
+mov  r3,#8
+neg  r3,r3
+mov  r1,r3
+and  r0,r1
+orr  r0,r2
+strb r0,[r7,#0]
+ldr  r1,[r6,#0]
+lsl  r1,r1,#0x14
+lsr  r1,r1,#0x14
+mov  r0,r9
+bl   $8048F74
+ldr  r0,[r7,#0]
+lsl  r0,r0,#0xF
+lsr  r0,r0,#0x16
+ldr  r2,=#0x25F0
+add  r1,r4,r2
+strh r0,[r1,#0]
+mov  r0,r9
+add  r0,#8
+ldr  r3,=#0x2530
+add  r1,r4,r3
+mov  r2,#0x60
+bl   $8001B18
+mov  r0,r9
+add  r0,#0x68
+ldr  r2,=#0x2590
+add  r1,r4,r2
+mov  r2,#0x60
+bl   $8001B18
+ldr  r3,=#0x76D7
+add  r1,r4,r3
+ldrb r0,[r1,#0]
+add  r0,#1
+strb r0,[r1,#0]
+ldr  r0,[sp,#0xC]
+sub  r0,#1
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0x10
+str  r0,[sp,#0xC]
+add  r7,#0xCC
+mov  r0,#0xCC
+add  r9,r0
+ldr  r0,[r6,#0]
+lsl  r0,r0,#0x14
+lsr  r0,r0,#0x14
+bl   $8049954
+mov  r1,r10
+ldrh r1,[r1,#0]
+add  r0,r0,r1
+mov  r2,r10
+strh r0,[r2,#0]
+ldr  r3,=#0x25F8
+add  r1,r4,r3
+str  r6,[r1,#0]
+add  r2,r3,#4
+add  r1,r4,r2
+strh r0,[r1,#0]
+ldrh r1,[r5,#2]
+add  r3,#6
+add  r0,r4,r3
+strh r1,[r0,#0]
+.new_print_vram_end_of_loop_left_right:
+add  r6,#4
+mov  r1,#0xAA
+lsl  r1,r1,#3
+add  r0,r4,r1
+cmp  r6,r0
+bcs  .new_print_vram_out_of_loop_left_right
+mov  r1,sp
+mov  r0,#0
+strh r0,[r1,#0]
+ldr  r2,[sp,#0xC]
+cmp  r2,#0
+beq  .new_print_vram_out_of_loop_left_right
+b    .new_print_vram_start_of_loop_left_right
+
+.new_print_vram_out_of_loop_left_right:
+b    .new_print_vram_out_of_loop
+
+//=============================================================================================
 // This hack gets the selected character's number.
 //=============================================================================================
 .new_get_menu_character_number:
@@ -3266,23 +3986,45 @@ add  r0,r0,r1
 bx   lr
 
 //=============================================================================================
+// This hack changes the target vram address to whatever we want it to be.
+// It uses the values found by new_get_empty_tiles.
+// Left/Right edition
+//=============================================================================================
+.new_get_address_left_right:
+push {r0}
+mov  r0,#2
+and  r0,r1
+cmp  r0,#0                             //If we're after a certain threshold, use the second address
+beq  +
+ldr  r1,[sp,#0x40]
+b    .new_get_address_left_right_keep_going
++
+ldr  r1,[sp,#0x44]
+.new_get_address_left_right_keep_going:
+pop  {r0}
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0xB
+add  r0,r0,r1
+bx   lr
+
+//=============================================================================================
 // This hack gets the tiles which will be empty
 //=============================================================================================
 
 //Table that dictates which menus are valid to read the empty buffer tiles of
 .new_get_empty_tiles_valid:
-  dw $8C35; dw $0000
+  dw $8CB5; dw $0000
 
 //Table which dictates the limit value of a menu used to change the valid buffer tiles to the second ones
 .new_get_empty_tiles_limit_values:
-  db $10; db $FF; db $0F; db $FF; db $0F; db $10; db $FF; db $FF
+  db $10; db $FF; db $0F; db $FF; db $0F; db $10; db $FF; db $10
   db $FF; db $FF; db $0D; db $0F; db $FF; db $FF; db $FF; db $0F
   db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
   db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF; db $FF
   
 //Table that indicates which menus only use one line to the right instead of one to the left (safe) or two
 .new_get_empty_tiles_types:
-  dw $8035; dw $0000
+  dw $80B5; dw $0000
 
 .new_get_empty_tiles:
 push {r4-r6,lr}
@@ -3473,6 +4215,38 @@ add  sp,#0xC
 pop  {pc}
 
 //=============================================================================================
+// This hack combines all the hacks above.
+// It moves the arrangements around instead of re-printing everything.
+// It only prints what needs to be printed.
+// Special case for left/right scrolling in battle memoes menu.
+//=============================================================================================
+.left_right_scrolling_print:
+push {lr}
+add  sp,#-0xC
+bl   .new_get_empty_tiles
+lsl  r2,r2,#5
+add  r1,r1,r2
+ldr  r2,[sp,#0x20]
+str  r2,[sp,#8]
+str  r0,[sp,#4]
+str  r1,[sp,#0]
+bl   .new_print_menu_left_right
+ldr  r4,=#0x201AEF8
+mov  r0,r4
+bl   $803E908
+-
+bl   .new_print_vram_container_left_right
+mov  r0,r4
+bl   $803E908
+ldr  r0,=#0x2013040                    //Check for two names with a total of 41+ letters on the same line.
+ldrb r1,[r0,#2]                        //Max item name size is 21, so it's possible, but unlikely.
+ldrb r2,[r0,#3]                        //At maximum 2 letters must be printed, so it's fast.
+cmp  r1,r2                             //Can happen with (pickled veggie plate or jar of yummy pickles or saggittarius bracelet
+bne  -                                 //or mole cricket brother) + bag of big city fries on the same line.
+add  sp,#0xC
+pop  {pc}
+
+//=============================================================================================
 // This hack fixes 8-letter names on the main file load screen.
 //=============================================================================================
 
@@ -3555,6 +4329,78 @@ bl   .main
 //bl   $8046D90              //Normal stuff the game expects from us
 bl   main_menu_hacks.up_down_scrolling_print
 pop  {r0-r2,pc}
+
+.up_and_down_battle_memoes:
+push {lr}
+add  sp,#-4
+ldr  r0,[sp,#8]
+str  r0,[sp,#0]
+
+ldr  r0,=#0x2013040                    //Do the thing only IF we're done printing.
+ldrh r1,[r0,#2]                        //Prevents issues with arrangements not being there
+mov  r0,#0
+cmp  r1,#0
+bne  +
+mov  r0,r5
+mov  r1,r7
+bl   $8053598
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0x10
+cmp  r0,#2
+bne  +
+push {r0-r2}
+bl   .main
+bl   main_menu_hacks.up_down_scrolling_print
+pop  {r0-r2}
++
+add  sp,#4
+pop  {pc}
+
+.up_and_down_battle_memoes_left_right:
+push {lr}
+add  sp,#-8
+ldr  r0,[sp,#0xC]
+str  r0,[sp,#0]
+bl   main_menu_hacks.get_top_index
+str  r0,[sp,#4]                        //Store the current top position for later
+mov  r0,r5
+bl   $8053620
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0x10
+cmp  r0,#2
+bne  +
+push {r0-r2}
+
+ldr  r0,[sp,#0x10]                     //A bunch of extra checks for things we can cover
+mov  r1,r0
+bl   main_menu_hacks.get_top_index
+sub  r0,r1,r0                          //Get the absolute of the subtraction
+asr  r1,r0,#0x1F
+eor  r0,r1
+sub  r0,r0,r1
+cmp  r0,#2
+bgt  .up_and_down_battle_memoes_left_right_normal
+
+str  r0,[sp,#0x10]
+ldr  r0,=#0x2013040
+ldrh r1,[r0,#2]                        //Do this only if we have all the arrangements printed
+cmp  r1,#0
+bne  .up_and_down_battle_memoes_left_right_normal
+
+bl   .main
+bl   main_menu_hacks.left_right_scrolling_print
+b    .up_and_down_battle_memoes_left_right_end
+
+.up_and_down_battle_memoes_left_right_normal:
+
+bl   .main
+bl   $8046D90                          //Normal stuff the game expects from us
+
+.up_and_down_battle_memoes_left_right_end:
+pop  {r0-r2}
++
+add  sp,#8
+pop  {pc}
 
 .status_a:
 push {lr}
