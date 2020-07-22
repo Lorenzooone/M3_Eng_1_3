@@ -2855,10 +2855,12 @@ pop  {r4-r7,pc}
 //=============================================================================================
 .new_equip_submenu_scroll_print:
 push {r4-r7,lr}
-add  sp,#-4
+add  sp,#-4                            //base code
 mov  r2,r0
 ldr  r1,=#0x2016028
-mov  r6,#1
+
+
+mov  r6,#1                             //New code
 bl   .get_direction_submenu
 cmp  r0,#0
 bne  .new_equip_submenu_scroll_print_descending
@@ -2870,7 +2872,8 @@ ldrh r0,[r2,#8]
 add  r0,#7
 
 +
-lsl  r0,r0,#2
+
+lsl  r0,r0,#2                          //base code
 mov  r2,#0xD3
 lsl  r2,r2,#6
 add  r1,r1,r2
@@ -2885,8 +2888,10 @@ bne  .new_equip_submenu_scroll_print_item
 // This branch prints None at the bottom
 mov  r0,#0x58
 bl   $80486A0
-bl   .get_equip_submenu_height
-str  r7,[sp,#0]
+
+bl   .get_equip_submenu_height         //New code
+
+str  r7,[sp,#0]                        //base code
 mov  r1,#0xC
 mov  r3,#1
 neg  r3,r3
@@ -2898,8 +2903,10 @@ ldrb r1,[r4,#0]
 mov  r0,#2
 bl   $8001C5C
 mov  r1,r0
-bl   .get_equip_submenu_height
-ldr  r0,[r4,#0]
+
+bl   .get_equip_submenu_height         //New code
+
+ldr  r0,[r4,#0]                        //base code
 lsl  r0,r0,#9
 cmp  r0,#0
 bge  .new_equip_submenu_scroll_print_item_grey
@@ -3493,6 +3500,22 @@ add  r0,r2,r0                          //Get menu info array in RAM
 add  r1,r0,r1
 mov  r2,#1
 ldrh r0,[r1,#0xE]
+pop  {r1-r2,pc}
+
+//=============================================================================================
+// This hack gets the index of the currently selected item for any given menu
+//=============================================================================================
+.get_selected_index:
+push {r1-r2,lr}
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]                        //Get menu type
+lsl  r1,r1,#5
+ldr  r2,=#0x2016028
+ldr  r0,=#0x2DFA
+add  r0,r2,r0                          //Get menu info array in RAM
+add  r1,r0,r1
+mov  r2,#1
+ldrh r0,[r1,#0xA]
 pop  {r1-r2,pc}
 
 //=============================================================================================
@@ -4435,6 +4458,105 @@ add  sp,#0xC
 pop  {pc}
 
 //=============================================================================================
+// This hack swaps the deposit arrangements in order to not re-print everything when depositing an item
+//=============================================================================================
+
+.new_deposit_swap_arrangement:
+push {lr}
+ldr  r4,[sp,#0x1C]                     //This has the selected index before anything was deposited.
+                                       //Using that covers the player selecting the last item and getting
+                                       //their cursor moved
+ldr  r5,=#0x2016978
+cmp  r4,#0xF                           //Cover edge case
+bge  +
+-
+mov  r0,r4                             //Swap a single item's arrangement
+bl   .new_deposit_swap_single_line
+add  r4,#1
+cmp  r4,#0xF
+blt  -
++
+bl   .new_deposit_clear_final_line     //Clear the last item's arrangement
+mov  r0,r5
+ldr  r1,=#0x0600E900                   //Copy the new arrangements to VRAM
+mov  r2,#1
+lsl  r2,r2,#8
+swi  #0xC
+
+pop  {pc}
+
+//=============================================================================================
+// Swaps a single item's arrangement
+//=============================================================================================
+.new_deposit_swap_single_line:
+push {r4,lr}
+
+mov  r2,#1
+and  r2,r0
+lsr  r0,r0,#1
+lsl  r0,r0,#7
+lsl  r2,r2,#5
+add  r1,r5,r0
+add  r1,r1,r2                          //Get the arrangement address
+mov  r4,r1
+cmp  r2,#0
+bne  +
+
+mov  r0,r4                             //Branch for an item to the left
+add  r0,#0x20
+add  r1,#2
+mov  r2,#0x10
+swi  #0xB
+add  r4,#0x40
+mov  r0,r4
+add  r0,#0x20
+add  r1,r4,#2
+mov  r2,#0x10
+swi  #0xB
+b    .new_deposit_swap_single_line_end
++
+
+mov  r0,r4                             //Branch for an item to the right
+add  r0,#0x62
+mov  r2,#0x10
+swi  #0xB
+add  r4,#0x40
+mov  r0,r4
+add  r0,#0x62
+mov  r1,r4
+mov  r2,#0x10
+swi  #0xB
+
+.new_deposit_swap_single_line_end:
+pop  {r4,pc}
+
+//=============================================================================================
+// Clears the last item's arrangement
+//=============================================================================================
+.new_deposit_clear_final_line:
+push {r4,lr}
+mov  r0,#0xF
+mov  r2,#1
+lsr  r0,r0,#1
+lsl  r0,r0,#7
+lsl  r2,r2,#5
+add  r1,r5,r0
+add  r1,r1,r2
+mov  r4,r1
+mov  r0,#0
+push {r0}
+mov  r0,sp
+ldr  r2,=#0x01000008
+swi  #0xC
+add  r4,#0x40
+mov  r0,sp
+mov  r1,r4
+ldr  r2,=#0x01000008
+swi  #0xC
+pop  {r0}
+pop  {r4,pc}
+
+//=============================================================================================
 // This hack fixes 8-letter names on the main file load screen.
 //=============================================================================================
 
@@ -4662,9 +4784,19 @@ pop  {pc}
 
 .deposit_a:
 push {lr}
+ldr  r0,=#0x2013040                    //Do the thing only IF we're done printing.
+ldrh r1,[r0,#2]                        //Prevents issues with arrangements not being there
+mov  r0,#0
+cmp  r1,#0
+bne  +
+add  sp,#-4
+bl   main_menu_hacks.get_selected_index
+str  r0,[sp,#0]                        //Prepare the item's index for the deposit-movement routine
 bl   .main
 mov  r0,r4                   //Normal stuff the game expects from us
 bl   $804F1D8
+add  sp,#4
++
 pop  {pc}
 
 .withdraw_a:

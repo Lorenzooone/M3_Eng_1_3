@@ -513,6 +513,7 @@ org $804D800; bl refreshes.deposit_a; nop
 org $804D818; bl refreshes.b; nop
 org $804D86E; bl refreshes.up_and_down
 org $804D8A6; bl refreshes.switch_lr; nop
+org $804F284; bl main_menu_hacks.new_deposit_swap_arrangement
 
 //Withdraw
 org $804D8F8; bl refreshes.withdraw_a; nop
