@@ -3503,6 +3503,22 @@ ldrh r0,[r1,#0xE]
 pop  {r1-r2,pc}
 
 //=============================================================================================
+// This hack gets the number of items in any given menu
+//=============================================================================================
+.get_total_indexes:
+push {r1-r2,lr}
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]                        //Get menu type
+lsl  r1,r1,#5
+ldr  r2,=#0x2016028
+ldr  r0,=#0x2DFA
+add  r0,r2,r0                          //Get menu info array in RAM
+add  r1,r0,r1
+mov  r2,#1
+ldrh r0,[r1,#0x8]
+pop  {r1-r2,pc}
+
+//=============================================================================================
 // This hack gets the index of the currently selected item for any given menu
 //=============================================================================================
 .get_selected_index:
@@ -4545,15 +4561,41 @@ add  r1,r1,r2
 mov  r4,r1
 mov  r0,#0
 push {r0}
-mov  r0,sp
+mov  r0,sp                             //Part that clears the top of the last item's arrangement
 ldr  r2,=#0x01000008
 swi  #0xC
 add  r4,#0x40
 mov  r0,sp
-mov  r1,r4
+mov  r1,r4                             //Part that clears the bottom of the last item's arrangement
 ldr  r2,=#0x01000008
 swi  #0xC
 pop  {r0}
+pop  {r4,pc}
+
+//=============================================================================================
+// Prepares the withdraw inventory for swapping character. Based off of $804C39A.
+// Removes the part that resets the cursor's position
+//=============================================================================================
+.prepare_swap_char_withdraw:
+push {r4,lr}
+ldr  r2,=#0x2016028
+ldr  r0,=#0x4260
+add  r1,r2,r0
+mov  r3,#0
+mov  r0,#0xF
+strb r0,[r1,#0]                        //Saves the fact that this is the withdrawing menu
+ldr  r0,=#0x2FE0
+add  r1,r2,r0
+ldr  r0,=#0x4264
+add  r2,r2,r0
+ldrb r0,[r2,#0]
+strh r0,[r1,#0xA]                      //Remove position resetting
+ldrh r0,[r1,#0xA]
+bl   $8054FE0
+mov  r4,r0
+bl   $80524EC
+mov  r0,r4
+bl   $80531C8
 pop  {r4,pc}
 
 //=============================================================================================
@@ -4646,8 +4688,8 @@ add  sp,#-4
 ldr  r0,[sp,#8]
 str  r0,[sp,#0]
 
-ldr  r0,=#0x2013040                    //Do the thing only IF we're done printing.
-ldrh r1,[r0,#2]                        //Prevents issues with arrangements not being there
+ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
+ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
 mov  r0,#0
 cmp  r1,#0
 bne  +
@@ -4672,7 +4714,7 @@ add  sp,#-8
 ldr  r0,[sp,#0xC]
 str  r0,[sp,#0]
 bl   main_menu_hacks.get_top_index
-str  r0,[sp,#4]                        //Store the current top position for later
+str  r0,[sp,#4]              //Store the current top position for later
 mov  r0,r5
 bl   $8053620
 lsl  r0,r0,#0x10
@@ -4681,10 +4723,10 @@ cmp  r0,#2
 bne  +
 push {r0-r2}
 
-ldr  r0,[sp,#0x10]                     //A bunch of extra checks for things we can cover
+ldr  r0,[sp,#0x10]           //A bunch of extra checks for things we can cover
 mov  r1,r0
 bl   main_menu_hacks.get_top_index
-sub  r0,r1,r0                          //Get the absolute of the subtraction
+sub  r0,r1,r0                //Get the absolute of the subtraction
 asr  r1,r0,#0x1F
 eor  r0,r1
 sub  r0,r0,r1
@@ -4693,7 +4735,7 @@ bgt  .up_and_down_battle_memoes_left_right_normal
 
 str  r0,[sp,#0x10]
 ldr  r0,=#0x2013040
-ldrh r1,[r0,#2]                        //Do this only if we have all the arrangements printed
+ldrh r1,[r0,#2]              //Do this only if we have all the arrangements printed
 cmp  r1,#0
 bne  .up_and_down_battle_memoes_left_right_normal
 
@@ -4704,7 +4746,7 @@ b    .up_and_down_battle_memoes_left_right_end
 .up_and_down_battle_memoes_left_right_normal:
 
 bl   .main
-bl   $8046D90                          //Normal stuff the game expects from us
+bl   $8046D90                //Normal stuff the game expects from us
 
 .up_and_down_battle_memoes_left_right_end:
 pop  {r0-r2}
@@ -4784,14 +4826,14 @@ pop  {pc}
 
 .deposit_a:
 push {lr}
-ldr  r0,=#0x2013040                    //Do the thing only IF we're done printing.
-ldrh r1,[r0,#2]                        //Prevents issues with arrangements not being there
+ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
+ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
 mov  r0,#0
 cmp  r1,#0
 bne  +
 add  sp,#-4
 bl   main_menu_hacks.get_selected_index
-str  r0,[sp,#0]                        //Prepare the item's index for the deposit-movement routine
+str  r0,[sp,#0]              //Prepare the item's index for the deposit-movement routine
 bl   .main
 mov  r0,r4                   //Normal stuff the game expects from us
 bl   $804F1D8
@@ -4801,17 +4843,60 @@ pop  {pc}
 
 .withdraw_a:
 push {lr}
-ldr  r1,=#0x201A294          //Check if the inventory is full. If it is, then the game won't print again and we need to let it do its thing. We need to manually increment this, as the original devs forgot to do it.
-mov  r0,r1
-ldrh r1,[r1,#0]
+add  sp,#-8
+bl   main_menu_hacks.get_top_index
+str  r0,[sp,#4]
+bl   main_menu_hacks.get_total_indexes
+str  r0,[sp,#0]
+
+ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
+ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
+cmp  r1,#0
+bne  .withdraw_a_end
+
+ldr  r0,=#0x201A294          //Check if the inventory is full. If it is, then the game won't print again and we need to let it do its thing. We need to manually increment this, as the original devs forgot to do it.
+ldrh r1,[r0,#0]
 cmp  r1,#0x10
 bge  +
+
 add  r1,#1
 strh r1,[r0,#0]
 bl   .main
 +
+
 mov  r0,r5                   //Normal stuff the game expects from us
 bl   $804F294
+
+.withdraw_a_end:
+add  sp,#8
+pop  {pc}
+
+.withdraw_printing_pressed_a:
+push {lr}
+ldr  r1,[sp,#0x14]
+bl   main_menu_hacks.get_total_indexes
+cmp  r0,r1                   //Skip printing if we don't remove an item from the withdrawing menu
+beq  +
+bl   $8046D90
++
+pop  {pc}
+
+.withdraw_block_input_lr:
+push {lr}
+add  sp,#-4
+ldr  r0,[sp,#8]
+str  r0,[sp,#0]              //Prepare arg for the function
+
+ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
+ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
+mov  r0,#0
+cmp  r1,#0
+bne  +
+add  r0,r4,#4
+mov  r1,r7
+bl   $8053754
++
+add  sp,#4
 pop  {pc}
 
 .inner_memo_scroll:
@@ -4834,6 +4919,19 @@ push {lr}
 bl   .main
 ldrh r0,[r6,#4]              //Normal stuff the game expects from us
 bl   $8053E98
+pop  {pc}
+
+.deposit_lr:
+push {lr}
+bl   .main
+bl   main_menu_hacks.delete_vram
+bl   $804C35C                //Normal stuff the game expects from us
+pop  {pc}
+
+.withdraw_lr:
+push {lr}
+bl   .main                   //Don't refresh the withdraw menu when we swap character...
+bl   main_menu_hacks.prepare_swap_char_withdraw
 pop  {pc}
 
 .switch_lr:

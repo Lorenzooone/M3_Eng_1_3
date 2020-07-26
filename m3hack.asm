@@ -512,14 +512,16 @@ org $804D6BE; bl refreshes.switch_lr; nop
 org $804D800; bl refreshes.deposit_a; nop
 org $804D818; bl refreshes.b; nop
 org $804D86E; bl refreshes.up_and_down
-org $804D8A6; bl refreshes.switch_lr; nop
+org $804D8BC; bl refreshes.deposit_lr
 org $804F284; bl main_menu_hacks.new_deposit_swap_arrangement
 
 //Withdraw
 org $804D8F8; bl refreshes.withdraw_a; nop
 org $804D910; bl refreshes.b; nop
 org $804D994; bl refreshes.up_and_down
-org $804D9CA; bl refreshes.switch_lr; nop
+org $804D9C0; bl refreshes.withdraw_block_input_lr
+org $804D9E0; bl refreshes.withdraw_lr; nop; nop
+org $804F328; bl refreshes.withdraw_printing_pressed_a
 
 //Remove text issue when going from inventory to battle memory
 org $804EB26; bl main_menu_hacks.delete_vram_inv_to_battle_memory
