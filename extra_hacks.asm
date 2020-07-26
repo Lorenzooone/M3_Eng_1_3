@@ -424,10 +424,10 @@ lsr  r5,r2,#0x10
 pop  {r0,pc}
 
 // ---------------------------------------------------------------------------------------
-// Fixes status icons in the memo screen.
+// Fixes status icons in the memo screen. Also changes position of the right column in the withdrawing menu
 // ---------------------------------------------------------------------------------------
 
-.memo_iconfix:
+.memo_iconfix_withdraw_positionfix:
 push {lr}
 // r0 is 3 for icons, 1 for everything else
 cmp  r0,#3
@@ -439,6 +439,14 @@ pop  {pc}
 lsl  r1,r0,#1
 add  r1,r1,r0
 lsl  r1,r1,#2
+cmp  r0,#0xA
+bne  +
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
+cmp  r0,#0xF
+bne  +
+add  r1,#4                         //Cover being in the withdraw menu - moves the right column 4 pixels to the right
++
 strh r1,[r6,#0]
 pop  {pc}
 
@@ -579,6 +587,15 @@ bx   lr
 // ---------------------------------------------------------------------------------------
 // PSI menu
 .psi_cursorfix1:
+and  r0,r1                         // clobbered code
+mov  r2,#0xFF                      // we want -3
+lsl  r2,r2,#0x8
+add  r2,#0xFD
+bx   lr
+
+// ---------------------------------------------------------------------------------------
+// Withdraw menu
+.withdraw_cursorfix1:
 and  r0,r1                         // clobbered code
 mov  r2,#0xFF                      // we want -3
 lsl  r2,r2,#0x8

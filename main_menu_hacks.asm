@@ -3227,7 +3227,7 @@ mov  r0,#1
 bx   lr
 
 //=============================================================================================
-// This hack changes what the withdrawing scrolling will print, based off of 0x8046EF0
+// This hack changes what the withdrawing scrolling will print, based off of 0x8047900
 //=============================================================================================
 .new_withdrawing_scroll_print:
 push {r4-r7,lr}
@@ -4481,17 +4481,48 @@ push {lr}
 ldr  r4,[sp,#0x1C]                     //This has the selected index before anything was deposited.
                                        //Using that covers the player selecting the last item and getting
                                        //their cursor moved
+
 ldr  r5,=#0x2016978
+mov  r0,#0
+bl   .get_positions_lines_array
+mov  r6,r0
 cmp  r4,#0xF                           //Cover edge case
 bge  +
 -
 mov  r0,r4                             //Swap a single item's arrangement
-bl   .new_deposit_swap_single_line
+bl   .new_general_swap_single_line
 add  r4,#1
 cmp  r4,#0xF
 blt  -
 +
-bl   .new_deposit_clear_final_line     //Clear the last item's arrangement
+bl   .new_general_clear_final_line     //Clear the last item's arrangement
+mov  r0,r5
+bl   .store_arrangements_buffer
+pop  {pc}
+
+//=============================================================================================
+// This hack swaps the withdraw arrangements in order to not re-print everything when withdrawing an item
+//=============================================================================================
+.new_withdraw_swap_arrangement:
+push {lr}
+ldr  r4,[sp,#0x20]                     //This has the selected index before anything was deposited.
+ldr  r5,[sp,#0x1C]                     //Using that covers the player selecting the last item and getting
+sub  r4,r4,r5                          //their cursor moved
+
+ldr  r5,=#0x2016978
+mov  r0,#1
+bl   .get_positions_lines_array
+mov  r6,r0
+cmp  r4,#0xF                           //Cover edge case
+bge  +
+-
+mov  r0,r4                             //Swap a single item's arrangement
+bl   .new_general_swap_single_line
+add  r4,#1
+cmp  r4,#0xF
+blt  -
++
+bl   .new_general_clear_final_line     //Clear the last item's arrangement
 mov  r0,r5
 bl   .store_arrangements_buffer
 pop  {pc}
@@ -4522,60 +4553,80 @@ bne  -
 pop  {r1-r3,pc}
 
 //=============================================================================================
+// Gets the array of the positions for swapping
+//=============================================================================================
+.positions_swapping_array:
+  dd $10620220; dd $0E64021E
+
+.get_positions_lines_array:
+ldr  r1,=#.positions_swapping_array
+lsl  r0,r0,#2
+add  r0,r1,r0
+bx   lr
+
+//=============================================================================================
 // Swaps a single item's arrangement
 //=============================================================================================
-.new_deposit_swap_single_line:
+.new_general_swap_single_line:
 push {r4,lr}
 
 mov  r2,#1
 and  r2,r0
 lsr  r0,r0,#1
 lsl  r0,r0,#7
-lsl  r2,r2,#5
+cmp  r2,#0
+beq  +
+ldrb r2,[r6,#0]
++
 add  r1,r5,r0
 add  r1,r1,r2                          //Get the arrangement address
 mov  r4,r1
 cmp  r2,#0
 bne  +
 
-mov  r0,r4                             //Branch for an item to the left
-add  r0,#0x20
-add  r1,#2
-mov  r2,#0x10
+ldrb r2,[r6,#0]
+add  r0,r4,r2                          //Branch for an item to the left
+ldrb r2,[r6,#1]
+add  r1,r1,r2
+ldrb r2,[r6,#3]
 swi  #0xB
 add  r4,#0x40
-mov  r0,r4
-add  r0,#0x20
-add  r1,r4,#2
-mov  r2,#0x10
+ldrb r2,[r6,#0]
+add  r0,r4,r2
+ldrb r2,[r6,#1]
+add  r1,r4,r2
+ldrb r2,[r6,#3]
 swi  #0xB
-b    .new_deposit_swap_single_line_end
+b    .new_general_swap_single_line_end
 +
 
-mov  r0,r4                             //Branch for an item to the right
-add  r0,#0x62
-mov  r2,#0x10
+ldrb r2,[r6,#2]
+add  r0,r4,r2                          //Branch for an item to the right
+ldrb r2,[r6,#3]
 swi  #0xB
 add  r4,#0x40
-mov  r0,r4
-add  r0,#0x62
+ldrb r2,[r6,#2]
+add  r0,r4,r2
 mov  r1,r4
-mov  r2,#0x10
+ldrb r2,[r6,#3]
 swi  #0xB
 
-.new_deposit_swap_single_line_end:
+.new_general_swap_single_line_end:
 pop  {r4,pc}
 
 //=============================================================================================
 // Clears the last item's arrangement
 //=============================================================================================
-.new_deposit_clear_final_line:
+.new_general_clear_final_line:
 push {r4,lr}
 mov  r0,#0xF
 mov  r2,#1
 lsr  r0,r0,#1
 lsl  r0,r0,#7
-lsl  r2,r2,#5
+cmp  r2,#0
+beq  +
+ldrb r2,[r6,#0]
++
 add  r1,r5,r0
 add  r1,r1,r2
 mov  r4,r1
@@ -4868,7 +4919,9 @@ pop  {pc}
 
 .withdraw_a:
 push {lr}
-add  sp,#-8
+add  sp,#-0xC
+bl   main_menu_hacks.get_selected_index
+str  r0,[sp,#8]
 bl   main_menu_hacks.get_top_index
 str  r0,[sp,#4]
 bl   main_menu_hacks.get_total_indexes
@@ -4892,7 +4945,7 @@ mov  r0,r5                   //Normal stuff the game expects from us
 bl   $804F294
 
 .withdraw_a_end:
-add  sp,#8
+add  sp,#0xC
 pop  {pc}
 
 .withdraw_printing_pressed_a:
@@ -4901,7 +4954,7 @@ ldr  r1,[sp,#0x14]
 bl   main_menu_hacks.get_total_indexes
 cmp  r0,r1                   //Skip printing if we don't remove an item from the withdrawing menu
 beq  +
-bl   $8046D90
+bl   main_menu_hacks.new_withdraw_swap_arrangement
 +
 pop  {pc}
 

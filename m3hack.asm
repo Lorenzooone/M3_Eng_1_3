@@ -425,7 +425,7 @@ org $804062A; db $7B                             // Goods, X, right column
 org $804081C; bl extra_hacks.keygoods_cursorfix1 // Key goods, X, left column
 org $8040824; db $77                             // Key goods, X, right column
 org $80424D6; bl extra_hacks.withdraw_cursorfix1 // Withdraw, X, left column
-org $80424DE; db $69                             // Withdraw, X, right column
+org $80424DE; db $6D                             // Withdraw, X, right column
 org $8042164; db $03                             // Deposit, X, left column
 org $804216A; db $7B                             // Deposit, X, right column
 org $8040B04; db $7F                             // Equip, X, main menu
@@ -1717,7 +1717,8 @@ org $8048500; bl extra_hacks.memo_counterfix2
 org $804BFD4; bl extra_hacks.memo_stretch
 
 // Make status icons appear "correctly" in memo screen
-org $8049298; bl extra_hacks.memo_iconfix; nop; nop
+// Also changes the position of the right column in the withdrawing menu to be 4 pixels more to the right
+org $8049298; bl extra_hacks.memo_iconfix_withdraw_positionfix; nop; nop
 
 // Make the pigmask not set the null memo flag
 //org $9369245; db $00
