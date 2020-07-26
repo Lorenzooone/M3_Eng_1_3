@@ -4476,7 +4476,6 @@ pop  {pc}
 //=============================================================================================
 // This hack swaps the deposit arrangements in order to not re-print everything when depositing an item
 //=============================================================================================
-
 .new_deposit_swap_arrangement:
 push {lr}
 ldr  r4,[sp,#0x1C]                     //This has the selected index before anything was deposited.
@@ -4494,12 +4493,33 @@ blt  -
 +
 bl   .new_deposit_clear_final_line     //Clear the last item's arrangement
 mov  r0,r5
-ldr  r1,=#0x0600E900                   //Copy the new arrangements to VRAM
+bl   .store_arrangements_buffer
+pop  {pc}
+
+//=============================================================================================
+// Hack that stores the arrangement buffer back to VRAM
+//=============================================================================================
+.store_arrangements_buffer:
+push {r1-r3,lr}
+ldr  r3,=#0x040000D4
+ldr  r1,=#0x0600E900
+str  r0,[r3,#0]
+str  r1,[r3,#4]
+mov  r1,#0x84
+lsl  r1,r1,#0x18
 mov  r2,#1
 lsl  r2,r2,#8
-swi  #0xC
-
-pop  {pc}
+orr  r2,r1                             //Stores 0x400 bytes of arrangements
+mov  r1,#0x80                          //Get in r1 0x80000000 in order to check whether the DMA transfer is finished
+lsl  r1,r1,#0x18
+str  r2,[r3,#8]
+ldr  r0,[r3,#8]
+-
+ldr  r0,[r3,#8]
+and  r0,r1
+cmp  r0,#0
+bne  -
+pop  {r1-r3,pc}
 
 //=============================================================================================
 // Swaps a single item's arrangement
@@ -4599,6 +4619,15 @@ bl   $80531C8
 pop  {r4,pc}
 
 //=============================================================================================
+// This hack saves in r1 whether the game is still printing or not
+//=============================================================================================
+.check_if_printed:
+push {r0,lr}
+ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
+ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
+pop  {r0,pc}
+
+//=============================================================================================
 // This hack fixes 8-letter names on the main file load screen.
 //=============================================================================================
 
@@ -4688,10 +4717,9 @@ add  sp,#-4
 ldr  r0,[sp,#8]
 str  r0,[sp,#0]
 
-ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
-ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
-mov  r0,#0
-cmp  r1,#0
+bl   main_menu_hacks.check_if_printed
+mov  r0,#0                   //Do the thing only IF we're done printing.
+cmp  r1,#0                   //Prevents issues with arrangements not being there
 bne  +
 mov  r0,r5
 mov  r1,r7
@@ -4734,9 +4762,8 @@ cmp  r0,#2
 bgt  .up_and_down_battle_memoes_left_right_normal
 
 str  r0,[sp,#0x10]
-ldr  r0,=#0x2013040
-ldrh r1,[r0,#2]              //Do this only if we have all the arrangements printed
-cmp  r1,#0
+bl   main_menu_hacks.check_if_printed
+cmp  r1,#0                   //Do this only if we have all the arrangements printed
 bne  .up_and_down_battle_memoes_left_right_normal
 
 bl   .main
@@ -4770,9 +4797,8 @@ pop  {pc}
 
 .inv_block_a:
 push {lr}
-ldr  r0,=#0x2013040          //Have we finished printing?
-ldrh r0,[r0,#0]
-cmp  r0,#0
+bl   main_menu_hacks.check_if_printed
+cmp  r1,#0                   //Have we finished printing?
 beq  .inv_block_a_passed     //Yes! Then let it do what it wants to do
 pop  {r0}
 ldr  r0,=#0x804CC35          //No! Prevent the game from opening stuff we don't want yet.
@@ -4785,9 +4811,9 @@ pop  {pc}
 
 .inv_submenu_block_a:
 push {lr}
-ldr  r0,=#0x2013040          //Have we finished printing?
-ldrh r0,[r0,#0]
-mov  r1,#0
+bl   main_menu_hacks.check_if_printed
+mov  r0,r1
+mov  r1,#0                   //Have we finished printing?
 cmp  r0,#0
 bne  +
 ldrh r1,[r4,#0]              //Normal input loading
@@ -4826,10 +4852,9 @@ pop  {pc}
 
 .deposit_a:
 push {lr}
-ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
-ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
-mov  r0,#0
-cmp  r1,#0
+bl   main_menu_hacks.check_if_printed
+mov  r0,#0                   //Do the thing only IF we're done printing.
+cmp  r1,#0                   //Prevents issues with arrangements not being there
 bne  +
 add  sp,#-4
 bl   main_menu_hacks.get_selected_index
@@ -4849,10 +4874,9 @@ str  r0,[sp,#4]
 bl   main_menu_hacks.get_total_indexes
 str  r0,[sp,#0]
 
-ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
-ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
-cmp  r1,#0
-bne  .withdraw_a_end
+bl   main_menu_hacks.check_if_printed
+cmp  r1,#0                   //Do the thing only IF we're done printing.
+bne  .withdraw_a_end         //Prevents issues with arrangements not being there
 
 ldr  r0,=#0x201A294          //Check if the inventory is full. If it is, then the game won't print again and we need to let it do its thing. We need to manually increment this, as the original devs forgot to do it.
 ldrh r1,[r0,#0]
@@ -4881,16 +4905,37 @@ bl   $8046D90
 +
 pop  {pc}
 
+.withdraw_block_input_up_and_down:
+push {lr}
+add  sp,#-0xC
+ldr  r0,[sp,#0x10]
+str  r0,[sp,#0]
+ldr  r0,[sp,#0x14]
+str  r0,[sp,#4]
+ldr  r0,[sp,#0x18]
+str  r0,[sp,#8]              //Prepare args for the function
+
+bl   main_menu_hacks.check_if_printed
+mov  r0,#0                   //Do this only if it's done printing
+cmp  r1,#0
+bne  +
+add  r0,r5,#4
+mov  r1,r5
+add  r1,#8
+bl   $8053968
++
+add  sp,#0xC
+pop  {pc}
+
 .withdraw_block_input_lr:
 push {lr}
 add  sp,#-4
 ldr  r0,[sp,#8]
 str  r0,[sp,#0]              //Prepare arg for the function
 
-ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
-ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
-mov  r0,#0
-cmp  r1,#0
+bl   main_menu_hacks.check_if_printed
+mov  r0,#0                   //Do the thing only IF we're done printing.
+cmp  r1,#0                   //Prevents issues with arrangements not being there
 bne  +
 add  r0,r4,#4
 mov  r1,r7
