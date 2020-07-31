@@ -3503,6 +3503,10 @@ mov  r1,#0xA
 mov  r2,#0x9
 mov  r3,#0x16
 bl   $8047B9C
+mov  r0,#0
+mov  r1,#0
+mov  r2,#1
+bl   $8047D90
 +
 add  sp,#4
 pop  {r3,r4}
