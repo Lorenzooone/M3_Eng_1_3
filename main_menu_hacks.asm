@@ -1853,7 +1853,7 @@ pop  {pc}
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
 
 .new_print_menu_offset_table_special:
-  dd .new_default_scroll_print+1; dd .new_equip_submenu_scroll_print+1; dd .new_sell_scroll_print+1; dd .new_sell_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_equip_submenu_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   
 .new_print_menu_addition_value_table:
   dw $41EC; dw $41F4; dw $41EC; dw $41EC; dw $41EC; dw $41FC; dw $41EC; dw $41FC;
@@ -2035,6 +2035,100 @@ add  r1,r1,r2
 bl   $8091938  // New code!
 
 .end_new_print_menu_left_right:
+pop  {r4,pc}
+
+//=============================================================================================
+// This hack changes how left/right scrolling in menus works - Based off of 0x8046D90, which is basic menu printing
+// Same code as above except for the points in which it's present the comment DIFFERENT!!!
+//=============================================================================================
+
+.new_print_menu_a_offset_table:
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_withdrawing_a_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+
+.new_print_menu_a:
+push {r4,lr}
+ldr  r3,=#0x2016028                    // Base code
+ldr  r0,=#0x44F2
+add  r2,r3,r0
+ldrb r1,[r2,#0]
+lsl  r0,r1,#0x1C
+cmp  r0,#0
+bge  +
+b    .end_new_print_menu_a
++
+mov  r0,#8
+orr  r0,r1
+strb r0,[r2,#0]
+ldr  r1,=#0x4260
+add  r0,r3,r1                          //Get the type of menu this is
+ldrb r0,[r0,#0]
+cmp  r0,#0x10
+bhi  +
+ldr  r2,=#.new_print_menu_addition_value_table
+lsl  r0,r0,#1
+ldsh r2,[r2,r0]
+ldr  r0,=#0x2016078
+add  r1,r0,r2
+mov  r2,#1
+mov  r3,#0
+
+bl   .new_clear_menu_a        //DIFFERENT!!!
+
++
+bl   $8049D5C                          //Back to base code
+ldr  r3,=#0x2016028
+ldr  r1,=#0x41C6
+add  r0,r3,r1
+ldrb r1,[r0,#0]
+mov  r0,#1
+and  r0,r1
+cmp  r0,#0
+beq  +
+ldr  r2,=#0x41BC
+add  r1,r3,r2
+ldrh r0,[r1,#0]
+cmp  r0,#3
+bhi  .end_new_print_menu_a
+ldr  r0,=#0x9B8FD74
+ldrh r1,[r1,#0]
+lsl  r1,r1,#2
+add  r1,r1,r0
+ldr  r4,=#0x3060
+add  r0,r3,r4
+ldr  r1,[r1,#0]
+bl   $8091938
+b    .end_new_print_menu_a
++
+ldr  r0,=#0x4260
+add  r2,r3,r0
+ldrb r0,[r2,#0]
+cmp  r0,#0x12
+bhi  .end_new_print_menu_a
+lsl  r0,r0,#5
+mov  r4,#0xB8
+lsl  r4,r4,#6
+add  r1,r3,r4
+add  r0,r0,r1
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]
+lsl  r1,r1,#2                          //DIFFERENT!!!
+ldr  r2,=#.new_print_menu_a_offset_table
+add  r1,r2,r1
+ldrh r2,[r1,#2]
+lsl  r2,r2,#0x10
+ldrh r1,[r1,#0]
+add  r1,r1,r2
+
+bl   $8091938  // New code!
+
+.end_new_print_menu_a:
 pop  {r4,pc}
 
 //=============================================================================================
@@ -2227,6 +2321,61 @@ lsl  r1,r1,#0x10
 add  r1,r1,r0
 bl   $8091938
 +
+
+b    .new_clear_menu_general
+
+//=============================================================================================
+// This hack changes how menu clearing works, based off of 0x80012BC
+// Same as above, except it cuts a part
+//=============================================================================================
+.new_clear_menu_a:
+push {r4-r7,lr}
+mov  r7,r8                             //base code
+push {r7}
+add  sp,#-0xC
+mov  r8,r0
+mov  r5,r1
+lsl  r2,r2,#0x10
+lsr  r7,r2,#0x10
+mov  r0,sp
+strh r3,[r0,#0]
+cmp  r5,#0
+bne  +
+b    .new_clear_menu_next_spot
++
+mov  r1,#0
+ldsh r0,[r5,r1]
+cmp  r0,#0
+bge  +
+add  r0,#7
++
+lsl  r0,r0,#0xD
+lsr  r0,r0,#0x10
+ldr  r2,=#0xFFFF0000
+ldr  r1,[sp,#4]
+and  r1,r2
+orr  r1,r0
+str  r1,[sp,#4]
+mov  r1,#2
+ldsh r0,[r5,r1]
+cmp  r0,#0
+bge  +
+add  r0,#7
++
+asr  r0,r0,#3
+add  r4,sp,#4
+strh r0,[r4,#2]
+ldrh r0,[r5,#4]
+lsr  r0,r0,#3
+strh r0,[r4,#4]
+ldrh r0,[r5,#6]
+lsr  r0,r0,#3
+strh r0,[r4,#6]
+ldrh r2,[r4,#0]
+ldrh r3,[r4,#2]
+mov  r0,r8
+mov  r1,r7
+bl   $8001378
 
 b    .new_clear_menu_general
 
@@ -3302,6 +3451,56 @@ bl   $8001C5C
 str  r7,[sp,#0]
 mov  r1,#0x1
 bl   .get_inventory_height
+mov  r3,#0x16
+bl   $8047B9C
++
+add  sp,#4
+pop  {r3,r4}
+mov  r8,r3
+mov  r9,r4
+pop  {r4-r7,pc}
+
+//=============================================================================================
+// This hack changes what the withdrawing will print, based off of 0x8047900
+//=============================================================================================
+.new_withdrawing_a_print:
+push {r4-r7,lr}
+mov  r7,r9
+mov  r6,r8
+push {r6,r7}
+add  sp,#-4                            //base code
+mov  r1,r0
+ldr  r3,=#0x2016028
+ldr  r0,=#0x4282
+add  r2,r3,r0
+ldrh r0,[r2,#0]
+ldrh r1,[r1,#8]
+add  r1,#0xF
+sub  r0,r0,r1
+cmp  r0,#1
+ble  +
+mov  r0,#1
++
+
+lsl  r2,r0,#0x10                       //base code
+lsr  r4,r2,#0x10
+mov  r9,r4
+lsl  r1,r1,#2
+ldr  r4,=#0x3DBC
+add  r0,r3,r4
+add  r5,r1,r0
+mov  r7,#0xF
+mov  r0,#1
+mov  r1,r9
+and  r0,r1
+cmp  r0,#0
+beq  +
+ldrb r1,[r5,#0]                        //Set the thing to print the bottom item at the right position
+mov  r0,#2
+bl   $8001C5C
+str  r7,[sp,#0]
+mov  r1,#0xA
+mov  r2,#0x9
 mov  r3,#0x16
 bl   $8047B9C
 +
@@ -4479,13 +4678,41 @@ pop  {pc}
 // It only prints what needs to be printed.
 // This version takes pre-established free tiles instead of determining them on the fly
 //=============================================================================================
-.up_down_scrolling_print_no_get_empty_times:
+.up_down_scrolling_print_no_get_empty_tiles:
 push {lr}
 add  sp,#-0xC
 str  r2,[sp,#8]
 str  r0,[sp,#4]
 str  r1,[sp,#0]
 bl   .new_print_menu_up_down
+ldr  r4,=#0x201AEF8
+mov  r0,r4
+bl   $803E908
+-
+bl   .new_print_vram_container
+mov  r0,r4
+bl   $803E908
+ldr  r0,=#0x2013040                    //Check for two names with a total of 41+ letters on the same line.
+ldrb r1,[r0,#2]                        //Max item name size is 21, so it's possible, but unlikely.
+ldrb r2,[r0,#3]                        //At maximum 2 letters must be printed, so it's fast.
+cmp  r1,r2                             //Can happen with (pickled veggie plate or jar of yummy pickles or saggittarius bracelet
+bne  -                                 //or mole cricket brother) + bag of big city fries on the same line.
+add  sp,#0xC
+pop  {pc}
+
+//=============================================================================================
+// This hack combines all the hacks above.
+// It moves the arrangements around instead of re-printing everything.
+// It only prints what needs to be printed.
+// This version takes pre-established free tiles instead of determining them on the fly
+//=============================================================================================
+.pressing_a_scrolling_print_no_get_empty_tiles:
+push {lr}
+add  sp,#-0xC
+str  r2,[sp,#8]
+str  r0,[sp,#4]
+str  r1,[sp,#0]
+bl   .new_print_menu_a
 ldr  r4,=#0x201AEF8
 mov  r0,r4
 bl   $803E908
@@ -5028,7 +5255,7 @@ beq  +
 
 //If it did, the menu position was moved up by one. We don't need to print new stuff at the bottom,
 //but we'll need to print new stuff at the top (the top two new items) and to move everything down
-//by one line. Luckily, up_down_scrolling_print_no_get_empty_times handles it for us.
+//by one line. Luckily, up_down_scrolling_print_no_get_empty_tiles handles it for us.
 //We'll just need to trick it into thinking the selected_index corresponds to the top one.
 bl   main_menu_hacks.set_selected_index
 mov  r2,r0
@@ -5036,14 +5263,17 @@ mov  r0,r4
 mov  r1,r5
 mov  r5,r2                   //Saves the old selected_index in r5 temporarily
 mov  r2,r6
-bl   main_menu_hacks.up_down_scrolling_print_no_get_empty_times
+bl   main_menu_hacks.up_down_scrolling_print_no_get_empty_tiles
 mov  r0,r5                   //Restores the old selected_index
 bl   main_menu_hacks.set_selected_index
 b    .withdraw_printing_pressed_a_end
 
 +
 //If it didn't, we need to print one item at the bottom right
-
+mov  r0,r4
+mov  r1,r5
+mov  r2,r6
+bl   main_menu_hacks.pressing_a_scrolling_print_no_get_empty_tiles
 
 .withdraw_printing_pressed_a_end:
 pop  {pc}
