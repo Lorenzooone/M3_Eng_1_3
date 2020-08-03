@@ -1255,6 +1255,11 @@ org $8EEC604; incbin gfx_charge2_[c].bin
 org $8ED4C38; incbin gfx_cafe_top_[c].bin
 org $8ED4930; incbin gfx_cafe_bottom_[c].bin
 
+//Put in a swapped version of the menu text palettes
+define alternate_menu_text_palette $9FABFC0
+org {alternate_menu_text_palette}; incbin gfx_menu_text_swapped_palette.bin
+org $803FAA2; bl main_menu_hacks.add_extra_menu_palette
+
 //============================================================================================
 //                                    SOUND HACKS
 //============================================================================================

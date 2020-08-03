@@ -1839,6 +1839,29 @@ bl   $804BE64                // Clobbered code
 pop  {pc}
 
 //=============================================================================================
+// This hack puts an alternate menu text palette for certain menus. Used for optimizing
+//=============================================================================================
+.add_extra_menu_palette:
+push {lr}
+bl   $800160C                //Normal expected code
+
+ldr  r0,=#0x2004100
+ldrb r0,[r0,#0]
+cmp  r0,#2                   // Is this the PSI menu?
+beq  +
+cmp  r0,#5                   // Or the shop's menu?
+bne  .add_extra_menu_palette_end
++
+mov  r0,r4                   // If it is, load an extra palette as the 8th one
+ldr  r1,=#{alternate_menu_text_palette}
+mov  r2,#0x08
+mov  r3,#0x20
+bl   $800160C
+
+.add_extra_menu_palette_end:
+pop  {pc}
+
+//=============================================================================================
 // This hack changes how up/down scrolling in menus works - Based off of 0x8046D90, which is basic menu printing
 //=============================================================================================
 
