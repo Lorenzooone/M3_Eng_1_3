@@ -437,6 +437,8 @@ org $804141E; bl extra_hacks.psi_cursorfix1      // Skills (PSI), X, left column
 org $8041426; db $69                             // Skills (PSI), X, right column
 org $8041460; bl extra_hacks.skills_cursorfix1   // Skills (other), X, left column
 org $8041468; db $73                             // Skills (other), X, right column
+org $8045BDA; db $CC                             // Selling confirmation prompt
+org $8045BBE; db $CC                             // Buying confirmation prompt
 
 org $807A8DA; db $08    // fix Hinawa's name in final battle
 
@@ -497,10 +499,16 @@ org $804D138; bl refreshes.inner_memo_scroll; nop
 org $804D150; bl refreshes.b; nop
 
 //Buy
-org $804D4C6; bl refreshes.buy_lr; nop
+org $804D4BA; bl refreshes.buy_block_lr
+org $804D4DC; bl refreshes.buy_lr; nop; nop
 org $804D516; bl refreshes.b; nop
+org $804D556; bl refreshes.buy_block_up_down
 org $804D562; bl refreshes.up_and_down
-org $804D5B2; bl refreshes.buy_lr; nop
+org $804D5A8; bl refreshes.buy_block_lr
+org $804D5C8; bl refreshes.buy_lr; nop; nop
+org $804E944; bl refreshes.buy_block_a
+org $805007A; bl refreshes.buy_a; nop; nop
+org $8050440; bl refreshes.sell_after_buy_a; nop; nop
 
 //Sell
 org $804D602; bl refreshes.sell_a; nop

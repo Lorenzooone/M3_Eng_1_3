@@ -4969,6 +4969,38 @@ bl   $80531C8
 pop  {r4,pc}
 
 //=============================================================================================
+// Prepares the buying inventory for swapping character. Based off of $804C254.
+// Removes the part that resets the cursor's position
+//=============================================================================================
+.prepare_swap_char_buying:
+push {r4-r6,lr}
+ldr  r6,=#0x2016028
+ldr  r0,=#0x4260
+add  r1,r6,r0
+mov  r2,#0
+mov  r0,#0xA
+strb r0,[r1,#0]                        //Saves the fact that this is the buying menu
+mov  r1,#0xBD
+lsl  r1,r1,#6
+add  r5,r6,r1
+ldr  r1,=#0x4264
+add  r0,r6,r1
+ldrb r0,[r0,#0]
+strh r0,[r5,#0xA]                      //Remove position resetting
+ldrh r0,[r5,#0xA]
+bl   $8054FE0
+mov  r4,r0
+bl   $80524EC
+mov  r0,r4
+bl   $8052F9C
+mov  r0,#0x85
+lsl  r0,r0,#7
+add  r6,r6,r0
+ldrh r0,[r6,#0]
+strh r0,[r5,#2]
+pop  {r4-r6,pc}
+
+//=============================================================================================
 // This hack saves in r1 whether the game is still printing or not
 //=============================================================================================
 .check_if_printed:
@@ -4976,6 +5008,135 @@ push {r0,lr}
 ldr  r0,=#0x2013040          //Do the thing only IF we're done printing.
 ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
 pop  {r0,pc}
+
+//=============================================================================================
+// This hack changes the palette for an item's arrangement that is stored in r0
+//=============================================================================================
+.change_palette:
+push {r1-r5,lr}
+mov  r4,r0                   //r4 = r0 = initial address
+ldr  r2,=#0x0FFF             //r2 = 0xFFF, used to get the non-palette part
+ldrh r1,[r0,#0]
+mov  r3,r1
+and  r1,r2
+cmp  r1,#0
+beq  .change_palette_end     //If there is no item, stop here
+mov  r1,r3
+mov  r5,#0xF0
+lsl  r5,r5,#8
+and  r5,r1
+mov  r3,#0                   //Get whether this was 0x8XXX or 0x0XXX
+cmp  r5,#0
+bne  +
+mov  r3,#0x80
+lsl  r3,r3,#8
++
+mov  r5,r3                   //r5 now has either 0x0000 or 0x8000
+mov  r3,#0                   //r3 is a counter used in order to avoid issues
+
+-
+ldrh r1,[r0,#0]
+and  r1,r2                   //Pick the non-palette part
+cmp  r1,#0
+beq  +                       //If it's 0, proceed to the next step
+orr  r1,r5                   //Otherwise, or it with the new palette
+strh r1,[r0,#0]              //and then store it
+add  r0,#2
+add  r3,#1                   //Continue along
+cmp  r3,#0x10
+blt  -
++
+
+mov  r0,r4
+add  r0,#0x40                //Get the bottom address. Initial one + 0x40
+mov  r3,#0
+
+-
+ldrh r1,[r0,#0]
+and  r1,r2                   //Pick the non-palette part
+cmp  r1,#0
+beq  +                       //If it's 0, proceed to the next step
+orr  r1,r5                   //Otherwise, or it with the new palette
+strh r1,[r0,#0]              //and then store it
+add  r0,#2
+add  r3,#1                   //Continue along
+cmp  r3,#0x10
+blt  -
++
+
+.change_palette_end:
+pop  {r1-r5,pc}
+
+//=============================================================================================
+// This hack sets in r0 a bitmask of the currently valid options
+// It takes r0 as the base address and r1 as the amount to check
+//=============================================================================================
+.get_valid_options:
+push {r4-r6,lr}
+mov  r4,r0
+mov  r5,r1
+mov  r6,#0                   //Counter
+mov  r0,#0                   //Setup starting bitmask
+cmp  r5,#0x20                //In 4 bytes there are only 0x20 bits
+bgt  .get_valid_options_end
+-
+mov  r2,#0
+ldr  r1,[r4,#0]
+lsl  r1,r1,#0xA              //Check validity
+cmp  r1,#0
+bge  +
+mov  r2,#1
++
+lsl  r2,r6
+orr  r0,r2                   //Set r6-th bit in bitmask to r2
+add  r4,#4
+add  r6,#1
+cmp  r5,r6
+bgt  -
+
+.get_valid_options_end:
+pop  {r4-r6,pc}
+
+//=============================================================================================
+// This hack gets the valid options for the buying menu
+//=============================================================================================
+.get_buy_valid_options:
+push {lr}
+ldr  r0,=#0x3D44
+ldr  r1,=#0x2016028          //Prepare the address
+add  r1,r1,r0
+bl   main_menu_hacks.get_top_index
+lsl  r0,r0,#2                //Go to the proper first item on the screen
+add  r0,r1,r0
+mov  r1,#6                   //Set the number of maximum items
+bl   main_menu_hacks.get_valid_options
+pop  {pc}
+
+
+//=============================================================================================
+// This hack changes the palette for the options that changed validity in the buying menu
+//=============================================================================================
+.change_buy_options:
+push {r4-r6,lr}
+mov  r4,r0                   //Save in r4 what changed
+ldr  r5,=#0x2016992          //Arrangement start
+mov  r6,#1                   //Number to and with
+mov  r1,#0                   //Current index
+-
+mov  r0,r6
+and  r0,r4
+cmp  r0,#0
+beq  +
+lsl  r0,r1,#7                //If this isn't 0, it changed...
+add  r0,r5,r0                //Prepare the corresponding arrangement address
+bl   main_menu_hacks.change_palette
++
+add  r1,#1
+lsl  r6,r6,#1                //Prepare to check the next bit
+cmp  r1,#6                   //There are 6 items displayed top in this menu
+blt  -
+
+pop  {r4-r6,pc}
 
 //=============================================================================================
 // This hack fixes 8-letter names on the main file load screen.
@@ -5359,11 +5520,92 @@ ldr  r7,=#0x2016028          //Normal stuff the game expects from us
 ldr  r0,=#0x41C6
 pop  {pc}
 
+.buy_a:
+push {lr}
+add  sp,#-4
+bl   .main
+bl   main_menu_hacks.get_buy_valid_options
+str  r0,[sp,#0]              //Get the valid options now
+mov  r0,r4
+bl   $8052F9C                //Do the confirming buying routine...
+bl   main_menu_hacks.get_buy_valid_options
+ldr  r1,[sp,#0]
+eor  r0,r1                   //If the valid options changed, change
+cmp  r0,#0                   //the assigned palette for those that changed
+beq  +                       //and then set the arrangements to be updated
+bl   main_menu_hacks.change_buy_options
+bl   main_menu_hacks.store_arrangements_buffer
++
+add  sp,#4
+pop  {pc}
+
+.sell_after_buy_a:
+push {r4,lr}
+mov  r4,r5                   //Cover the -selling old equipment
+bl   .buy_a                  //after buying new one- case
+pop  {r4,pc}
+
+.buy_block_a:
+push {lr}
+bl   main_menu_hacks.check_if_printed
+cmp  r1,#0                   //Prevent confirming buying (it interacts with
+bne  +                       //the arrangements) unless everything's printed
+bl   $8050008
++
+pop  {pc}
+
+.buy_block_up_down:
+push {lr}
+add  sp,#-4
+mov  r2,r0
+bl   main_menu_hacks.check_if_printed
+mov  r0,#0                   //Prevent scrolling up or down (it interacts with
+cmp  r1,#0                   //the arrangements) unless everything's printed
+bne  +
+ldr  r0,[sp,#8]              //Prepare args for the function
+str  r0,[sp,#0]
+mov  r0,r2
+mov  r2,r5
+add  r1,r0,#4
+bl   $8053598
++
+add  sp,#4
+pop  {pc}
+
+.buy_block_lr:
+push {lr}
+add  sp,#-4
+mov  r2,r0
+bl   main_menu_hacks.check_if_printed
+mov  r0,#0                   //Prevent changing character (it interacts with
+cmp  r1,#0                   //the arrangements) unless everything's printed
+bne  +
+ldr  r0,[sp,#8]              //Prepare args for the function
+str  r0,[sp,#0]
+mov  r1,r5
+mov  r0,r2
+mov  r2,#0
+bl   $8053754
++
+add  sp,#4
+pop  {pc}
+
 .buy_lr:
 push {lr}
+add  sp,#-4
 bl   .main
-ldrh r0,[r6,#4]              //Normal stuff the game expects from us
-bl   $8053E98
+bl   main_menu_hacks.get_buy_valid_options
+str  r0,[sp,#0]              //Get the valid options now
+bl   main_menu_hacks.prepare_swap_char_buying
+bl   main_menu_hacks.get_buy_valid_options
+ldr  r1,[sp,#0]
+eor  r0,r1                   //If the valid options changed, change
+cmp  r0,#0                   //the assigned palette for those that changed
+beq  +                       //and then set the arrangements to be updated
+bl   main_menu_hacks.change_buy_options
+bl   main_menu_hacks.store_arrangements_buffer
++
+add  sp,#4
 pop  {pc}
 
 .deposit_lr:
