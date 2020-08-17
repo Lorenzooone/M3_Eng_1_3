@@ -1715,6 +1715,9 @@ org $809F45A; bl battle_hacks.fix_total_damage
 org $80470B4; bl main_menu_hacks.delete_vram_equip; nop //Equip
 org $80472C8; bl main_menu_hacks.delete_vram_status; nop //Status
 
+//Fix Nana's age at the NPC's concert
+org $91649B4; db $41
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
