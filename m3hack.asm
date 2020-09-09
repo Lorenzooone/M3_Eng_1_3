@@ -538,6 +538,9 @@ org $804EB26; bl main_menu_hacks.delete_vram_inv_to_battle_memory
 //Fix issue with equipment when removing items from the inventory
 org $802A560; bl extra_hacks.position_equipment_item_removal
 
+//Make cheese consistent inside and outside of battle (Salsa is the default case)
+org $805CB84; bhi $805CBC2
+
 //============================================================================================
 //                                  NAMING SCREEN HACKS
 //============================================================================================
