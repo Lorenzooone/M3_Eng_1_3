@@ -535,6 +535,9 @@ org $804F328; bl refreshes.withdraw_printing_pressed_a
 //Remove text issue when going from inventory to battle memory
 org $804EB26; bl main_menu_hacks.delete_vram_inv_to_battle_memory
 
+//Fix issue with equipment when removing items from the inventory
+org $802A560; bl extra_hacks.position_equipment_item_removal
+
 //============================================================================================
 //                                  NAMING SCREEN HACKS
 //============================================================================================

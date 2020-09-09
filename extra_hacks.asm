@@ -738,6 +738,46 @@ pop  {r1-r4}
 bx   lr
 
 //---------------------------------------------------------------------------------------
+// Properly handles equipment position when removing multiple items from an inventory
+//---------------------------------------------------------------------------------------
+.position_equipment_item_removal:
+push {r4-r7,lr}
+mov  r7,r1
+mov  r6,#0
+mov  r3,#1
+neg  r3,r3
+add  r0,#0x38
+mov  r5,r0
+add  r4,r0,#4
+-
+
+ldrb r0,[r4,#0]
+ldrb r1,[r7,#0]
+cmp  r0,r1
+beq  +
+ldr  r0,[r5,#0]
+mov  r1,r3
+and  r1,r0
+lsr  r1,r1,#1
+neg  r2,r3
+sub  r2,r2,#1
+and  r2,r0
+orr  r1,r2
+str  r1,[r5,#0]
+b    .position_equipment_item_removal_end_of_loop
++
+add  r4,#1
+lsl  r3,r3,#1
+.position_equipment_item_removal_end_of_loop:
+add  r7,#1
+add  r6,#1
+cmp  r6,#0xF
+ble  -
+
+.position_equipment_item_removal_end:
+pop  {r4-r7,pc}
+
+//---------------------------------------------------------------------------------------
 // Sets the current money on hand to an arbitrary value - 04 00 9E 00
 //---------------------------------------------------------------------------------------
 .set_money_on_hand:
