@@ -424,30 +424,129 @@ lsr  r5,r2,#0x10
 pop  {r0,pc}
 
 // ---------------------------------------------------------------------------------------
-// Fixes status icons in the memo screen. Also changes position of the right column in the withdrawing menu
+// Fixes printing in the memo screen. Also changes position of the right column in the withdrawing menu
 // ---------------------------------------------------------------------------------------
 
-.memo_iconfix_withdraw_positionfix:
+.memo_printfix_withdraw_positionfix:
 push {lr}
-// r0 is 3 for icons, 1 for everything else
-cmp  r0,#3
+ldr  r2,=#0x201A288
+ldrb r2,[r2,#0]
+cmp  r2,#6
+beq  .memo_printfix_withdraw_positionfix_memo
+lsl  r1,r0,#1
+add  r1,r1,r0
+lsl  r1,r1,#2
+cmp  r2,#0xF
 bne  +
-mov  r0,#0x18                      // start 0x18 pixels from the left; it does weird things when inside text though
-strh r0,[r6,#0]
-pop  {pc}
+cmp  r0,#0xA
+bne  +
+add  r1,#4                         //Cover being in the withdraw menu - moves the right column 4 pixels to the right
++
+b    .memo_printfix_withdraw_positionfix_end
+
+.memo_printfix_withdraw_positionfix_memo:
+mov  r0,r5
+sub  r0,#0x2
+cmp  r0,#1
+beq  +
+mov  r0,#1
+sub  r1,r4,#4
+ldr  r1,[r1,#0]
+cmp  r1,#0
+bne  +
+mov  r0,#2                         //Cover case when done with memo icon
 +
 lsl  r1,r0,#1
 add  r1,r1,r0
 lsl  r1,r1,#2
-cmp  r0,#0xA
-bne  +
-ldr  r0,=#0x201A288
-ldrb r0,[r0,#0]
-cmp  r0,#0xF
-bne  +
-add  r1,#4                         //Cover being in the withdraw menu - moves the right column 4 pixels to the right
-+
+
+.memo_printfix_withdraw_positionfix_end:
 strh r1,[r6,#0]
+pop  {pc}
+
+// ---------------------------------------------------------------------------------------
+// Fixes printing in the memo screen. Vertical fix in order to allow more space per line
+// ---------------------------------------------------------------------------------------
+
+.memo_printfix_vertical:
+push {lr}
+bl   $8002FC0
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]
+cmp  r1,#6
+bne  .memo_printfix_vertical_end
+sub  r1,r4,#4
+ldr  r1,[r1,#0]
+lsr  r0,r1,#0x1C
+cmp  r0,#3
+bgt  +
+mov  r0,#3
++
+
+.memo_printfix_vertical_end:
+pop  {pc}
+
+// ---------------------------------------------------------------------------------------
+// Fixes printing in the memo screen. Changes how letters are stored
+// ---------------------------------------------------------------------------------------
+
+.memo_printfix_storage:
+push {r3,lr}
+ldr  r0,[r4,#0]
+sub  r0,r6,r0
+lsr  r2,r0,#1
+add  r2,#2
+strh r2,[r5,#0]
+ldr  r0,=#0x201AEF8
+ldrb r1,[r0,#3]
+add  r1,#0x10
+strb r1,[r0,#3]
+mov  r3,#0x2
+add  r3,r3,r2
+lsl  r3,r3,#2
+add  r0,r0,r3
+sub  r0,#4
+add  r1,#0x30
+strb r1,[r0,#3]
+
+pop  {r3,pc}
+
+// ---------------------------------------------------------------------------------------
+// Improves buffer size for the memo menus
+// ---------------------------------------------------------------------------------------
+
+.memo_expand_buffer_start_routine:
+add  sp,#-0x100
+add  sp,#-0x168
+lsl  r0,r0,#0x10
+bx   lr
+
+.memo_expand_buffer_middle_routine:
+ldr  r1,=#0x268
+bx   lr
+
+.memo_expand_buffer_end_routine:
+add  sp,#0x100
+add  sp,#0x168
+pop  {r3}
+bx   lr
+
+.memo_expand_writing_buffer:
+push {lr}
+ldr  r2,=#0x201A288
+ldrb r2,[r2,#0]
+cmp  r2,#6
+bne  +
+lsl  r0,r0,#2
+ldr  r1,=#0x201AEF8
+add  r1,#8
+add  r0,r1,r0
+b    .memo_expand_writing_buffer_end
+
++
+bl   $8049894
+
+.memo_expand_writing_buffer_end:
 pop  {pc}
 
 // ---------------------------------------------------------------------------------------

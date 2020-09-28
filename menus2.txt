@@ -1,7 +1,5 @@
 // This is all the secret Memo Menu text.
-// The descriptions have to be formatted just right, but I don't know what that means.
-// I think there can only be so many letters per line (or per screen) at once.
-// Jeffman might know more :P
+// On a given screen (between WAITs), there can be a maximum of 304 characters.
 
 0000: [END]
 0000-E: [END]

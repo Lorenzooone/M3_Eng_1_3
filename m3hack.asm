@@ -1738,9 +1738,20 @@ org $8048500; bl extra_hacks.memo_counterfix2
 // Expand memo text
 org $804BFD4; bl extra_hacks.memo_stretch
 
-// Make status icons appear "correctly" in memo screen
+// Make printing work properly in the memo menu
 // Also changes the position of the right column in the withdrawing menu to be 4 pixels more to the right
-org $8049298; bl extra_hacks.memo_iconfix_withdraw_positionfix; nop; nop
+org $8048B98; bl extra_hacks.memo_printfix_storage; nop; nop; nop
+org $8049298; bl extra_hacks.memo_printfix_withdraw_positionfix; nop; nop
+org $80492A4; bl extra_hacks.memo_printfix_vertical
+
+//Expand buffer size for a memo page
+org $804807A; bl extra_hacks.memo_expand_buffer_start_routine
+org $80480DA; bl extra_hacks.memo_expand_buffer_middle_routine
+org $80480F0; bl extra_hacks.memo_expand_buffer_end_routine
+org $80488BE; bl extra_hacks.memo_expand_writing_buffer
+org $8048C34; bl extra_hacks.memo_expand_writing_buffer
+org $8048100; dw $4284
+org $80476BC; dd $0201A2AC
 
 // Make the pigmask not set the null memo flag
 //org $9369245; db $00
