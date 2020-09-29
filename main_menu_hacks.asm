@@ -192,22 +192,10 @@ pop  {r2,pc}
 
 .store_total_letters:
 // custom jeff code
-ldr  r0,=#0x201A288
-ldrb r0,[r0,#0]
-cmp  r0,#6
-beq  +
-//
-
 ldr  r2,=#0x2013040
 ldrh r0,[r2,#0]              // load the current letter total
 add  r0,#1
 strh r0,[r2,#0]              // increment and store the letter total back
-bx   lr
-
-+
-ldrb r0,[r1,#0] // clobbered code
-add  r0,#1
-strb r0,[r1,#0]
 bx   lr
 
 //=============================================================================================
@@ -222,16 +210,6 @@ bx   lr
 push {r2-r4,lr}
 
 // custom jeff code
-ldr  r2,=#0x201A288
-ldrb r2,[r2,#0]
-cmp  r2,#6
-bne  +
-ldrb r0,[r0,#0] // clobbered code
-lsr  r1,r0,#2
-pop  {r2-r4,pc}
-//
-
-+
 ldr  r4,=#0x2013040          // custom area of RAM for this is here
 mov  r2,#0
 strh r2,[r4,#2]              // total # of passes = 0, current pass = 0
@@ -274,20 +252,6 @@ pop  {r2-r4,pc}
 
 .load_curr_group_length1:
 // custom jeff code
-ldr  r0,=#0x201A288
-ldrb r0,[r0,#0]
-cmp  r0,#6
-bne  +
-ldrb r0,[r5,#0] // clobbered code
-lsl  r0,r0,#0x1D
-lsr  r0,r0,#0x1D
-ldr  r2,=#0x76D2
-add  r1,r4,r2
-add  r0,r0,r1
-ldrb r1,[r0,#0]
-bx   lr
-//
-+
 ldr  r0,=#0x2013040
 ldrb r1,[r0,#3]              // get the current pass #
 add  r0,#0x10
@@ -298,15 +262,6 @@ bx   lr
 
 .load_curr_group_length2:
 // custom jeff code
-ldr  r0,=#0x201A288
-ldrb r0,[r0,#0]
-cmp  r0,#6
-bne  +
-add  r0,r4,r3 // clobbered code
-ldrb r0,[r0,#0]
-bx   lr
-//
-+
 ldr  r0,=#0x2013040          // address of our group length array is this + 10
 ldrb r1,[r0,#3]              // load the current pass #
 mov  r3,r1
@@ -322,17 +277,6 @@ bx   lr
 .group_add_check:
 push {r2-r3}
 // custom jeff code
-ldr  r3,=#0x201A288
-ldrb r3,[r3,#0]
-cmp  r3,#6
-bne  +
-add  r0,#1 // clobbered code
-mov  r1,#7
-pop  {r2-r3}
-bx   lr
-//
-
-+
 mov  r3,#0                   // this will be r0's final default result
 
 ldr  r2,=#0x2013040          // address of start of counter area
@@ -354,8 +298,6 @@ mov  r0,r3                   // give r0 its proper value that the game expects
 mov  r1,#7                   // clobbered code
 pop  {r2-r3}
 bx   lr
-
-
 
 
 
