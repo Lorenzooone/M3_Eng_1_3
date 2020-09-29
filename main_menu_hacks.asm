@@ -5130,7 +5130,8 @@ refreshes:
 push {lr}
 ldr  r1,=#0x2013040          //Address of the stack
 mov  r0,#0
-str  r0,[r1,#0x10]           //Clean the words' lengths so it won't print
+str  r0,[r1,#0x0]           //Clean the words' lengths so it won't print
+str  r0,[r1,#0x10]
 str  r0,[r1,#0x14]
 str  r0,[r1,#0x18]
 str  r0,[r1,#0x1C]
