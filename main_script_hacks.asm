@@ -870,11 +870,11 @@ ldr  r6,[r1,#0]
 ldrb r2,[r6,#9]
 ldr  r5,=#0x201433C
 mov  r1,#0
-strh r1,[r5,#0]              //Setup the current base height to 0
-add  r5,#2                   //Address for our printing info zone
+strh r1,[r5,#0]                        //Setup the current base height to 0
+add  r5,#2                             //Address for our printing info zone
 cmp  r1,r2
-bcc  +                       //Did a new request to print come?
-ldrb r2,[r5,#1]              //If it didn't, check if we must still print stuff
+bcc  +                                 //Did a new request to print come?
+ldrb r2,[r5,#1]                        //If it didn't, check if we must still print stuff
 cmp  r2,#0
 bne  .improve_notebook_printing_frame
 
@@ -883,60 +883,57 @@ bl    .improve_notebook_printing_second_part
 b     .improve_notebook_printing_end
 
 +
-ldr  r1,=#0x2018CB8          //Block default behaviour that insta-prints the first page
+ldr  r1,=#0x2018CB8                    //Block default behaviour that insta-prints the first page
 mov  r3,#0
 strh r3,[r1,#0]
 
-push {r2}
-ldr  r1,=#0x201B3D8          //Address for the graphics. Swap between two slots
-ldrb r3,[r1,#1]              //in order to avoid having graphical issues...
-mov  r2,#0x70                //(Without this, there would be 1 frame without some part of the text if we had > 3 lines)
-strb r2,[r1,#1]
-cmp  r3,r2
-bgt  +
-mov  r2,#0xB0
-strb r2,[r1,#1]
-+
-pop  {r2}
+bl   .swap_graphics_buffer_notebook    //Change the buffer for the graphics
 
 ldrb r1,[r5,#1]
 cmp  r1,#0
 beq  +
-push {r0,r2}                 //Setup for a new printing request...
-ldr  r0,=#0x2016078          //Make it so the arrangements are clear
-mov  r1,#0x80                //Only if we weren't done printing
+push {r0,r2}                           //Setup for a new printing request...
+ldr  r0,=#0x2016078                    //Make it so the arrangements are clear
+mov  r1,#0x80                          //Only if we weren't done printing
 lsl  r1,r1,#4
 bl   $80019DC
+bl   .swap_graphics_buffer_notebook    //Change the buffer for the graphics back, it means the previous one wasn't printed
 pop  {r0,r2}
 +
 
-mov  r1,#2                   //Setup our zone that contains info on where to print stuff
-strb r1,[r5,#0]              //and where we're at
+mov  r1,#2                             //Setup our zone that contains info on where to print stuff
+strb r1,[r5,#0]                        //and where we're at
 strb r2,[r5,#1]
 
 .improve_notebook_printing_frame:
-cmp  r2,#3                   //We print a maximum of three lines per frame (150 characters of the 166 maximum)
+cmp  r2,#2                             //We print a maximum of three lines per frame (150 characters of the 166 maximum)
 ble  +
-mov  r2,#3
+mov  r2,#2
 +
-strb r2,[r6,#9]              //Store the number of lines we'll print
+strb r2,[r6,#9]                        //Store the number of lines we'll print
 ldrb r1,[r5,#0]
 sub  r1,#2
 mov  r2,#0x6C
 mul  r1,r2
+mov  r2,#0x6C
+add  r4,r1,r2
 ldr  r6,[r6,#0]
-ldr  r7,[r6,#0]
 ldr  r2,=#0x2014340
 add  r1,r1,r2
-str  r1,[r6,#0]              //Store where to look at into the text
+add  r2,r2,r4
+ldr  r7,[r6,#0]
+ldr  r4,[r6,#0x10]
+str  r1,[r6,#0]                        //Store where to look at into the text
+str  r2,[r6,#0x10]                     //Store where to look at into the text
 bl   $80096EC
 bl   .improve_notebook_printing_second_part
-str  r7,[r6,#0]              //Restore the old info
-ldrb r2,[r5,#0]              //Update the printing info by adding 3 to the Y coordinate
-add  r2,#3
+str  r7,[r6,#0]                        //Restore the old info
+str  r4,[r6,#0x10]                     //Restore the old info
+ldrb r2,[r5,#0]                        //Update the printing info by adding 3 to the Y coordinate
+add  r2,#2
 strb r2,[r5,#0]
-ldrb r2,[r5,#1]              //Update the printing info by subtracting 3 from the number of lines to print
-sub  r2,#3
+ldrb r2,[r5,#1]                        //Update the printing info by subtracting 3 from the number of lines to print
+sub  r2,#2
 cmp  r2,#0
 bge  +
 mov  r2,#0
@@ -948,7 +945,7 @@ pop  {r5-r7,pc}
 
 .improve_notebook_printing_second_part:
 push {r7,lr}
-ldr  r7,=#0x2016028          //Clobbered code
+ldr  r7,=#0x2016028                    //Clobbered code
 ldr  r1,=#0x11C8C
 add  r0,r7,r1
 sub  r1,r0,#1
@@ -967,7 +964,25 @@ bl   $8009A48
 pop  {r7,pc}
 
 //===========================================================================================
-// This hack makes it so notebook/stinkbug's memory arrangements are cleared only if we're done
+// This hack makes it so the notebook/stinkbug's graphic buffer is swapped
+//===========================================================================================
+
+.swap_graphics_buffer_notebook:
+push {r2}
+ldr  r1,=#0x201B3D8          //Address for the graphics. Swap between two slots
+ldrb r3,[r1,#1]              //in order to avoid having graphical issues...
+mov  r2,#0x70                //(Without this, there would be 1 frame without some part of the text if we had > 3 lines)
+strb r2,[r1,#1]
+cmp  r3,r2
+bgt  +
+mov  r2,#0xB0
+strb r2,[r1,#1]
++
+pop  {r2}
+bx   lr
+
+//===========================================================================================
+// This hack makes it so the notebook/stinkbug's memory arrangements are cleared only if we're done
 //===========================================================================================
 
 .remove_tiles_cleaning_notebook:
@@ -983,7 +998,7 @@ bl   $80019DC                //Actual arrangements cleaning routine
 pop  {pc}
 
 //===========================================================================================
-// This hack makes it so notebook/stinkbug's arrangements are printed only if we're done
+// This hack makes it so the notebook/stinkbug's arrangements are printed only if we're done
 //===========================================================================================
 
 .remove_tiles_showing_notebook:
