@@ -883,12 +883,32 @@ bl    .improve_notebook_printing_second_part
 b     .improve_notebook_printing_end
 
 +
+ldr  r1,=#0x2018CB8          //Block default behaviour that insta-prints the first page
+mov  r3,#0
+strh r3,[r1,#0]
+
+push {r2}
+ldr  r1,=#0x201B3D8          //Address for the graphics. Swap between two slots
+ldrb r3,[r1,#1]              //in order to avoid having graphical issues...
+mov  r2,#0x70                //(Without this, there would be 1 frame without some part of the text if we had > 3 lines)
+strb r2,[r1,#1]
+cmp  r3,r2
+bgt  +
+mov  r2,#0xB0
+strb r2,[r1,#1]
++
+pop  {r2}
+
+ldrb r1,[r5,#1]
+cmp  r1,#0
+beq  +
 push {r0,r2}                 //Setup for a new printing request...
 ldr  r0,=#0x2016078          //Make it so the arrangements are clear
-mov  r1,#0x80
+mov  r1,#0x80                //Only if we weren't done printing
 lsl  r1,r1,#4
 bl   $80019DC
 pop  {r0,r2}
++
 
 mov  r1,#2                   //Setup our zone that contains info on where to print stuff
 strb r1,[r5,#0]              //and where we're at
@@ -957,7 +977,23 @@ ldrb r0,[r0,#1]
 cmp  r0,#0
 bne  +
 mov  r0,r4
-bl   $80019DC                //Actual tiles cleaning routine
+bl   $80019DC                //Actual arrangements cleaning routine
+
++
+pop  {pc}
+
+//===========================================================================================
+// This hack makes it so notebook/stinkbug's arrangements are printed only if we're done
+//===========================================================================================
+
+.remove_tiles_showing_notebook:
+push {lr}
+ldr  r0,=#0x201433E          //Here we store how many tiles we're missing before completion
+ldrb r0,[r0,#1]
+cmp  r0,#0
+bne  +
+mov  r0,r4
+bl   $8007318                //Actual arrangements printing routine
 
 +
 pop  {pc}

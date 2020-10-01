@@ -857,6 +857,7 @@ org $800959A; bl main_script_hacks.flyover_fix2
 // fixes Block 0 display stuff, mostly with the Bug Memory and Pig Notebook
 org $8009730; bl main_script_hacks.block0_text_fix2
 org $8009428; bl main_script_hacks.improve_notebook_printing; b $8009452
+org $80071D2; bl main_script_hacks.remove_tiles_showing_notebook
 org $80071DC; bl main_script_hacks.remove_tiles_cleaning_notebook
 
 // make Block 0 cut scenes work properly
