@@ -447,16 +447,16 @@ b    .memo_printfix_withdraw_positionfix_end
 .memo_printfix_withdraw_positionfix_memo:
 mov  r0,r5
 sub  r0,#0x2
-cmp  r0,#1
+cmp  r0,#1                         //Is this the first letter?
 beq  +
-mov  r0,#1
+mov  r0,#1                         //If it's not, check if it's an icon
 sub  r1,r4,#4
 ldr  r1,[r1,#0]
 cmp  r1,#0
 bne  +
 mov  r0,#2                         //Cover case when done with memo icon
 +
-lsl  r1,r0,#1
+lsl  r1,r0,#1                      //If it's not an icon, the line starts at 1
 add  r1,r1,r0
 lsl  r1,r1,#2
 
@@ -476,11 +476,11 @@ ldrb r1,[r1,#0]
 cmp  r1,#6
 bne  .memo_printfix_vertical_end
 sub  r1,r4,#4
-ldr  r1,[r1,#0]
+ldr  r1,[r1,#0]              //Get the height from the previous set of bytes
 lsr  r0,r1,#0x1C
 cmp  r0,#3
 bgt  +
-mov  r0,#3
+mov  r0,#3                   //Memoes start at a height of 3
 +
 
 .memo_printfix_vertical_end:
@@ -493,21 +493,21 @@ pop  {pc}
 .memo_printfix_storage:
 push {r3,lr}
 ldr  r0,[r4,#0]
-sub  r0,r6,r0
+sub  r0,r6,r0                //Letters are now stored sequentially, not by line
 lsr  r2,r0,#1
 add  r2,#2
 strh r2,[r5,#0]
 ldr  r0,=#0x201AEF8
 ldrb r1,[r0,#3]
 add  r1,#0x10
-strb r1,[r0,#3]
+strb r1,[r0,#3]              //Store, as info, the Y we're currently at
 mov  r3,#0x2
 add  r3,r3,r2
 lsl  r3,r3,#2
 add  r0,r0,r3
 sub  r0,#4
 add  r1,#0x30
-strb r1,[r0,#3]
+strb r1,[r0,#3]              //Store, as info, the Y this line should be at when printed
 
 pop  {r3,pc}
 

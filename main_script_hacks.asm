@@ -777,10 +777,9 @@ mov  r0,r5         // clobbered code
 pop  {pc}
 
 
-
-
-
-
+//===========================================================================================
+// These hacks give proper text positioning to scrolling/notebook text
+//===========================================================================================
 
 .block0_text_fix1:
 .flyover_fix1:
@@ -800,6 +799,9 @@ strh r1,[r4,#0]
 mov  r0,r5
 mov  r1,#0x32
 bl   $8002FC0
+ldr  r1,=#0x201433E
+ldrb r1,[r1,#0]              //Position properly on the Y level by adding where we are
+add  r0,r0,r1
 ldr  r1,=#0x2016028
 ldr  r2,=#0x11C89
 add  r1,r1,r2
@@ -811,7 +813,6 @@ pop  {r0}
 bx   r0
 
 
-.block0_text_fix2:
 .flyover_fix2:
 lsl  r0,r0,#0x10
 lsr  r0,r0,#0x10
@@ -825,6 +826,141 @@ ldr  r1,=#0x201E9D0
 add  r0,r0,r1
 bx   lr
 
+
+.block0_text_fix2:
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0x10
+lsl  r1,r1,#0x10
+lsr  r1,r1,#0x10
+ldr  r2,=#0x201433C
+ldrh r3,[r2,#0]              //Here we store how much the base offset is if it starts at 0
+cmp  r3,#0
+bne  +
+strh r1,[r2,#0]
++
+ldrh r2,[r2,#0]              //Subtract the base offset from our inside Y value
+sub  r1,r1,r2
+mov  r2,#0x32
+mul  r2,r1
+add  r0,r0,r2
+lsl  r0,r0,#2
+ldr  r1,=#0x201E9D0
+add  r0,r0,r1
+bx   lr
+
+.prepare_info_zone:
+push {lr}
+mov  r6,r0
+ldr  r0,=#0x201433C
+mov  r1,#0
+str  r1,[r0,#0]
+mov  r1,#0x88
+pop  {pc}
+
+//===========================================================================================
+// This hack makes it so notebook/stinkbug's memory can be printed properly
+//===========================================================================================
+
+.improve_notebook_printing:
+push {r5-r7,lr}
+ldr  r0,=#0x201B7A0
+ldr  r1,=#0xC1E8
+add  r1,r0,r1
+ldr  r6,[r1,#0]
+ldrb r2,[r6,#9]
+ldr  r5,=#0x201433C
+mov  r1,#0
+strh r1,[r5,#0]              //Setup the current base height to 0
+add  r5,#2                   //Address for our printing info zone
+cmp  r1,r2
+bcc  +                       //Did a new request to print come?
+ldrb r2,[r5,#1]              //If it didn't, check if we must still print stuff
+cmp  r2,#0
+bne  .improve_notebook_printing_frame
+
+//Do clobbered code if we don't have to print
+bl    .improve_notebook_printing_second_part
+b     .improve_notebook_printing_end
+
++
+push {r0,r2}                 //Setup for a new printing request...
+ldr  r0,=#0x2016078          //Make it so the arrangements are clear
+mov  r1,#0x80
+lsl  r1,r1,#4
+bl   $80019DC
+pop  {r0,r2}
+
+mov  r1,#2                   //Setup our zone that contains info on where to print stuff
+strb r1,[r5,#0]              //and where we're at
+strb r2,[r5,#1]
+
+.improve_notebook_printing_frame:
+cmp  r2,#3                   //We print a maximum of three lines per frame (150 characters of the 166 maximum)
+ble  +
+mov  r2,#3
++
+strb r2,[r6,#9]              //Store the number of lines we'll print
+ldrb r1,[r5,#0]
+sub  r1,#2
+mov  r2,#0x6C
+mul  r1,r2
+ldr  r6,[r6,#0]
+ldr  r7,[r6,#0]
+ldr  r2,=#0x2014340
+add  r1,r1,r2
+str  r1,[r6,#0]              //Store where to look at into the text
+bl   $80096EC
+bl   .improve_notebook_printing_second_part
+str  r7,[r6,#0]              //Restore the old info
+ldrb r2,[r5,#0]              //Update the printing info by adding 3 to the Y coordinate
+add  r2,#3
+strb r2,[r5,#0]
+ldrb r2,[r5,#1]              //Update the printing info by subtracting 3 from the number of lines to print
+sub  r2,#3
+cmp  r2,#0
+bge  +
+mov  r2,#0
++
+strb r2,[r5,#1]
+
+.improve_notebook_printing_end:
+pop  {r5-r7,pc}
+
+.improve_notebook_printing_second_part:
+push {r7,lr}
+ldr  r7,=#0x2016028          //Clobbered code
+ldr  r1,=#0x11C8C
+add  r0,r7,r1
+sub  r1,r0,#1
+ldrb r0,[r0,#0]
+strb r0,[r1,#0]
+lsl  r0,r0,#0x18
+cmp  r0,#0
+beq  +
+ldr  r0,=#0x5778
+add  r4,r7,r0
+mov  r0,r4
+bl   $8009828
+mov  r0,r4
+bl   $8009A48
++
+pop  {r7,pc}
+
+//===========================================================================================
+// This hack makes it so notebook/stinkbug's memory arrangements are cleared only if we're done
+//===========================================================================================
+
+.remove_tiles_cleaning_notebook:
+push {lr}
+ldr  r0,=#0x201433E          //Here we store how many tiles we're missing before completion
+ldrb r0,[r0,#1]
+cmp  r0,#0
+bne  +
+mov  r0,r4
+bl   $80019DC                //Actual tiles cleaning routine
+
++
+pop  {pc}
 
 //===========================================================================================
 // These hacks change the address of Block 0 display stuff from 201B184 to 203C000.

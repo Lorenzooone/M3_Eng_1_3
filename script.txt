@@ -97,14 +97,17 @@
 0-40:　もう　このへんのいきものは[BREAK]　ぜんぜんダメ。[BREAK]　もっと　かっこよくしてやらなきゃ。[BREAK][WAIT]　テーマは[BREAK]　・もっと　つよく！[BREAK]　・もっと　わるく！[BREAK]　・もっと　らんぼうに！[BREAK]　アレとアレをくっつけて[BREAK]　みたこともないアレをつくるんだ。[BREAK][WAIT]　なづけるならば[BREAK]　みわくのキマイラけいかく。[BREAK]　じみちにコツコツと[BREAK]　かいぞうしてやろう。[END]
 0-40E:All the creatures around here suck.[BREAK]We need to make 'em cooler.[BREAK][BREAK][WAIT]So the theme will be:[BREAK]    @Tougher![BREAK]    @Rougher![BREAK]    @Badder![BREAK][WAIT]We'll mix and match this and that[BREAK]to create whole new things no one's[BREAK]ever seen before![BREAK][WAIT]I dub it the "Fascinating Chimera[BREAK]Project". Let's reconstruct and[BREAK]modify stuff slowly and steadily.[END]
 // 50 characters max per line
+// Lines will be printed every frame in groups of three
 0-41:　はりのひとつは　タツマイリの[BREAK]　きたにある　しろのなか。[BREAK]　エオリアが　まもっているはず。[BREAK][WAIT]　はりのひとつは　タツマイリの[BREAK]　はるか　ひがし。[BREAK]　みずうみの　そば。[BREAK]　ドリアが　まもっているはず。[BREAK][WAIT]　はりのひとつは　このしまの[BREAK]　ほくとうの　はじの　ゆきやま。[BREAK]　リディアが　まもっているはず。[BREAK][WAIT]　はりのひとつは　このしまの[BREAK]　ひがしにある　かざんに。[BREAK]　フリギアが　まもっている。[BREAK][WAIT]　はりのひとつは　タツマイリの[BREAK]　みなみに　うかぶ[BREAK]　タネヒネリじまに。[BREAK]　ミクソリディアが　まもっているはず。[BREAK][WAIT]　はりのひとつは　オリシモやまの[BREAK]　ずうっと　おくにある[BREAK]　チュピチュピョイしんでんに。[BREAK]　イオニアが　まもっているはず。[BREAK][WAIT]　はりのひとつは　このしまで[BREAK]　もっともくらく[BREAK]　もっともふかい　ばしょに。[BREAK]　ロクリアは　みうしなっている。[END]
 0-41E:[FILE=".\0-41.txt"][END]
 // 50 characters max per line
+// Lines will be printed every frame in groups of three
 // this text is so long that it needed to be written in an external file
 0-42:Huge Leder speech[END]
 0-42E:[FILE=".\0-42.txt"][END]
 // 50 characters max per line
-// Translate this text last! Trust me! This is the Stinkbug Memory text. The number of lines per page is very strange. Also, much of this text is repeated from standard text later on during Leder's actual speech. So translate this last!
+// Lines will be printed every frame in groups of three
+// Translate this text last! Trust me! This is the Stinkbug Memory text. Much of this text is repeated from standard text later on during Leder's actual speech. So translate this last!
 0-43:◇みていて゛す。[END]
 0-43E:@TBA[END]
 0-44:◇[42 FF F1 FF]は[BREAK]　[ITEM F0 FF]を　てにいれた！[PAUSE 40 00][END]

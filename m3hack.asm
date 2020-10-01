@@ -850,11 +850,14 @@ org $8008A22
   nop
 
 // fixes the flyover text, only 50 letters per line allowed
+org $8024F76; bl main_script_hacks.prepare_info_zone
 org $80098F0; bl main_script_hacks.flyover_fix1
 org $800959A; bl main_script_hacks.flyover_fix2
 
 // fixes Block 0 display stuff, mostly with the Bug Memory and Pig Notebook
 org $8009730; bl main_script_hacks.block0_text_fix2
+org $8009428; bl main_script_hacks.improve_notebook_printing; b $8009452
+org $80071DC; bl main_script_hacks.remove_tiles_cleaning_notebook
 
 // make Block 0 cut scenes work properly
 org $80244F8; dd $02014340       // block 0 text will be handled here
