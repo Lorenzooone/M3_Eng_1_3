@@ -906,7 +906,7 @@ strb r1,[r5,#0]                        //and where we're at
 strb r2,[r5,#1]
 
 .improve_notebook_printing_frame:
-cmp  r2,#2                             //We print a maximum of three lines per frame (150 characters of the 166 maximum)
+cmp  r2,#2                             //We print a maximum of two lines per frame (100 characters of the 133 maximum)
 ble  +
 mov  r2,#2
 +
