@@ -2003,7 +2003,7 @@ bl   $8091938  // New code!
 pop  {r4,pc}
 
 //=============================================================================================
-// This hack changes how left/right scrolling in menus works - Based off of 0x8046D90, which is basic menu printing
+// This hack changes how a removal in menus works - Based off of 0x8046D90, which is basic menu printing
 // Same code as above except for the points in which it's present the comment DIFFERENT!!!
 //=============================================================================================
 
@@ -3685,6 +3685,21 @@ ldrh r0,[r1,#0x8]
 pop  {r1-r2,pc}
 
 //=============================================================================================
+// This hack gets the number of show-able items in any given menu
+//=============================================================================================
+.get_possible_indexes:
+push {r1-r2,lr}
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]                        //Get menu type
+lsl  r1,r1,#5
+ldr  r2,=#0x2016028
+ldr  r0,=#0x2DFA
+add  r0,r2,r0                          //Get menu info array in RAM
+add  r1,r0,r1
+ldrh r0,[r1,#0xC]
+pop  {r1-r2,pc}
+
+//=============================================================================================
 // This hack gets the index of the currently selected item for any given menu
 //=============================================================================================
 .get_selected_index:
@@ -4733,8 +4748,8 @@ pop  {pc}
 // This hack swaps the deposit arrangements in order to not re-print everything when depositing an item
 //=============================================================================================
 .new_deposit_swap_arrangement:
-push {lr}
-ldr  r4,[sp,#0x1C]                     //This has the selected index before anything was deposited.
+push {r3,lr}
+ldr  r4,[r0,#0]                        //This has the selected index before anything was deposited.
                                        //Using that covers the player selecting the last item and getting
                                        //their cursor moved
 
@@ -4742,43 +4757,46 @@ ldr  r5,=#0x2016978
 mov  r0,#0
 bl   .get_positions_lines_array
 mov  r6,r0
-cmp  r4,#0xF                           //Cover edge case
+bl   .get_possible_indexes
+sub  r3,r0,#1
+cmp  r4,r3                             //Cover edge case
 bge  +
 -
 mov  r0,r4                             //Swap a single item's arrangement
 bl   .new_general_swap_single_line
 add  r4,#1
-cmp  r4,#0xF
+cmp  r4,r3
 blt  -
 +
 bl   .new_general_clear_final_line     //Clear the last item's arrangement
-bl   .store_arrangements_buffer
-pop  {pc}
+pop  {r3,pc}
 
 //=============================================================================================
 // This hack swaps the withdraw arrangements in order to not re-print everything when withdrawing an item
 //=============================================================================================
 .new_withdraw_swap_arrangement:
-push {r4-r6,lr}
-ldr  r4,[sp,#0x2C]                     //This has the selected index before anything was deposited.
-ldr  r5,[sp,#0x28]                     //Using that covers the player selecting the last item and getting
+push {r3-r6,lr}
+ldr  r4,[r0,#8]                        //This has the selected index before anything was deposited.
+ldr  r5,[r0,#4]                        //Using that covers the player selecting the last item and getting
 sub  r4,r4,r5                          //their cursor moved
 
 ldr  r5,=#0x2016978
 mov  r0,#1
 bl   .get_positions_lines_array
 mov  r6,r0
-cmp  r4,#0xF                           //Cover edge case
+bl   .get_possible_indexes
+sub  r3,r0,#1
+cmp  r4,r3                             //Cover edge case
 bge  +
 -
 mov  r0,r4                             //Swap a single item's arrangement
 bl   .new_general_swap_single_line
 add  r4,#1
-cmp  r4,#0xF
+cmp  r4,r3
 blt  -
 +
 bl   .new_general_clear_final_line     //Clear the last item's arrangement
-pop  {r4-r6,pc}
+pop  {r3-r6,pc}
 
 //=============================================================================================
 // Hack that stores the flag that puts the arrangement buffer back to VRAM
@@ -4809,8 +4827,7 @@ bx   lr
 // Swaps a single item's arrangement
 //=============================================================================================
 .new_general_swap_single_line:
-push {r4,lr}
-
+push {r3-r4,lr}
 mov  r2,#1
 and  r2,r0
 lsr  r0,r0,#1
@@ -4853,14 +4870,14 @@ ldrb r2,[r6,#3]
 swi  #0xB
 
 .new_general_swap_single_line_end:
-pop  {r4,pc}
+pop  {r3-r4,pc}
 
 //=============================================================================================
 // Clears the last item's arrangement
 //=============================================================================================
 .new_general_clear_final_line:
 push {r4,lr}
-mov  r0,#0xF
+mov  r0,r3
 mov  r2,#1
 lsr  r0,r0,#1
 lsl  r0,r0,#7
@@ -5054,7 +5071,6 @@ mov  r1,#6                   //Set the number of maximum items
 bl   main_menu_hacks.get_valid_options
 pop  {pc}
 
-
 //=============================================================================================
 // This hack changes the palette for the options that changed validity in the buying menu
 //=============================================================================================
@@ -5063,6 +5079,8 @@ push {r4-r6,lr}
 mov  r4,r0                   //Save in r4 what changed
 ldr  r5,=#0x2016992          //Arrangement start
 mov  r6,#1                   //Number to and with
+bl   .get_possible_indexes
+mov  r3,r0                   //Number of items in this menu
 mov  r1,#0                   //Current index
 -
 mov  r0,r6
@@ -5075,10 +5093,80 @@ bl   main_menu_hacks.change_palette
 +
 add  r1,#1
 lsl  r6,r6,#1                //Prepare to check the next bit
-cmp  r1,#6                   //There are 6 items displayed top in this menu
+cmp  r1,r3                   //There are r3 items displayed top in this menu
 blt  -
 
 pop  {r4-r6,pc}
+
+//=============================================================================================
+// This hack removes an item and then prints a new one if need be
+//=============================================================================================
+.printing_pressed_a:
+push {r7,lr}
+mov  r7,r0
+ldr  r1,[r7,#0]
+bl   main_menu_hacks.get_total_indexes
+cmp  r0,r1                   //Skip printing if we don't remove an item from the withdrawing menu
+beq  .printing_pressed_a_end
+
+bl   main_menu_hacks.get_possible_indexes
+mov  r1,r0
+bl   main_menu_hacks.get_difference_top_total
+cmp  r0,r1                   //We'll need the free tiles if we have more than r1 items after the top one
+blt  +
+
+bl   main_menu_hacks.new_get_empty_tiles
+mov  r4,r0                   //We need to get them now and to store them in order to avoid
+mov  r5,r1                   //writing to a bunch of tiles that was just freed
+mov  r6,r2
++
+
+//Move the items' arrangements around by one
+mov  r0,r7
+bl   main_menu_hacks.new_withdraw_swap_arrangement
+
+bl   main_menu_hacks.get_possible_indexes
+mov  r1,r0
+bl   main_menu_hacks.get_difference_top_total
+cmp  r0,r1                   //If this is >= r1, then we need to print new stuff!
+bge  +
+
+//If we don't need to print new stuff, just set buffer to be updated and end this here
+mov  r0,#1
+b    .printing_pressed_a_end_update
+
++
+ldr  r1,[r7,#4]
+bl   main_menu_hacks.get_top_index
+cmp  r0,r1                   //Check if the top index changed between the A press and now...
+beq  +
+
+//If it did, the menu position was moved up by one. We don't need to print new stuff at the bottom,
+//but we'll need to print new stuff at the top (the top two new items) and to move everything down
+//by one line. Luckily, up_down_scrolling_print_no_get_empty_tiles handles it for us.
+//We'll just need to trick it into thinking the selected_index corresponds to the top one.
+bl   main_menu_hacks.set_selected_index
+mov  r2,r0
+mov  r0,r4
+mov  r1,r5
+mov  r5,r2                   //Saves the old selected_index in r5 temporarily
+mov  r2,r6
+bl   main_menu_hacks.up_down_scrolling_print_no_get_empty_tiles
+mov  r0,r5                   //Restores the old selected_index
+bl   main_menu_hacks.set_selected_index
+b    .printing_pressed_a_end
+
++
+//If it didn't, we need to print one item at the bottom right
+mov  r0,r4
+mov  r1,r5
+mov  r2,r6
+bl   main_menu_hacks.pressing_a_scrolling_print_no_get_empty_tiles
+
+.printing_pressed_a_end:
+mov  r0,#0
+.printing_pressed_a_end_update:
+pop  {r7,pc}
 
 //=============================================================================================
 // This hack fixes 8-letter names on the main file load screen.
@@ -5320,6 +5408,14 @@ add  sp,#4
 +
 pop  {pc}
 
+.deposit_printing_pressed_a:
+push {lr}
+mov  r0,sp
+add  r0,#0x1C
+bl   main_menu_hacks.new_deposit_swap_arrangement
+bl   main_menu_hacks.store_arrangements_buffer
+pop  {pc}
+
 .withdraw_a:
 push {lr}
 add  sp,#-0xC
@@ -5353,60 +5449,13 @@ pop  {pc}
 
 .withdraw_printing_pressed_a:
 push {lr}
-ldr  r1,[sp,#0x14]
-bl   main_menu_hacks.get_total_indexes
-cmp  r0,r1                   //Skip printing if we don't remove an item from the withdrawing menu
-beq  .withdraw_printing_pressed_a_end
-
-bl   main_menu_hacks.get_difference_top_total
-cmp  r0,#0xF                 //We'll need the free tiles if we have more than 0xF items after the top one
-ble  +
-
-bl   main_menu_hacks.new_get_empty_tiles
-mov  r4,r0                   //We need to get them now and to store them in order to avoid
-mov  r5,r1                   //writing to a bunch of tiles that was just freed
-mov  r6,r2
-+
-
-//Move the items' arrangements around by one
-bl   main_menu_hacks.new_withdraw_swap_arrangement
-bl   main_menu_hacks.get_difference_top_total
-cmp  r0,#0xF                 //If this is >= 0x10, then we need to print new stuff!
-bgt  +
-
-//If we don't need to print new stuff, just set buffer to be updated and end this here
+mov  r0,sp
+add  r0,#0x14
+bl   main_menu_hacks.printing_pressed_a
+cmp  r0,#1
+bne  +                       //Store the arrangements buffer if it returned 1
 bl   main_menu_hacks.store_arrangements_buffer
-b    .withdraw_printing_pressed_a_end
-
 +
-ldr  r1,[sp,#0x18]
-bl   main_menu_hacks.get_top_index
-cmp  r0,r1                   //Check if the top index changed between the A press and now...
-beq  +
-
-//If it did, the menu position was moved up by one. We don't need to print new stuff at the bottom,
-//but we'll need to print new stuff at the top (the top two new items) and to move everything down
-//by one line. Luckily, up_down_scrolling_print_no_get_empty_tiles handles it for us.
-//We'll just need to trick it into thinking the selected_index corresponds to the top one.
-bl   main_menu_hacks.set_selected_index
-mov  r2,r0
-mov  r0,r4
-mov  r1,r5
-mov  r5,r2                   //Saves the old selected_index in r5 temporarily
-mov  r2,r6
-bl   main_menu_hacks.up_down_scrolling_print_no_get_empty_tiles
-mov  r0,r5                   //Restores the old selected_index
-bl   main_menu_hacks.set_selected_index
-b    .withdraw_printing_pressed_a_end
-
-+
-//If it didn't, we need to print one item at the bottom right
-mov  r0,r4
-mov  r1,r5
-mov  r2,r6
-bl   main_menu_hacks.pressing_a_scrolling_print_no_get_empty_tiles
-
-.withdraw_printing_pressed_a_end:
 pop  {pc}
 
 .withdraw_block_input_up_and_down:
