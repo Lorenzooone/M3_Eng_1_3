@@ -442,6 +442,8 @@ org $8045BBE; db $CC                             // Buying confirmation prompt
 
 org $807A8DA; db $08    // fix Hinawa's name in final battle
 
+org $8052648; dd $000F423F // Make it so you can sell items up to 999999 DP (previously it was up to 999998 DP)
+
 //These hacks fix the "scrolling menus" bug
 
 //804CA9C tells each menu where to go
@@ -513,10 +515,13 @@ org $8050440; bl refreshes.sell_after_buy_a; nop; nop
 //Sell
 org $804D602; bl refreshes.sell_a; nop
 org $804D61C; bl refreshes.b; nop
+org $804D660; bl refreshes.sell_block_input_up_and_down
 org $804D66C; bl refreshes.up_and_down
 org $804D6BE; bl refreshes.switch_lr; nop
-//org $80502FC; bl refreshes.withdraw_printing_pressed_a
-//org $80503CC; bl refreshes.withdraw_printing_pressed_a
+org $804E9A4; bl refreshes.sell_confirmed_a
+org $80502FC; bl refreshes.sell_confirmed_printing_pressed_a
+org $804E9D4; bl refreshes.sell_confirmed_equipment_a
+org $80503CC; bl refreshes.sell_equipment_confirmed_printing_pressed_a
 
 //Deposit
 org $804D800; bl refreshes.deposit_a; nop
