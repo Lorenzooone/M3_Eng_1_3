@@ -1810,7 +1810,7 @@ pop  {pc}
 .new_print_menu_offset_table:
   dd .new_main_inventory_scroll_print+1; dd .new_default_scroll_print+1; dd .new_psi_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_skills_scroll_print+1; dd .new_memoes_scroll_print+1; dd .new_default_scroll_print+1; dd .new_battle_memo_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_sell_scroll_print+1; dd .new_sell_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_shop_scroll_print+1; dd .new_shop_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_withdrawing_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
@@ -2010,7 +2010,7 @@ pop  {r4,pc}
 .new_print_menu_a_offset_table:
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_shop_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_withdrawing_a_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
@@ -2044,7 +2044,7 @@ add  r1,r0,r2
 mov  r2,#1
 mov  r3,#0
 
-bl   .new_clear_menu_a        //DIFFERENT!!!
+bl   .new_clear_menu_a                 //DIFFERENT!!!
 
 +
 bl   $8049D5C                          //Back to base code
@@ -3043,7 +3043,7 @@ pop  {r4-r7,pc}
 // This hack changes what the selling menu scrolling will print, based off of 0x80477BC.
 // Also covers buying thanks to .get_x_shop, which is at 0x804774C
 //=============================================================================================
-.new_sell_scroll_print:
+.new_shop_scroll_print:
 push {r4-r6,lr}
 add  sp,#-4
 mov  r2,r0                             //base code
@@ -3051,10 +3051,10 @@ ldr  r1,=#0x2016028
 
 bl   .get_direction                    //New code
 cmp  r0,#0
-bne  .new_sell_scroll_print_descending
+bne  .new_shop_scroll_print_descending
 ldrh r0,[r2,#8]
 b    +
-.new_sell_scroll_print_descending:
+.new_shop_scroll_print_descending:
 ldrh r0,[r2,#8]
 add  r0,#5
 +
@@ -3076,10 +3076,10 @@ lsl  r0,r0,#0xA
 cmp  r0,#0
 bge  +
 mov  r0,#0xF
-b    .new_sell_scroll_print_continue
+b    .new_shop_scroll_print_continue
 +
 mov  r0,#1
-.new_sell_scroll_print_continue:
+.new_shop_scroll_print_continue:
 str  r0,[sp,#0]
 mov  r0,r1
 
@@ -4745,16 +4745,15 @@ add  sp,#0xC
 pop  {pc}
 
 //=============================================================================================
-// This hack swaps the deposit arrangements in order to not re-print everything when depositing an item
+// This hack swaps the arrangements in order to not re-print everything when removing/moving an item
 //=============================================================================================
-.new_deposit_swap_arrangement:
-push {r3,lr}
-ldr  r4,[r0,#0]                        //This has the selected index before anything was deposited.
+.new_generic_swap_arrangement:
+push {r3-r6,lr}
+mov  r4,r0                             //This has the selected index before anything was removed/moved.
                                        //Using that covers the player selecting the last item and getting
                                        //their cursor moved
 
 ldr  r5,=#0x2016978
-mov  r0,#0
 bl   .get_positions_lines_array
 mov  r6,r0
 bl   .get_possible_indexes
@@ -4763,40 +4762,50 @@ cmp  r4,r3                             //Cover edge case
 bge  +
 -
 mov  r0,r4                             //Swap a single item's arrangement
+bl   .new_handle_selling_swap_arrangement
 bl   .new_general_swap_single_line
 add  r4,#1
 cmp  r4,r3
 blt  -
 +
+mov  r0,r3
+bl   .new_handle_selling_swap_arrangement
 bl   .new_general_clear_final_line     //Clear the last item's arrangement
-pop  {r3,pc}
+pop  {r3-r6,pc}
+
+//=============================================================================================
+// This hack handles the selling special case
+//=============================================================================================
+.new_handle_selling_swap_arrangement:
+push {lr}
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]
+cmp  r1,#0xB
+bne  +
+lsl  r0,r0,#1
+add  r0,#1
++
+pop  {pc}
+
+//=============================================================================================
+// This hack swaps the deposit arrangements in order to not re-print everything when depositing an item
+//=============================================================================================
+.new_deposit_swap_arrangement:
+push {lr}
+ldr  r0,[r0,#0x8]
+bl   .new_generic_swap_arrangement
+pop  {pc}
 
 //=============================================================================================
 // This hack swaps the withdraw arrangements in order to not re-print everything when withdrawing an item
 //=============================================================================================
 .new_withdraw_swap_arrangement:
-push {r3-r6,lr}
-ldr  r4,[r0,#8]                        //This has the selected index before anything was deposited.
-ldr  r5,[r0,#4]                        //Using that covers the player selecting the last item and getting
-sub  r4,r4,r5                          //their cursor moved
-
-ldr  r5,=#0x2016978
-mov  r0,#1
-bl   .get_positions_lines_array
-mov  r6,r0
-bl   .get_possible_indexes
-sub  r3,r0,#1
-cmp  r4,r3                             //Cover edge case
-bge  +
--
-mov  r0,r4                             //Swap a single item's arrangement
-bl   .new_general_swap_single_line
-add  r4,#1
-cmp  r4,r3
-blt  -
-+
-bl   .new_general_clear_final_line     //Clear the last item's arrangement
-pop  {r3-r6,pc}
+push {lr}
+ldr  r1,[r0,#4]
+ldr  r0,[r0,#8]
+sub  r0,r0,r1
+bl   .new_generic_swap_arrangement
+pop  {pc}
 
 //=============================================================================================
 // Hack that stores the flag that puts the arrangement buffer back to VRAM
@@ -4813,12 +4822,23 @@ pop  {r0-r1,pc}
 
 //=============================================================================================
 // Gets the array of the positions for swapping
+// Order (reversed) is:
+// Right side's position | Left side's position | Distance between right and lower left | Size
 //=============================================================================================
 .positions_swapping_array:
-  dd $10620220; dd $0E64021E
+  dd $00000000; dd $00000000; dd $00000000; dd $00000000
+  dd $00000000; dd $00000000; dd $00000000; dd $00000000
+  dd $00000000; dd $00000000; dd $00000000; dd $1080001E
+  dd $00000000; dd $00000000; dd $10620220; dd $0E64021E
+  dd $00000000; dd $00000000; dd $00000000; dd $00000000
+  dd $00000000; dd $00000000; dd $00000000; dd $00000000
+  dd $00000000; dd $00000000; dd $00000000; dd $00000000
+  dd $00000000; dd $00000000; dd $00000000; dd $00000000
 
 .get_positions_lines_array:
 ldr  r1,=#.positions_swapping_array
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
 lsl  r0,r0,#2
 add  r0,r1,r0
 bx   lr
@@ -4877,7 +4897,6 @@ pop  {r3-r4,pc}
 //=============================================================================================
 .new_general_clear_final_line:
 push {r4,lr}
-mov  r0,r3
 mov  r2,#1
 lsr  r0,r0,#1
 lsl  r0,r0,#7
@@ -4969,6 +4988,19 @@ ldrh r1,[r0,#2]              //Prevents issues with arrangements not being there
 pop  {r0,pc}
 
 //=============================================================================================
+// This hack saves in the stack the info used for printing stuff when things are removed/moved
+//=============================================================================================
+.store_menu_movement_data:
+push {lr}
+bl   main_menu_hacks.get_selected_index
+str  r0,[sp,#0xC]
+bl   main_menu_hacks.get_top_index
+str  r0,[sp,#8]
+bl   main_menu_hacks.get_total_indexes
+str  r0,[sp,#4]
+pop  {pc}
+
+//=============================================================================================
 // This hack changes the palette for an item's arrangement that is stored in r0
 //=============================================================================================
 .change_palette:
@@ -5057,27 +5089,46 @@ bgt  -
 pop  {r4-r6,pc}
 
 //=============================================================================================
-// This hack gets the valid options for the buying menu
+// This hack properly handles updating the old options for the shop menu
 //=============================================================================================
-.get_buy_valid_options:
-push {lr}
-ldr  r0,=#0x3D44
-ldr  r1,=#0x2016028          //Prepare the address
-add  r1,r1,r0
-bl   main_menu_hacks.get_top_index
-lsl  r0,r0,#2                //Go to the proper first item on the screen
-add  r0,r1,r0
-mov  r1,#6                   //Set the number of maximum items
-bl   main_menu_hacks.get_valid_options
-pop  {pc}
+.update_shop_valid_options:
+push {r3,lr}
+sub  r3,r1,r2                //r1 contains the old selected index, r2 contains the old top index
+mov  r2,#0x20
+sub  r2,r2,r3
+mov  r1,r0                   //Discard the bit of the old selected item and re-compact this
+lsl  r1,r2
+lsr  r1,r2
+add  r2,r3,#1
+lsr  r0,r2
+lsl  r0,r3
+orr  r0,r1
+pop  {r3,pc}
 
 //=============================================================================================
-// This hack changes the palette for the options that changed validity in the buying menu
+// This hack gets the valid options for the shop menu
 //=============================================================================================
-.change_buy_options:
+.get_shop_valid_options:
+push {r2,lr}
+bl   main_menu_hacks.get_added_value_shop
+ldr  r1,=#0x2016028          //Prepare the address
+add  r1,r1,r2
+bl   main_menu_hacks.get_top_index
+lsl  r0,r0,#2                //Go to the proper first item on the screen
+add  r2,r1,r0
+bl   main_menu_hacks.get_possible_indexes
+mov  r1,r0                   //Set the number of maximum items
+mov  r0,r2
+bl   main_menu_hacks.get_valid_options
+pop  {r2,pc}
+
+//=============================================================================================
+// This hack changes the palette for the options that changed validity in the shop menus
+//=============================================================================================
+.change_shop_options:
 push {r4-r6,lr}
 mov  r4,r0                   //Save in r4 what changed
-ldr  r5,=#0x2016992          //Arrangement start
+mov  r5,r1                   //Arrangement start
 mov  r6,#1                   //Number to and with
 bl   .get_possible_indexes
 mov  r3,r0                   //Number of items in this menu
@@ -5102,7 +5153,7 @@ pop  {r4-r6,pc}
 // This hack removes an item and then prints a new one if need be
 //=============================================================================================
 .printing_pressed_a:
-push {r7,lr}
+push {r4-r7,lr}
 mov  r7,r0
 ldr  r1,[r7,#0]
 bl   main_menu_hacks.get_total_indexes
@@ -5158,15 +5209,71 @@ b    .printing_pressed_a_end
 
 +
 //If it didn't, we need to print one item at the bottom right
+mov  r1,r0
+bl   main_menu_hacks.get_possible_indexes
+sub  r0,#1
+add  r0,r1,r0
+bl   main_menu_hacks.set_selected_index
+mov  r2,r0
 mov  r0,r4
 mov  r1,r5
+mov  r5,r2                   //Saves the old selected_index in r5 temporarily
 mov  r2,r6
 bl   main_menu_hacks.pressing_a_scrolling_print_no_get_empty_tiles
+mov  r0,r5                   //Restores the old selected_index
+bl   main_menu_hacks.set_selected_index
 
 .printing_pressed_a_end:
 mov  r0,#0
 .printing_pressed_a_end_update:
-pop  {r7,pc}
+pop  {r4-r7,pc}
+
+//=============================================================================================
+// This hack calls printing_pressed_a and then updates the greyed out options. Used only by the sell menu
+//=============================================================================================
+.printing_pressed_a_update_grey:
+push {r4-r5,lr}
+mov  r4,r0
+bl   .printing_pressed_a
+mov  r5,r0
+cmp  r0,#1
+bne  +                       //Store the arrangements buffer if it returned 1
+bl   .store_arrangements_buffer
++
+ldr  r1,[r4,#0]
+bl   .get_total_indexes
+cmp  r1,r0                   //Check if the number of items in the menu changed, otherwise do nothing
+beq  .printing_pressed_a_update_grey_end
+bl   .get_shop_valid_options
+mov  r3,r0
+ldr  r0,[r4,#0xC]
+ldr  r1,[r4,#0x8]
+ldr  r2,[r4,#0x4]
+bl   .update_shop_valid_options
+mov  r2,r0
+cmp  r5,#0
+bne  .printing_pressed_a_update_grey_compare
+ldr  r1,[r4,#4]
+bl   .get_top_index
+sub  r0,r0,r1
+mov  r1,#0x1F
+cmp  r0,#0                   //Check if the top index changed between the A press and now...
+beq  +
+lsl  r2,r2,#1                //These are now the bottom options, not the top ones
+lsl  r1,r1,#1
++
+and  r3,r1                   //Make it so the bit that isn't in r2 and the one that is in r3 match
+
+.printing_pressed_a_update_grey_compare:
+eor  r2,r3                   //If the valid options changed, change
+cmp  r2,#0                   //the assigned palette for those that changed
+beq  +                       //and then set the arrangements to be updated
+mov  r0,r2
+ldr  r1,=#0x2016996
+bl   main_menu_hacks.change_shop_options
++
+.printing_pressed_a_update_grey_end:
+pop  {r4-r5,pc}
 
 //=============================================================================================
 // This hack fixes 8-letter names on the main file load screen.
@@ -5370,12 +5477,73 @@ mov  r0,r5                   //Normal stuff the game expects from us
 bl   $804EEE8
 pop  {pc}
 
+.sell_block_input_up_and_down:
+push {lr}
+add  sp,#-0x8
+str  r0,[sp,#4]
+ldr  r0,[sp,#0xC]
+str  r0,[sp,#0]              //Prepare args for the function
+mov  r2,r1
+
+bl   main_menu_hacks.check_if_printed
+mov  r0,#0                   //Do this only if it's done printing
+cmp  r1,#0
+bne  +
+ldr  r0,[sp,#4]
+mov  r1,r2
+mov  r2,r5
+bl   $8053598
++
+add  sp,#0x8
+pop  {pc}
+
 .sell_a:
-push {r2,lr}                 //Let's save r2, since the game needs it
+push {lr}
+bl   main_menu_hacks.check_if_printed
+cmp  r1,#0
+bne  +
+push {r2}                    //Let's save r2, since the game needs it
 bl   .main
 pop  {r2}
 mov  r0,r2                   //Normal stuff the game expects from us
 bl   $804F0D4
++
+pop  {pc}
+
+.sell_confirmed_a:
+push {lr}
+add  sp,#-0x10
+bl   main_menu_hacks.store_menu_movement_data
+bl   main_menu_hacks.get_shop_valid_options
+str  r0,[sp,#0xC]
+
+bl   $8050218
+add  sp,#0x10
+pop  {pc}
+
+.sell_confirmed_equipment_a:
+push {lr}
+add  sp,#-0x10
+bl   main_menu_hacks.store_menu_movement_data
+bl   main_menu_hacks.get_shop_valid_options
+str  r0,[sp,#0xC]
+
+bl   $805030C
+add  sp,#0x10
+pop  {pc}
+
+.sell_equipment_confirmed_printing_pressed_a:
+push {lr}
+mov  r0,sp
+add  r0,#0x1C
+bl   main_menu_hacks.printing_pressed_a_update_grey
+pop  {pc}
+
+.sell_confirmed_printing_pressed_a:
+push {lr}
+mov  r0,sp
+add  r0,#0x14
+bl   main_menu_hacks.printing_pressed_a_update_grey
 pop  {pc}
 
 .equip_a:
@@ -5398,13 +5566,13 @@ bl   main_menu_hacks.check_if_printed
 mov  r0,#0                   //Do the thing only IF we're done printing.
 cmp  r1,#0                   //Prevents issues with arrangements not being there
 bne  +
-add  sp,#-4
-bl   main_menu_hacks.get_selected_index
-str  r0,[sp,#0]              //Prepare the item's index for the deposit-movement routine
+add  sp,#-0xC                //Prepare the item's index for the deposit-movement routine
+bl   main_menu_hacks.store_menu_movement_data
+
 bl   .main
 mov  r0,r4                   //Normal stuff the game expects from us
 bl   $804F1D8
-add  sp,#4
+add  sp,#0xC
 +
 pop  {pc}
 
@@ -5419,12 +5587,7 @@ pop  {pc}
 .withdraw_a:
 push {lr}
 add  sp,#-0xC
-bl   main_menu_hacks.get_selected_index
-str  r0,[sp,#8]
-bl   main_menu_hacks.get_top_index
-str  r0,[sp,#4]
-bl   main_menu_hacks.get_total_indexes
-str  r0,[sp,#0]
+bl   main_menu_hacks.store_menu_movement_data
 
 bl   main_menu_hacks.check_if_printed
 cmp  r1,#0                   //Do the thing only IF we're done printing.
@@ -5516,16 +5679,17 @@ pop  {pc}
 push {lr}
 add  sp,#-4
 bl   .main
-bl   main_menu_hacks.get_buy_valid_options
+bl   main_menu_hacks.get_shop_valid_options
 str  r0,[sp,#0]              //Get the valid options now
 mov  r0,r4
 bl   $8052F9C                //Do the confirming buying routine...
-bl   main_menu_hacks.get_buy_valid_options
+bl   main_menu_hacks.get_shop_valid_options
 ldr  r1,[sp,#0]
 eor  r0,r1                   //If the valid options changed, change
 cmp  r0,#0                   //the assigned palette for those that changed
 beq  +                       //and then set the arrangements to be updated
-bl   main_menu_hacks.change_buy_options
+ldr  r1,=#0x2016992
+bl   main_menu_hacks.change_shop_options
 bl   main_menu_hacks.store_arrangements_buffer
 +
 add  sp,#4
@@ -5586,15 +5750,16 @@ pop  {pc}
 push {lr}
 add  sp,#-4
 bl   .main
-bl   main_menu_hacks.get_buy_valid_options
+bl   main_menu_hacks.get_shop_valid_options
 str  r0,[sp,#0]              //Get the valid options now
 bl   main_menu_hacks.prepare_swap_char_buying
-bl   main_menu_hacks.get_buy_valid_options
+bl   main_menu_hacks.get_shop_valid_options
 ldr  r1,[sp,#0]
 eor  r0,r1                   //If the valid options changed, change
 cmp  r0,#0                   //the assigned palette for those that changed
 beq  +                       //and then set the arrangements to be updated
-bl   main_menu_hacks.change_buy_options
+ldr  r1,=#0x2016992
+bl   main_menu_hacks.change_shop_options
 bl   main_menu_hacks.store_arrangements_buffer
 +
 add  sp,#4
