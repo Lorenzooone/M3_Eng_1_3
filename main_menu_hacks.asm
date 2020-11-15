@@ -738,7 +738,7 @@ bl      $8047CDC
 // Get some value
 ldr     r0,=#0x2015D98
 ldrb    r0,[r0,#0]
-// Dunno what this is for, but it skips the rest of the routine if somevalue << 0x1D is negative
+// Only load the text if the throw submenu is open (this value << 0x1D < 0)
 lsl     r0,r0,#0x1D
 cmp     r0,#0x0
 blt     .drop_text_end
@@ -856,7 +856,7 @@ mov     r6,r8
 push    {r6}
 add     sp,#-0x8
 // ----------------------------------------------
-// Check the mystery value again
+// Check the menu status value again
 ldr     r0,=#0x2015D98
 ldrb    r0,[r0,#0]
 lsl     r0,r0,#0x1D
@@ -5610,7 +5610,8 @@ add  r2,r2,r0                //Move the item's arrangement to the bottom
 bl   main_menu_hacks.new_inventory_copy_arrangement
 
 +
-bl   main_menu_hacks.store_arrangements_buffer                             
+bl   main_menu_hacks.store_arrangements_buffer
+mov  r0,#0                   //Return the fact that the size changed
 .inv_handle_item_movement_end:
 add  sp,#0x50
 pop  {r4,pc}
@@ -5619,6 +5620,14 @@ pop  {r4,pc}
 push {r2,lr}
 mov  r2,#0                   //If the size stays the same, no operation to be done
 bl   .inv_handle_item_movement
+cmp  r0,#0
+bne  +
+ldr  r0,=#0x2015D98
+ldrb r1,[r0,#0]
+mov  r2,#4                   //Prevents glitch in which the new currently selected item's data would show up for the top OAM
+orr  r1,r2
+strb r1,[r0,#0]
++
 pop  {r2,pc}
 
 .inv_give:
