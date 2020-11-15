@@ -3685,6 +3685,17 @@ ldrh r0,[r1,#0x8]
 pop  {r1-r2,pc}
 
 //=============================================================================================
+// This hack gets the number of items in a character's inventory
+//=============================================================================================
+.get_character_inventory_total_indexes:
+push {r1,lr}
+ldr  r0,=#0x2016028
+ldr  r1,=#0x426C
+add  r0,r0,r1
+ldrh r0,[r0,#0]
+pop  {r1,pc}
+
+//=============================================================================================
 // This hack gets the number of show-able items in any given menu
 //=============================================================================================
 .get_possible_indexes:
@@ -4774,6 +4785,25 @@ bl   .new_general_clear_final_line     //Clear the last item's arrangement
 pop  {r3-r6,pc}
 
 //=============================================================================================
+// This hack copies an item's arrangements in order to not re-print everything when moving an item
+//=============================================================================================
+.new_generic_copy_arrangement:
+push {r4-r7,lr}
+mov  r4,r0                             //This has the selected index before anything was removed/moved.
+                                       //Using that covers the player selecting the last item and getting
+                                       //their cursor moved
+mov  r3,r1                             //Put in r3 whether to copy from or to the item's arrangement
+mov  r7,r2                             //Put in r7 the target
+ldr  r5,=#0x2016978
+bl   .get_positions_lines_array
+mov  r6,r0
+mov  r0,r4                             //Copies a single item's arrangements from/to r7
+mov  r1,r3
+mov  r2,r7
+bl   .new_general_copy_single_line
+pop  {r4-r7,pc}
+
+//=============================================================================================
 // This hack handles the selling special case
 //=============================================================================================
 .new_handle_selling_swap_arrangement:
@@ -4788,12 +4818,22 @@ add  r0,#1
 pop  {pc}
 
 //=============================================================================================
-// This hack swaps the deposit arrangements in order to not re-print everything when depositing an item
+// This hack swaps the deposit arrangements in order to not re-print everything when depositing an item.
+// It also handles the inventory arrangements swapping
 //=============================================================================================
-.new_deposit_swap_arrangement:
+.new_inventory_deposit_swap_arrangement:
 push {lr}
 ldr  r0,[r0,#0x8]
 bl   .new_generic_swap_arrangement
+pop  {pc}
+
+//=============================================================================================
+// This hack copies one line of inventory's arrangements in order to not re-print everything when moving an item.
+//=============================================================================================
+.new_inventory_copy_arrangement:
+push {lr}
+ldr  r0,[r0,#0x8]
+bl   .new_generic_copy_arrangement
 pop  {pc}
 
 //=============================================================================================
@@ -4826,7 +4866,7 @@ pop  {r0-r1,pc}
 // Right side's position | Left side's position | Distance between right and lower left | Size
 //=============================================================================================
 .positions_swapping_array:
-  dd $00000000; dd $00000000; dd $00000000; dd $00000000
+  dd $10620220; dd $00000000; dd $00000000; dd $00000000
   dd $00000000; dd $00000000; dd $00000000; dd $00000000
   dd $00000000; dd $00000000; dd $00000000; dd $1080001E
   dd $00000000; dd $00000000; dd $10620220; dd $0E64021E
@@ -4891,6 +4931,55 @@ swi  #0xB
 
 .new_general_swap_single_line_end:
 pop  {r3-r4,pc}
+
+//=============================================================================================
+// Copies a single item's arrangement to a given address r2.
+// r1 controls whether to copy to or copy from r2
+//=============================================================================================
+.new_general_copy_single_line:
+push {r3-r7,lr}
+add  sp,#-0x10
+mov  r7,r2
+mov  r3,#1
+and  r3,r0
+lsr  r0,r0,#1
+lsl  r0,r0,#7
+ldrb r2,[r6,#1]
+cmp  r3,#0
+beq  +
+ldrb r2,[r6,#0]                        //Handle the right side differently
++
+add  r0,r5,r0
+add  r0,r0,r2                          //Get the arrangement address
+mov  r2,#0x20                          //Save the arrangement address and the target/source address on the stack
+add  r5,r7,r2                          //This allows using a generic copying routine
+mov  r2,#0x40
+add  r2,r0,r2
+cmp  r1,#1
+beq  +
+str  r0,[sp,#0]
+str  r2,[sp,#4]
+str  r7,[sp,#8]
+str  r5,[sp,#0xC]
+b    .new_general_copy_single_line_start_copy
++
+str  r7,[sp,#0]
+str  r5,[sp,#4]
+str  r0,[sp,#8]
+str  r2,[sp,#0xC]
+
+.new_general_copy_single_line_start_copy:
+ldr  r0,[sp,#0]
+ldr  r1,[sp,#8]
+ldrb r2,[r6,#3]
+swi  #0xB
+ldr  r0,[sp,#4]
+ldr  r1,[sp,#0xC]
+ldrb r2,[r6,#3]
+swi  #0xB
+
+add  sp,#0x10
+pop  {r3-r7,pc}
 
 //=============================================================================================
 // Clears the last item's arrangement
@@ -4991,14 +5080,14 @@ pop  {r0,pc}
 // This hack saves in the stack the info used for printing stuff when things are removed/moved
 //=============================================================================================
 .store_menu_movement_data:
-push {lr}
+push {r0,lr}
 bl   main_menu_hacks.get_selected_index
-str  r0,[sp,#0xC]
+str  r0,[sp,#0x10]
 bl   main_menu_hacks.get_top_index
-str  r0,[sp,#8]
+str  r0,[sp,#0xC]
 bl   main_menu_hacks.get_total_indexes
-str  r0,[sp,#4]
-pop  {pc}
+str  r0,[sp,#8]
+pop  {r0,pc}
 
 //=============================================================================================
 // This hack changes the palette for an item's arrangement that is stored in r0
@@ -5470,6 +5559,74 @@ ldrh r1,[r4,#0]              //Normal input loading
 mov  r0,#3
 pop  {pc}
 
+.inv_load_new_old_size:
+push {lr}
+add  sp,#-4
+mov  r1,r0
+bl   main_menu_hacks.get_character_inventory_total_indexes
+str  r0,[sp,#0]              //Save old inventory's size
+mov  r0,r1
+bl   $80524EC                //Routine that updates inventory's size
+bl   main_menu_hacks.get_character_inventory_total_indexes
+ldr  r1,[sp,#0]              //Put in r0 the new size and in r1 the old one
+add  sp,#4
+pop  {pc}
+
+.inv_handle_item_movement:
+push {r4,lr}
+add  sp,#-0x50
+mov  r4,#0
+str  r4,[sp,#0xC]            //Set this address to a default
+mov  r4,r2
+bl   main_menu_hacks.store_menu_movement_data
+bl   .inv_load_new_old_size
+
+cmp  r0,r1
+bne  +                       //Did the inventory's size change?
+                             //If it did not, check if we should move the item to the bottom
+cmp  r4,#1
+bne  .inv_handle_item_movement_end
+
+str  r0,[sp,#0xC]            //Save the fact that we should move the item to the bottom
+mov  r0,sp
+mov  r1,#0                   //Copy from the arrangements
+mov  r2,#0x10
+add  r2,r2,r0                //Load the item's arrangements in
+bl   main_menu_hacks.new_inventory_copy_arrangement
+
++
+mov  r0,sp
+bl   main_menu_hacks.new_inventory_deposit_swap_arrangement
+ldr  r0,[sp,#0xC]
+cmp  r0,#0
+beq  +
+
+sub  r0,r0,#1
+str  r0,[sp,#8]              //Put the target in the movement data
+mov  r0,sp
+mov  r1,#1                   //Copy to the arrangements
+mov  r2,#0x10
+add  r2,r2,r0                //Move the item's arrangement to the bottom
+bl   main_menu_hacks.new_inventory_copy_arrangement
+
++
+bl   main_menu_hacks.store_arrangements_buffer                             
+.inv_handle_item_movement_end:
+add  sp,#0x50
+pop  {r4,pc}
+
+.inv_use_throw:
+push {r2,lr}
+mov  r2,#0                   //If the size stays the same, no operation to be done
+bl   .inv_handle_item_movement
+pop  {r2,pc}
+
+.inv_give:
+push {r2,lr}
+mov  r2,#1                   //If the size stays the same, move the item to the bottom
+bl   .inv_handle_item_movement
+pop  {r2,pc}
+
 .memo_a:
 push {lr}
 bl   .main
@@ -5580,7 +5737,7 @@ pop  {pc}
 push {lr}
 mov  r0,sp
 add  r0,#0x1C
-bl   main_menu_hacks.new_deposit_swap_arrangement
+bl   main_menu_hacks.new_inventory_deposit_swap_arrangement
 bl   main_menu_hacks.store_arrangements_buffer
 pop  {pc}
 

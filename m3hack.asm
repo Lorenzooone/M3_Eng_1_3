@@ -441,10 +441,10 @@ org $8045BDA; db $CC                             // Selling confirmation prompt
 org $8045BBE; db $CC                             // Buying confirmation prompt
 
 org $807A8DA; db $08    // fix Hinawa's name in final battle
-org $8040742; nop; nop // Fix issue that made it so certain submenus didn't show the last item's E icon even when it should (odd positions in inventory)
+org $8040742; nop; nop // Fix issue that made it so certain submenus didn't show the last item's E icon even when they should (odd positions in inventory)
 org $8052648; dd $000F423F // Make it so you can sell items up to 999999 DP (previously it was up to 999998 DP)
 
-//These hacks fix the "scrolling menus" bug
+//These hacks fix the "scrolling menus" bug and improve the responsiveness of menus
 
 //804CA9C tells each menu where to go
 //804E374 if it's a submenu
@@ -458,6 +458,10 @@ org $804CC24; bl refreshes.up_and_down
 
 //Inventory submenu
 //org $804E81C; bl refreshes.inv_submenu_a
+org $804FD6A; bl refreshes.inv_use_throw; nop; nop //use
+org $804FBA4; bl refreshes.inv_use_throw; nop; nop //use, chicken/chick case
+org $804FEF4; bl refreshes.inv_use_throw; nop; nop //throw
+org $804FE64; bl refreshes.inv_give; nop; nop //give
 
 //Block A press if too soon
 org $804CAD4; bl refreshes.inv_block_a
