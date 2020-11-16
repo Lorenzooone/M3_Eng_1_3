@@ -3059,7 +3059,7 @@ ldrh r0,[r2,#8]
 add  r0,#5
 +
 
-bl   .get_added_value_shop             //Code used in order to cover both buying and selling
+bl   .get_added_value_menu_valid       //Code used in order to cover both buying and selling
 
 lsl  r0,r0,#2                          //base code
 add  r1,r1,r2
@@ -3102,19 +3102,35 @@ sub  r1,#1
 bx   lr
 
 //=============================================================================================
-// Returns the value that has to be added in order to go to the proper shop menu inventory
+// Returns the value that has to be added in order to go to the proper menu's inventory.
+// If it's for the PSI menu, it has the inventory's number in r0
 //=============================================================================================
-.get_added_value_shop:
+.get_added_value_menu_valid:
+push {r1}
 ldr  r2,=#0x201A288
 ldrb r2,[r2,#0]
 cmp  r2,#0xB
-bne  .get_added_value_shop_buy
+beq  .get_added_value_sell_valid
+cmp  r2,#0xA
+beq  .get_added_value_buy_valid
+cmp  r2,#0x2
+beq  .get_added_value_psi_valid
+b    +
+
+.get_added_value_psi_valid:
+mov  r2,#0x35
+lsl  r2,r2,#8
+lsl  r1,r0,#7
+add  r2,r2,r1
+b    +
+.get_added_value_buy_valid:
+ldr  r2,=#0x3D44
+b    +
+.get_added_value_sell_valid:
 mov  r2,#0xD2
 lsl  r2,r2,#6
-b    +
-.get_added_value_shop_buy:
-ldr  r2,=#0x3D44
 +
+pop  {r1}
 bx   lr
 
 //=============================================================================================
@@ -5195,11 +5211,11 @@ orr  r0,r1
 pop  {r3,pc}
 
 //=============================================================================================
-// This hack gets the valid options for the shop menu
+// This hack gets the valid options for the certain menus
 //=============================================================================================
-.get_shop_valid_options:
+.get_menu_valid_options:
 push {r2,lr}
-bl   main_menu_hacks.get_added_value_shop
+bl   main_menu_hacks.get_added_value_menu_valid
 ldr  r1,=#0x2016028          //Prepare the address
 add  r1,r1,r2
 bl   main_menu_hacks.get_top_index
@@ -5231,6 +5247,41 @@ lsl  r0,r1,#7                //If this isn't 0, it changed...
 add  r0,r5,r0                //Prepare the corresponding arrangement address
 bl   main_menu_hacks.change_palette
 +
+add  r1,#1
+lsl  r6,r6,#1                //Prepare to check the next bit
+cmp  r1,r3                   //There are r3 items displayed top in this menu
+blt  -
+
+pop  {r4-r6,pc}
+
+//=============================================================================================
+// This hack changes the palette for the options that changed validity in the psi menu
+//=============================================================================================
+.change_psi_options:
+push {r4-r6,lr}
+mov  r4,r0                   //Save in r4 what changed
+mov  r5,r1                   //Arrangement start
+mov  r6,#1                   //Number to and with
+bl   .get_possible_indexes
+mov  r3,r0                   //Number of items in this menu
+mov  r1,#0                   //Current index
+-
+mov  r0,r6
+and  r0,r4
+cmp  r0,#0
+beq  .change_psi_options_end_single
+lsr  r0,r1,#1                //If this isn't 0, it changed...
+lsl  r2,r0,#7
+mov  r0,#1
+and  r0,r1
+cmp  r0,#1
+bne  +
+mov  r0,#0x1C                //Handle the right side
++
+add  r0,r0,r2
+add  r0,r5,r0                //Prepare the corresponding arrangement address
+bl   main_menu_hacks.change_palette
+.change_psi_options_end_single:
 add  r1,#1
 lsl  r6,r6,#1                //Prepare to check the next bit
 cmp  r1,r3                   //There are r3 items displayed top in this menu
@@ -5333,7 +5384,7 @@ ldr  r1,[r4,#0]
 bl   .get_total_indexes
 cmp  r1,r0                   //Check if the number of items in the menu changed, otherwise do nothing
 beq  .printing_pressed_a_update_grey_end
-bl   .get_shop_valid_options
+bl   .get_menu_valid_options
 mov  r3,r0
 ldr  r0,[r4,#0xC]
 ldr  r1,[r4,#0x8]
@@ -5428,9 +5479,10 @@ ldrh r1,[r5,#0xA]            //Normal stuff the game expects from us
 ldr  r2,=#0x4264
 pop  {pc}
 
-.select:
+.psi_select:
 push {lr}
 bl   .main
+bl   main_menu_hacks.delete_vram
 mov  r0,#0xD2                //Normal stuff the game expects from us
 bl   $800399C
 pop  {pc}
@@ -5680,7 +5732,7 @@ pop  {pc}
 push {lr}
 add  sp,#-0x10
 bl   main_menu_hacks.store_menu_movement_data
-bl   main_menu_hacks.get_shop_valid_options
+bl   main_menu_hacks.get_menu_valid_options
 str  r0,[sp,#0xC]
 
 bl   $8050218
@@ -5691,7 +5743,7 @@ pop  {pc}
 push {lr}
 add  sp,#-0x10
 bl   main_menu_hacks.store_menu_movement_data
-bl   main_menu_hacks.get_shop_valid_options
+bl   main_menu_hacks.get_menu_valid_options
 str  r0,[sp,#0xC]
 
 bl   $805030C
@@ -5711,6 +5763,40 @@ mov  r0,sp
 add  r0,#0x14
 bl   main_menu_hacks.printing_pressed_a_update_grey
 pop  {pc}
+
+.psi_prevent_input_a_select:
+push {lr}
+bl   main_menu_hacks.check_if_printed
+mov  r0,r1
+ldrh r1,[r7,#0]              //Input
+cmp  r0,#0
+beq  +
+ldr  r0,=#0xFFFA
+and  r1,r0                   //Prevent using A and SELECT if the PSI menu isn't fully done printing
++
+cmp  r1,#1                   //Clobbered code
+pop  {pc}
+
+.psi_used:
+push {r4,lr}
+add  sp,#-4
+mov  r4,r0
+bl   main_menu_hacks.get_menu_valid_options
+str  r0,[sp,#0]              //Get the valid options now
+mov  r0,r4
+bl   $8052864                //Do the PSI used routine...
+mov  r0,r4
+bl   main_menu_hacks.get_menu_valid_options
+ldr  r1,[sp,#0]
+eor  r0,r1                   //If the valid options changed, change
+cmp  r0,#0                   //the assigned palette for those that changed
+beq  +                       //and then set the arrangements to be updated
+ldr  r1,=#0x201697A
+bl   main_menu_hacks.change_psi_options
+bl   main_menu_hacks.store_arrangements_buffer
++
+add  sp,#4
+pop  {r4,pc}
 
 .equip_a:
 push {lr}
@@ -5787,7 +5873,7 @@ bl   main_menu_hacks.store_arrangements_buffer
 +
 pop  {pc}
 
-.withdraw_block_input_up_and_down:
+.withdraw_psi_block_input_up_and_down:
 push {lr}
 add  sp,#-0xC
 ldr  r0,[sp,#0x10]
@@ -5845,11 +5931,11 @@ pop  {pc}
 push {lr}
 add  sp,#-4
 bl   .main
-bl   main_menu_hacks.get_shop_valid_options
+bl   main_menu_hacks.get_menu_valid_options
 str  r0,[sp,#0]              //Get the valid options now
 mov  r0,r4
 bl   $8052F9C                //Do the confirming buying routine...
-bl   main_menu_hacks.get_shop_valid_options
+bl   main_menu_hacks.get_menu_valid_options
 ldr  r1,[sp,#0]
 eor  r0,r1                   //If the valid options changed, change
 cmp  r0,#0                   //the assigned palette for those that changed
@@ -5916,10 +6002,10 @@ pop  {pc}
 push {lr}
 add  sp,#-4
 bl   .main
-bl   main_menu_hacks.get_shop_valid_options
+bl   main_menu_hacks.get_menu_valid_options
 str  r0,[sp,#0]              //Get the valid options now
 bl   main_menu_hacks.prepare_swap_char_buying
-bl   main_menu_hacks.get_shop_valid_options
+bl   main_menu_hacks.get_menu_valid_options
 ldr  r1,[sp,#0]
 eor  r0,r1                   //If the valid options changed, change
 cmp  r0,#0                   //the assigned palette for those that changed

@@ -483,9 +483,13 @@ org $804D2F6; bl refreshes.up_and_down_battle_memoes; nop; nop
 org $804D306; nop; nop
 
 //PSI
-org $804CD5E; bl refreshes.select; nop
+org $804CD22; bl refreshes.psi_prevent_input_a_select
+org $804CD5E; bl refreshes.psi_select; nop
 org $804CDB0; bl refreshes.lr
+org $804CE30; bl refreshes.withdraw_psi_block_input_up_and_down
 org $804CE3C; bl refreshes.up_and_down
+org $804EDE6; bl refreshes.psi_used //Party-wide PSI, also fixes a bug in the base game
+org $804FFC2; bl refreshes.psi_used; nop; nop //Single-target PSI
 
 //Status
 org $804CE78; bl refreshes.status_a;nop
@@ -537,7 +541,7 @@ org $804F284; bl refreshes.deposit_printing_pressed_a
 //Withdraw
 org $804D8F8; bl refreshes.withdraw_a; nop
 org $804D910; bl refreshes.b; nop
-org $804D988; bl refreshes.withdraw_block_input_up_and_down
+org $804D988; bl refreshes.withdraw_psi_block_input_up_and_down
 org $804D994; bl refreshes.up_and_down
 org $804D9C0; bl refreshes.withdraw_block_input_lr
 org $804D9E0; bl refreshes.withdraw_lr; nop; nop
