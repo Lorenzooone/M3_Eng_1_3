@@ -443,6 +443,7 @@ org $8045BBE; db $CC                             // Buying confirmation prompt
 org $807A8DA; db $08    // fix Hinawa's name in final battle
 org $8040742; nop; nop // Fix issue that made it so certain submenus didn't show the last item's E icon even when they should (odd positions in inventory)
 org $8052648; dd $000F423F // Make it so you can sell items up to 999999 DP (previously it was up to 999998 DP)
+//org $804BC90; db $F0    // Increase size of cleared lines in menus so it fully covers the screen
 
 //These hacks fix the "scrolling menus" bug and improve the responsiveness of menus
 
