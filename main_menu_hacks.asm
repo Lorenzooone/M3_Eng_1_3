@@ -19,8 +19,13 @@ pop  {r1,pc}
 //
 
 +
-ldr  r0,=#0x2013070          // starting address of our item names in RAM
 mov  r1,#0x58                // # of max letters per item * 4, since each letter has 4 bytes for some reason
+cmp  r0,#0x10                //If we're in the loading/saving menu, give some extra space
+bne  +
+mov  r1,#1
+lsl  r1,r1,#8                //This needs to print an actual string, not an item
++
+ldr  r0,=#0x2013070          // starting address of our item names in RAM
 mul  r1,r6                   // r6 has the current item counter, which is nice and convenient for us
 add  r0,r0,r1                // r2 now has the proper spot in RAM for the item
 
@@ -44,9 +49,14 @@ beq  +
 //
 
 ldr  r1,=#0x2013070
+mov  r2,#0x58
+cmp  r0,#0x10
+bne  +
+mov  r2,#1
+lsl  r2,r2,#8
++
 mov  r0,r10
 sub  r0,#1
-mov  r2,#0x58
 mul  r0,r2
 add  r1,r0,r1
 lsl  r6,r6,#2
@@ -6045,10 +6055,182 @@ ldr  r2,=#0x4264
 pop  {pc}
 
 //=============================================================================================
-// This hack enables the "Delete all saves" prompt only once the fading in has ended
+// This set of hack removes the lag from the "Delete all saves" menu.
+// To access it, press LOAD in the main menu with L + R + START + A held down
 //=============================================================================================
 fix_lag_delete_all:
 
+//=============================================================================================
+// This hack makes it so the "LV" icon has the same priority as the other OAM entries.
+// Otherwise it could pop over the backgorund
+//=============================================================================================
+.change_level_priority:
+mov  r6,#2
+str  r6,[sp,#0]
+mov  r6,#1                   //Set r6 to 1 because the rest of the function expects it to be 1
+bx   lr
+
+//=============================================================================================
+// This hack makes it so BG1 (the VRAM BG) is 5 pixels lower.
+// It makes it possible to match the original text.
+//=============================================================================================
+.change_bg1_coords:
+ldr  r1,=#0x2016028
+cmp  r0,#9
+bne  +
+ldrh r0,[r1,#0x1C]           //Move the Y axys by 5 pixels
+mov  r0,#3
+strh r0,[r1,#0x1C]
+mov  r0,#9
++
+cmp  r0,#8
+bx   lr
+
+//=============================================================================================
+// This hack adds VRAM entries for the text in the "Delete all saves" menu.
+// It also hides BG1
+//=============================================================================================
+.add_extra_vram:
+push {lr}
+add  sp,#-4
+
+ldr  r0,=#0x2004100
+ldrb r0,[r0,#0]
+cmp  r0,#9
+bne  +
+
+ldr  r0,=#0x2016028
+ldrh r1,[r0,#0xC]
+mov  r2,#3
+orr  r1,r2
+strh r1,[r0,#0xC]            //Hide BG1 until we need to show it
+
+mov  r5,#1
+neg  r5,r5
+mov  r4,#0xF                 //Generic text stuff
+
+mov  r0,#0x1D                //"Delete all saves" text
+bl   $80486A0
+str  r4,[sp,#0]
+mov  r1,#0x3
+mov  r2,#4
+mov  r3,r5
+bl   $8047B9C                //Order printing
+
+mov  r0,#0x21                //"Is that okay" text
+bl   $80486A0
+str  r4,[sp,#0]
+mov  r1,#0x3
+mov  r2,#5
+mov  r3,r5
+bl   $8047B9C                //Order printing
+
+mov  r0,#0x03                //"Yes" text
+bl   $80486A0
+str  r4,[sp,#0]
+mov  r1,#0x7
+mov  r2,#6
+mov  r3,r5
+bl   $8047B9C                //Order printing
+
+mov  r0,#0x04                //"No" text
+bl   $80486A0
+str  r4,[sp,#0]
+mov  r1,#0xB
+mov  r2,#6
+mov  r3,r5
+bl   $8047B9C                //Order printing
+
+mov  r0,#9
++
+add  sp,#4
+pop  {pc}
+
+//=============================================================================================
+// This hack hides BG1 (the VRAM backgorund).
+// Used when Yes or No has been pressed
+//=============================================================================================
+.hide_background:
+push {r1-r2}
+ldr  r0,=#0x2016028
+ldrh r1,[r0,#0xC]
+mov  r2,#3
+orr  r1,r2
+strh r1,[r0,#0xC]            //Hide back VRAM content in BG1
+
+mov  r0,#0
+pop  {r1-r2}
+bx   lr
+
+//=============================================================================================
+// This hack changes the BG0 and the BG1 priority for the "Delete all saves" menu.
+// BG1 (VRAM text) goes over BG0 (submenu window).
+// The default code goes on to print some OAM entries, which are skipped
+// in the "Delete all saves" menu.
+//=============================================================================================
+.change_background_priority_remove_oam:
+push {lr}
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
+cmp  r0,#0x10                //Is this the saving menu?
+bne  +
+ldr  r0,=#0x2004100
+ldrb r0,[r0,#0]
+cmp  r0,#9                   //Is this the "Delete all files" menu?
+bne  +
+
+ldrh r0,[r4,#0xA]
+mov  r1,#1
+orr  r0,r1                   //Change BG0 priority to 1
+strh r0,[r4,#0xA]
+ldrh r0,[r4,#0xC]
+mov  r1,#4
+neg  r1,r1
+and  r0,r1                   //Change BG1 priority to 0. Bring forth the text written in VRAM
+strh r0,[r4,#0xC]
+pop  {r0}
+ldr  r0,=#0x8045DE7
+bx   r0                      //Sadly, we need to skip part of the routine and this is the best way that came to mind...
+
++
+ldr  r0,=#0x41CC             //Default code
+add  r4,r4,r0
+pop  {pc}
+
+//=============================================================================================
+// This hack removes the cursor while the "Delete all files" menu is loading up
+//=============================================================================================
+.remove_starting_cursor:
+push {lr}
+add  sp,#-4
+ldr  r3,=#0x201A288
+ldrb r3,[r3,#0]
+cmp  r3,#0x10
+bne  +
+ldr  r3,=#0x2004100
+ldrb r3,[r3,#0]
+cmp  r3,#0x9
+bne  +
+ldr  r3,=#0x201A202          //0x2016028 + 0x41C6
+ldrb r3,[r3,#0]
+cmp  r3,#0x4
+bne  +
+b    .remove_starting_cursor_end
++
+
+ldr  r3,[sp,#8]
+str  r3,[sp,#0]
+mov  r3,#0x20                //Function parameters
+bl   $8046A28
+
+.remove_starting_cursor_end:
+add  sp,#4
+pop  {pc}
+
+//=============================================================================================
+// This hack makes it so the window is loaded up for the "Delete all files" menu only after
+// the fadein is over
+//=============================================================================================
 .hack:
 push {lr}
 push {r0-r3}
@@ -6064,7 +6246,7 @@ bne  +
 ldrh r1,[r0,#0]
 cmp  r1,#5
 bne  +
-ldrb r0,[r3,#0]              //Make it so this is properly odded only once we can get the input
+ldrb r0,[r3,#0]              //Make it so this is properly added only once we can get the input
 cmp  r0,#4
 bne  +
 mov  r1,#0x86

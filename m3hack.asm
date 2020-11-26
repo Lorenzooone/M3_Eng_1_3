@@ -1791,10 +1791,17 @@ org $8052ADA; db $52 //Increments the number of loaded memos, so the last one is
 
 //Hacks for the lag in the delete all saves screen
 
-org $804E7A4; mov r0,#0; nop //Remove the window when "No" is pressed
-org $804E67A; mov r0,#0; nop //Remove the window when "Yes" is pressed
+org $80479DE; bl fix_lag_delete_all.add_extra_vram
+org $8045D5C; bl fix_lag_delete_all.change_background_priority_remove_oam
+org $804E7A4; bl fix_lag_delete_all.hide_background //Remove the window when "No" is pressed
+org $804E67A; bl fix_lag_delete_all.hide_background //Remove the window when "Yes" is pressed
 
+org $8044BAE; mov r0,#2 //Make it so the "Chapter" text has priority 2
+org $80448C4; bl fix_lag_delete_all.change_level_priority
+
+org $80427F8; bl fix_lag_delete_all.change_bg1_coords; bne $804280A
 org $803DDA0; mov r0,#4; nop  //Remove the window at startup
+org $8046780; bl fix_lag_delete_all.remove_starting_cursor //Remove cursor at startup
 org $804CA42; bl fix_lag_delete_all.hack //Set it back once we can read the input
 
 //============================================================================================

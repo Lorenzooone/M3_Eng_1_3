@@ -1,7 +1,7 @@
 extra_hacks:
 
 // ================================================
-// This adds a silver/gold star sprite to the
+// This adds a bronze/silver/gold star sprite to the
 // Battle Memory screen if you've seen every enemy.
 // ================================================
 
@@ -442,6 +442,12 @@ cmp  r0,#0xA
 bne  +
 add  r1,#4                         //Cover being in the withdraw menu - moves the right column 4 pixels to the right
 +
+cmp  r2,#0x10
+bne  +
+cmp  r0,#0xB
+bne  +
+add  r1,#4                         //Cover being in the delete all saves menu - moves "No" 4 pixels to the right
++
 b    .memo_printfix_withdraw_positionfix_end
 
 .memo_printfix_withdraw_positionfix_memo:
@@ -492,6 +498,11 @@ pop  {pc}
 
 .memo_printfix_storage:
 push {r3,lr}
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
+cmp  r0,#6
+bne  +                       //Do this only for the memo menu
+
 ldr  r0,[r4,#0]
 sub  r0,r6,r0                //Letters are now stored sequentially, not by line
 lsr  r2,r0,#1
@@ -508,7 +519,16 @@ add  r0,r0,r3
 sub  r0,#4
 add  r1,#0x30
 strb r1,[r0,#3]              //Store, as info, the Y this line should be at when printed
+b    .memo_printfix_storage_end
++
 
+ldrh r0,[r4,#8]              //Default code
+strh r0,[r5,#0]
+ldrh r0,[r5,#2]
+add  r0,#1
+strh r0,[r5,#2]
+
+.memo_printfix_storage_end:
 pop  {r3,pc}
 
 // ---------------------------------------------------------------------------------------
