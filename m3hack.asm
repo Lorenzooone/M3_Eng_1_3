@@ -986,6 +986,12 @@ org $8023A10; bl outside_hacks.gray_box_resize
 org $8023B32; bl outside_hacks.gray_box_resize
 org $8023CCC; bl outside_hacks.gray_box_resize
 
+// makes it so names occupy less obj tiles
+org $8009070; bl outside_hacks.different_oam_size
+org $800912C; bl outside_hacks.different_tiles_storage; nop; nop; nop; nop; nop; nop; nop
+org $80091B8; bl outside_hacks.different_tiles_add
+org $80091C2; bl outside_hacks.different_tiles_print
+
 //============================================================================================
 //                              SOUND PLAYER & BATTLE HACKS
 //============================================================================================
