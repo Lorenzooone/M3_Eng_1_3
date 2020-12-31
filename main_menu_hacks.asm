@@ -5883,7 +5883,7 @@ bl   main_menu_hacks.store_arrangements_buffer
 +
 pop  {pc}
 
-.withdraw_psi_block_input_up_and_down:
+.withdraw_psi_memo_block_input_up_and_down:
 push {lr}
 add  sp,#-0xC
 ldr  r0,[sp,#0x10]
