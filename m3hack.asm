@@ -1671,17 +1671,21 @@ org $9FD5814; incbin logic_code_277.bin
 org $9222696; db $93 //Jump to next instruction set
 org $92226B4; dd $0093000C //Jump to next instruction set
 
+//New control codes for Game Logic
+org $8D2DCC8; dd extra_hacks.push_battle_memo_status+1 //04 00 9C 00
+org $8D2DCCC; dd $8005B35 //04 00 9D 00 - Resets the drawing mode
+org $8D2DCD0; dd extra_hacks.set_money_on_hand+1 //04 00 9E 00
+org $8D2DCD4; dd extra_hacks.push_money_on_hand+1 //04 00 9F 00
+org $8D2D8C8; dd $0
+org $8D2D8CC; dd $0
+org $8D2D8D0; dd $1
+org $8D2D8D4; dd $0
+
 //Add new npc to swap table in debug room
 org $93699D4; incbin logic_new_npc_debug.bin
 org $9360070; db $19
 org $93600A2; dw $264C
 org $9368049; db $0D
-org $8D2DCCC; dd $8005B35 //04 00 9D 00 - Resets the drawing mode
-org $8D2DCD0; dd extra_hacks.set_money_on_hand+1 //04 00 9E 00
-org $8D2DCD4; dd extra_hacks.push_money_on_hand+1 //04 00 9F 00
-org $8D2D8CC; dd $0
-org $8D2D8D0; dd $1
-org $8D2D8D4; dd $0
 org $9FD6B98; incbin object_tables_debug.bin
 org $9137120; dd $00EA4040; dd $00EA4220; dd $00EA42E0; dd $00EA4388; dd $00EA4430
 org $9FD7078; incbin logic_blocks_37F_380.bin
@@ -1749,6 +1753,13 @@ org $80472C8; bl main_menu_hacks.delete_vram_status; nop //Status
 
 //Fix Nana's age at the NPC's concert
 org $91649B4; db $41
+
+//Put code for "battle memo completeness" frog text in game logic
+//Shuffle other stuff to save space
+define logic_0EA_new_address $9FD5700
+org $9285D70; incbin logic_code_0E9.bin
+org {logic_0EA_new_address}; incbin logic_0EA.bin
+org $9199364; dd {logic_0EA_new_address}-$9198C10; dd {logic_0EA_new_address}+$10-$9198C10;
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
