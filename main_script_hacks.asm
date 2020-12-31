@@ -865,10 +865,10 @@ bl   $80096EC
 bl   .improve_notebook_printing_second_part
 str  r7,[r6,#0]                        //Restore the old info
 str  r4,[r6,#0x10]                     //Restore the old info
-ldrb r2,[r5,#0]                        //Update the printing info by adding 3 to the Y coordinate
+ldrb r2,[r5,#0]                        //Update the printing info by adding 2 to the Y coordinate
 add  r2,#2
 strb r2,[r5,#0]
-ldrb r2,[r5,#1]                        //Update the printing info by subtracting 3 from the number of lines to print
+ldrb r2,[r5,#1]                        //Update the printing info by subtracting 2 from the number of lines to print
 sub  r2,#2
 cmp  r2,#0
 bge  +
@@ -907,7 +907,7 @@ pop  {r7,pc}
 push {r2}
 ldr  r1,=#0x201B3D8          //Address for the graphics. Swap between two slots
 ldrb r3,[r1,#1]              //in order to avoid having graphical issues...
-mov  r2,#0x70                //(Without this, there would be 1 frame without some part of the text if we had > 3 lines)
+mov  r2,#0x70                //(Without this, there would be 1 frame without some part of the text if we had > 2 lines)
 strb r2,[r1,#1]
 cmp  r3,r2
 bgt  +
