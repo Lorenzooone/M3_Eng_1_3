@@ -280,15 +280,10 @@ strb r0,[r4,#0]
 b    .rest
 
 //--------------------------------------------------------------------------------------------------
+//This function manually fixes the save copying bug (New Game Plus)
+//--------------------------------------------------------------------------------------------------
 
-//Second part of the new hacks
-
-.flag_reset:
-push {lr}
-cmp  r0,#0x4F                       //Summary's arrangement is being loaded?
-bne  .NotCycle
-
-.Fix_Copy_Bug:                      //Let's manually fix the save coping bug while we're at it
+.fix_copy_bug:
 ldr  r1,=#0x2004F80
 mov  r5,#0
 str  r5,[r1,#0]
@@ -320,6 +315,18 @@ str  r5,[r1,#0]
 add  r1,#0x6C                       //Next character, Salsa
 mov  r5,#0
 str  r5,[r1,#0]
+bx   lr
+
+//--------------------------------------------------------------------------------------------------
+
+//Second part of the new hacks
+
+.flag_reset:
+push {lr}
+cmp  r0,#0x4F                       //Summary's arrangement is being loaded?
+bne  .NotCycle
+
+bl   .fix_copy_bug
 
 .Flag_Stuff:
 ldr  r1,=#0x2003F04                 //Flag
