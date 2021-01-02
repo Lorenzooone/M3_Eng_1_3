@@ -493,8 +493,11 @@ org $804EDE6; bl refreshes.psi_used //Party-wide PSI, also fixes a bug in the ba
 org $804FFC2; bl refreshes.psi_used; nop; nop //Single-target PSI
 
 //Status
-org $804CE78; bl refreshes.status_a;nop
+org $804CE78; bl refreshes.status_a; nop
+org $804CEB2; bl refreshes.status_block_input_lr; nop
 org $804CEBE; bl refreshes.status_lr
+org $804CEF4; bl main_menu_hacks.move_and_print
+org $804CF0A; bl main_menu_hacks.move_and_print
 
 //Skills
 org $804CF4C; bl refreshes.b; nop
@@ -1761,6 +1764,10 @@ define logic_0EA_new_address $9FD5700
 org $9285D70; incbin logic_code_0E9.bin
 org {logic_0EA_new_address}; incbin logic_0EA.bin
 org $9199364; dd {logic_0EA_new_address}-$9198C10; dd {logic_0EA_new_address}+$10-$9198C10;
+
+//Improve performances for status menu
+org $80473D8; bl improve_performances_menus.status_vram_equip_descriptors //Load OAM entries in VRAM
+org $8044130; b $80441A2 //Remove OAM entries
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF

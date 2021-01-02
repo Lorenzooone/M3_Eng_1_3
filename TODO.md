@@ -1,8 +1,6 @@
 - Menus:
 
     Equipment (Want to fix that bad looking LR scrolling and the fact that certain gray lines are re-printed when going out of the equip submenu)
-    
-    Status (Want to fix that bad looking LR scrolling)
 
 - IMPROVE REFRESHES' STRUCTURE!!! (very ugly to look at, right now)
 - Improving the battle scrolling system (just as bad as the main menu one)
