@@ -448,6 +448,12 @@ cmp  r0,#0xB
 bne  +
 add  r1,#4                         //Cover being in the delete all saves menu - moves "No" 4 pixels to the right
 +
+cmp  r2,#0x1
+bne  +
+cmp  r0,#0xB
+bne  +
+add  r1,#2                         //Cover being in the equipment menu - moves Equipment type's text 2 pixels to the right
++
 b    .memo_printfix_withdraw_positionfix_end
 
 .memo_printfix_withdraw_positionfix_memo:

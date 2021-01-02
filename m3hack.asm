@@ -470,7 +470,9 @@ org $803E064; bl refreshes.inv_submenu_block_a
 
 //Equip
 org $804CC64; bl refreshes.equip_a; nop
+org $804CCA0; bl refreshes.equip_block_input_lr
 org $804CCAA; bl refreshes.lr
+org $804CCBE; bl main_menu_hacks.move_and_print
 
 //Inner Equip / "specific submenus"
 org $804E092; bl refreshes.b; nop //"specific submenus" wide
@@ -1764,6 +1766,12 @@ define logic_0EA_new_address $9FD5700
 org $9285D70; incbin logic_code_0E9.bin
 org {logic_0EA_new_address}; incbin logic_0EA.bin
 org $9199364; dd {logic_0EA_new_address}-$9198C10; dd {logic_0EA_new_address}+$10-$9198C10;
+
+//Improve performance for equip menu
+org $8047112; bl improve_performances_menus.equipment_vram_equip_descriptors //Load OAM entries in VRAM
+org $8043832; b $8043888 //Remove OAM entries
+org $804E0C8; bl improve_performances_menus.equip_avoid_left_reprint //Don't reprint left column
+org $804F780; bl improve_performances_menus.equip_avoid_left_reprint //Don't reprint left column
 
 //Improve performances for status menu
 org $80473D8; bl improve_performances_menus.status_vram_equip_descriptors //Load OAM entries in VRAM

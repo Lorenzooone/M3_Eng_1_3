@@ -1818,7 +1818,7 @@ pop  {pc}
 //=============================================================================================
 
 .new_print_menu_offset_table:
-  dd .new_main_inventory_scroll_print+1; dd .new_default_scroll_print+1; dd .new_psi_scroll_print+1; dd .new_status_print+1
+  dd .new_main_inventory_scroll_print+1; dd .new_equip_print+1; dd .new_psi_scroll_print+1; dd .new_status_print+1
   dd .new_skills_scroll_print+1; dd .new_memoes_scroll_print+1; dd .new_default_scroll_print+1; dd .new_battle_memo_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_shop_scroll_print+1; dd .new_shop_scroll_print+1
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_withdrawing_scroll_print+1
@@ -1828,7 +1828,7 @@ pop  {pc}
   dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
 
 .new_print_menu_offset_table_special:
-  dd .new_default_scroll_print+1; dd .new_equip_submenu_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
+  dd .new_equip_submenu_scroll_print+1; dd .new_equip_submenu_scroll_print+1; dd .new_equip_submenu_scroll_print+1; dd .new_equip_submenu_scroll_print+1
   
 .new_print_menu_addition_value_table:
   dw $41EC; dw $41F4; dw $41EC; dw $41EC; dw $41EC; dw $41FC; dw $41EC; dw $41FC;
@@ -2111,7 +2111,7 @@ pop  {r4,pc}
 //=============================================================================================
 
 .new_swap_arrangement_routine_table:
-  dd .new_clear_inventory+1; dd .new_clear_equip+1; dd .new_clear_inventory+1; dd .new_clear_status+1
+  dd .new_clear_inventory+1; dd .new_clear_equipment+1; dd .new_clear_inventory+1; dd .new_clear_status+1
   dd .new_clear_inventory+1; dd .new_clear_memoes+1; dd .new_clear_inventory+1; dd .new_clear_battle_memo+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_shop+1; dd .new_clear_shop+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
@@ -2119,6 +2119,9 @@ pop  {r4,pc}
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
   dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
+
+.new_swap_arrangement_routine_special_table:
+  dd .new_clear_equip_submenu+1; dd .new_clear_equip_submenu+1; dd .new_clear_equip_submenu+1; dd .new_clear_equip_submenu+1
 
 .new_clear_menu:
 push {r4-r7,lr}
@@ -2173,10 +2176,27 @@ cmp  r6,r0
 bcs  +
 
 //New code!
-ldr  r0,=#0x201A288
+ldr  r0,=#0x201A1EE                    //If this is an equip submenu, load the special table
+ldrb r0,[r0,#0]
+mov  r1,#1
+and  r0,r1
+cmp  r0,#0
+beq  .new_clear_menu_normal_menu
+ldr  r0,=#0x201A1E4
+ldrb r0,[r0,#0]
+cmp  r0,#3
+bhi  +
+lsl  r0,r0,#2
+ldr  r1,=#.new_swap_arrangement_routine_special_table
+b    .new_clear_menu_load_address
+
+.new_clear_menu_normal_menu:
+ldr  r0,=#0x201A288                    //This is a normal menu
 ldrb r0,[r0,#0]
 lsl  r0,r0,#2
 ldr  r1,=#.new_swap_arrangement_routine_table
+
+.new_clear_menu_load_address:
 add  r1,r1,r0
 ldrh r0,[r1,#0]
 ldrh r1,[r1,#2]
@@ -2185,7 +2205,7 @@ add  r1,r1,r0
 bl   $8091938
 b    +
 
-.new_clear_menu_next_spot:                            //Back to base code
+.new_clear_menu_next_spot:             //Back to base code
 mov  r0,r8
 mov  r1,r7
 mov  r2,#0
@@ -2439,15 +2459,47 @@ bne  -
 
 pop  {pc}
 
+//=============================================================================================
+// Clears the arrangements for the Equipment menu
+//=============================================================================================
+.new_clear_equipment:
+push {lr}
+mov  r1,r5
+mov  r0,#0x84
+add  r4,r1,r0
+mov  r3,#0
+-
+push {r3}
+mov  r0,#0
+push {r0}
+mov  r0,sp
+mov  r1,r4
+ldr  r2,=#0x0100000E                   // (0x18 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xB
+mov  r0,sp
+mov  r1,r4
+add  r1,#0x40
+ldr  r2,=#0x0100000E                   // (0x18 bytes of arrangements, 24th bit is 1 to fill instead of copying)
+swi  #0xB
+pop  {r0}
+pop  {r3}
+mov  r0,#1
+lsl  r0,r0,#8
+add  r4,r4,r0                          // Prepare the next one
+add  r3,#1
+cmp  r3,#4
+bne  -
+
+pop  {pc}
 
 //=============================================================================================
 // Swaps the arrangements' place for the equipment submenu
 //=============================================================================================
-.new_clear_equip:
+.new_clear_equip_submenu:
 push {lr}
 bl   .get_direction_submenu
 cmp  r0,#0
-bne  .new_clear_equip_descending
+bne  .new_clear_equip_submenu_descending
 //Swap arrangements' place - if we're ascending
 mov  r1,r5
 mov  r0,#0x38
@@ -2481,10 +2533,10 @@ add  r1,#0x40
 ldr  r2,=#0x01000008                   // (0x20 bytes of arrangements, 24th bit is 1 to fill instead of copying)
 swi  #0xC
 pop  {r0}
-b    .new_clear_equip_end
+b    .new_clear_equip_submenu_end
 
 //Swap arrangements' place - if we're descending
-.new_clear_equip_descending:
+.new_clear_equip_submenu_descending:
 mov  r1,r5
 mov  r0,#0x38
 lsl  r0,r0,#4
@@ -2517,7 +2569,7 @@ ldr  r2,=#0x01000008                   // (0x20 bytes of arrangements, 24th bit 
 swi  #0xC
 pop  {r0}
 
-.new_clear_equip_end:
+.new_clear_equip_submenu_end:
 pop  {pc}
 
 //=============================================================================================
@@ -3594,6 +3646,66 @@ bl   $8047B0C                          //Print Skill
 .new_status_print_end:
 add  sp,#4
 pop  {r4-r7,pc}
+
+//=============================================================================================
+// This hack changes what the equipment menu will print, based off of 0x80470A8
+//=============================================================================================
+.new_equip_print:
+push {r4-r6,lr}
+add  sp,#-4                            //base code
+ldrh r0,[r0,#0xA]
+bl   $8054FE0                          //Get character's address
+mov  r5,r0
+bl   .delete_vram_equip
+cmp  r0,#0                             //Can this character's data be shown?
+bne  .new_equip_print_end
+
+mov  r4,#0
+mov  r6,r5
+add  r6,#0x34                          //Go pick up the character's equipment
+mov  r5,#0xF
+-
+add  r1,r6,r4                          //Get Xth item
+ldrb r0,[r1,#0]
+cmp  r0,#0
+bne  .new_equip_print_item            //Is an item equipped?
+
+mov  r0,#2
+bl   $80486A0                          //If not, order printing "-----"
+lsl  r2,r4,#0x11
+mov  r1,#0xC0
+lsl  r1,r1,#0xA
+add  r2,r2,r1
+lsr  r2,r2,#0x10
+str  r5,[sp,#0]
+mov  r1,#0xC
+mov  r3,#1
+neg  r3,r3
+bl   $8047B9C                          //Order its printing
+b    +
+
+.new_equip_print_item:
+ldrb r1,[r1,#0]                        //Load the item that has to be printed
+mov  r0,#2
+bl   $8001C5C                          //Load its address
+lsl  r2,r4,#0x11
+mov  r1,#0xC0
+lsl  r1,r1,#0xA
+add  r2,r2,r1
+lsr  r2,r2,#0x10
+str  r5,[sp,#0]
+mov  r1,#0xC
+mov  r3,#0x16
+bl   $8047B9C                          //Order its printing
+
++
+add  r4,#1
+cmp  r4,#3                             //Cycle the equipment in its entirety
+bls  -
+
+.new_equip_print_end:
+add  sp,#4
+pop  {r4-r6,pc}
 
 //=============================================================================================
 // This hack changes what the main inventory scrolling will print, based off of 0x8046EF0
@@ -6254,6 +6366,25 @@ ldrh r0,[r4,#4]              //Normal stuff the game expects from us
 bl   $8053E98
 pop  {pc}
 
+.equip_block_input_lr:
+push {lr}
+add  sp,#-4
+ldr  r0,[sp,#8]
+str  r0,[sp,#0]              //Prepare arg for the function
+
+bl   main_menu_hacks.check_if_printed
+mov  r0,#0                   //Do the thing only IF we're done printing.
+cmp  r1,#0                   //Prevents issues with arrangements not being there
+bne  +
+mov  r0,r4
+add  r0,#0xA
+mov  r1,r5
+mov  r2,#0
+bl   $8053754
++
+add  sp,#4
+pop  {pc}
+
 .status_block_input_lr:
 push {lr}
 add  sp,#-4
@@ -6338,6 +6469,69 @@ mov  r3,r5
 bl   $8047B9C                //Order its printing
 
 add  sp,#4
+pop  {pc}
+
+//=============================================================================================
+// This hack prints "Weapon", "Body", "Head" and "Other" in VRAM.
+//=============================================================================================
+.equipment_vram_equip_descriptors:
+push {lr}
+add  sp,#-4
+mov  r4,#1
+mov  r5,#1
+neg  r5,r5
+
+mov  r0,#0x52
+bl   $80486A0                //Load up "Weapon"
+str  r4,[sp,#0]
+mov  r1,#0xB
+mov  r2,#2
+mov  r3,r5
+bl   $8047B9C                //Order its printing
+
+mov  r0,#0x54
+bl   $80486A0                //Load up "Body"
+str  r4,[sp,#0]
+mov  r1,#0xB
+mov  r2,#4
+mov  r3,r5
+bl   $8047B9C                //Order its printing
+
+mov  r0,#0x53
+bl   $80486A0                //Load up "Head"
+str  r4,[sp,#0]
+mov  r1,#0xB
+mov  r2,#6
+mov  r3,r5
+bl   $8047B9C                //Order its printing
+
+mov  r0,#0x55
+bl   $80486A0                //Load up "Other"
+str  r4,[sp,#0]
+mov  r1,#0xB
+mov  r2,#8
+mov  r3,r5
+bl   $8047B9C                //Order its printing
+
+ldr  r0,=#0x201A51B
+mov  r1,#0
+add  sp,#4
+pop  {pc}
+
+//=============================================================================================
+// Avoid reprinting stuff we don't need to when closing the equipment submenu
+//=============================================================================================
+.equip_avoid_left_reprint:
+push {lr}
+ldr  r0,=#0x201A51B
+mov  r1,#4
+strb r1,[r0,#0]              //Specify no reprinting for left column
+
+bl   $8046D90                //Call printing
+
+ldr  r0,=#0x201A51B
+mov  r1,#0
+strb r1,[r0,#0]              //Restore previous value
 pop  {pc}
 
 
