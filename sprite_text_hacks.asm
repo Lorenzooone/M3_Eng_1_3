@@ -1,4 +1,5 @@
 //============================================================================================
+define current_font_menu $20225C4
 //============================================================================================
 // This hack does text "welding" within the game's glyph buffer structs. This particular
 // routine affects sprite text.
@@ -452,16 +453,16 @@ lsr  r3,r3,#0x18
 // It can be either 8CE39F8 (main) or 8D0B010 (small)
 // From that we want to get the widths pointer, which is 8D1CE78 (main) or 8D1CF78 (small)
 // I'm assuming we only ever use this for main and small fonts...
-ldr  r2,=#0x20225C4
+ldr  r2,=#{current_font_menu}
 ldr  r4,[r2,#0]
-ldr  r2,=#0x8CE39F8
+ldr  r2,=#{main_font}
 cmp  r2,r4
 bne  +
 // We're using main font
-ldr  r2,=#0x8D1CE78
+ldr  r2,=#{main_font_width}
 b    .store_letter_next
 +
-ldr  r2,=#0x8D1CF78
+ldr  r2,=#{small_font_width}
 
 
 
@@ -810,8 +811,25 @@ mov  r7,#4
 ldsh r0,[r2,r7]
 lsl  r0,r0,#0x10
 orr  r1,r0
+
+// 20225C4 holds a pointer to the current font
+// It can be either 8CE39F8 (main) or 8D0B010 (small)
+// From that we want to use different sizes for the sprites
+// I'm assuming we only ever use this for main and small fonts...
+ldr  r0,=#{current_font_menu}
+ldr  r7,[r0,#0]
+ldr  r0,=#{main_font}
+cmp  r0,r7
+bne  +
 mov  r0,#0x80
-lsl  r0,r0,#0x17
+lsl  r0,r0,#0x17                       //16x16 if the font is the main one
+b    .custom_create_sprite_oam_create 
+
++
+mov  r0,#0x40
+lsl  r0,r0,#8                          //16x8 if the font is the small one
+
+.custom_create_sprite_oam_create:
 orr  r1,r0
 ldr  r0,[r2,#0x1C]
 str  r1,[r0,#0]
@@ -901,19 +919,19 @@ strh r0,[r5,#0x8]        // store r0 (current letter value) in RAM block
 // It can be either 8CE39F8 (main) or 8D0B010 (small)
 // From that we want to get the widths pointer, which is 8D1CE78 (main) or 8D1CF78 (small)
 // I'm assuming we only ever use this for main and small fonts...
-ldr  r2,=#0x20225C4
+ldr  r2,=#{current_font_menu}
 ldr  r4,[r2,#0]
-ldr  r2,=#0x8CE39F8
+ldr  r2,=#{main_font}
 cmp  r2,r4
 bne  +
 // We're using main font
-ldr  r2,=#0x8D1CE78
+ldr  r2,=#{main_font_width}
 b    .get_sprite_total_next
 +
 ldr  r2,=#0x8D1CF78
 
 
-.get_sprite_total_next:			   
+.get_sprite_total_next:
 ldrb r2,[r2,r0]          // get the current letter's width
 strb r2,[r5,#0x6]        // store the current letter's width in the RAM block
 pop  {r2,r4,r5}

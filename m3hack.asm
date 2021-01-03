@@ -12,6 +12,27 @@ arch gba.thumb
 org $800188E; db $40
 org $80018A9; db $C3
 
+//============================================================================================
+//                                          FONT FILES
+//============================================================================================
+ 
+// Insert new 16x16 font + cast roll pre-welded font
+//org $8CE39F8; fill $8192,$0
+define main_font $8CE39F8 
+org {main_font}; incbin font_mainfont.bin
+org $8CE59F8; incbin font_castroll.bin
+
+// Insert new 8x8 font
+define small_font $8D0B010 
+org {small_font}; incbin font_smallfont.bin
+
+// Insert new font width table
+define main_font_width $8D1CE78
+org {main_font_width}; incbin font_mainwidths.bin
+
+// insert 8x8 font width table
+define small_font_width $8D1CF78
+org {small_font_width}; incbin font_smallwidths.bin
 
 //============================================================================================
 //                                       CAST ROLL HACKS
@@ -782,7 +803,7 @@ org $8002284                 // calculate the width
   b    $800239e
   
   +
-  ldr  r3,=#0x8D1CE78        // r3 has the main width table
+  ldr  r3,=#{main_font_width} // r3 has the main width table
   mov  r0,#0x02              // if the second bit of r2 is set, we're doing the 8x8 font
   and  r0,r2                 // and should update the address for the 8x8 width table
   cmp  r0,#0x02 
@@ -1137,14 +1158,6 @@ org $80B3F66; bl battle_hacks.item_steal_text2; b $80B3FE8
 //============================================================================================
 //                                    GRAPHICS HACKS
 //============================================================================================
- 
-// Insert new 16x16 font + cast roll pre-welded font
-//org $8CE39F8; fill $8192,$0
-org $8CE39F8; incbin font_mainfont.bin
-org $8CE59F8; incbin font_castroll.bin
-
-// Insert new 8x8 font
-org $8D0B010; incbin font_smallfont.bin
 
 // insert ATM graphics
 org $9AFD8D0; incbin gfx_frogatm.bin
@@ -1318,12 +1331,6 @@ incsrc sound_hacks.asm
 //============================================================================================
 //                                     DATA FILES
 //============================================================================================
-
-// Insert new font width table
-org $8D1CE78; incbin font_mainwidths.bin
-
-// insert 8x8 font width table
-org $8D1CF78; incbin font_smallwidths.bin
 
 // insert translated item names
 org $8D1EE84; dd $0126D588

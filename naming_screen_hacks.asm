@@ -17,7 +17,7 @@ add  r1,r1,r2
 bx   lr
 
 .bullets2:
-ldr  r1,=#0x8D1CF78
+ldr  r1,=#{small_font_width}
 add  r3,#1
 lsl  r3,r3,#1
 sub  r2,r2,r3

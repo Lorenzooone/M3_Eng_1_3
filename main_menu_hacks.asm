@@ -1174,7 +1174,7 @@ ldr  r6,[r6,#0]
 lsl  r6,r6,#0x14
 lsr  r0,r6,#0x14             // r0 has the letter now
 
-ldr  r2,=#0x8D1CE78          // r2 now points to the start of 16x16 font's width table
+ldr  r2,=#{main_font_width}  // r2 now points to the start of 16x16 font's width table
 ldrb r0,[r2,r0]              // load r0 with the appropriate width
 pop  {r2,r6,pc}
 
@@ -1233,7 +1233,7 @@ str  r5,[sp,#0x08]           // Store it over the previous one
 pop  {r5}                    // Get back r5 
 add  sp,#0x04                // Get the un-needed value off the stack 
 
-ldr  r0,=#0x8D1CE78          // load r0 with the address of our 16x16 font width table (FIX : that was 8x8)
+ldr  r0,=#{main_font_width}  // load r0 with the address of our 16x16 font width table (FIX : that was 8x8)
 ldrb r0,[r0,r1]
 pop  {pc}
 

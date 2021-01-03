@@ -1,5 +1,4 @@
 - IMPROVE REFRESHES' STRUCTURE!!! (very ugly to look at, right now)
-- Improving the battle scrolling system (just as bad as the main menu one)
+- Improving the battle inventory/psi/skills printing system (worse than the main menu one)
 - Fixing the new "Skull gift box" issue
 - Check out Tanetane's infinite running area
-- The actual OAM optimization (on a per menu basis), maybe missing battle memo

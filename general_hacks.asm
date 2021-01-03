@@ -93,7 +93,7 @@ mov  r2,r0                   // r2 = address
 mov  r3,#1
 neg  r3,r3
 lsr  r3,r3,#0x10             // r3 = 0xFFFF, [END] code
-ldr  r4,=#0x8D1CE78          // address of main width table
+ldr  r4,=#{main_font_width}  // address of main width table
 
 -
 ldrh r0,[r2,#0x0]
@@ -197,7 +197,7 @@ mov  r7,r1                   // r7 has the end address
 mov  r1,#0                   // r1 = width total
 
 mov  r2,r0                   // r2 = address
-ldr  r4,=#0x8D1CE78          // address of main width table
+ldr  r4,=#{main_font_width}  // address of main width table
 
 -
 ldrh r0,[r2,#0x0]

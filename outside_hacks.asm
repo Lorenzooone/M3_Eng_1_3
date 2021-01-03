@@ -1,12 +1,13 @@
 outside_hacks:
 
+define current_font_overworld $2027CAC
 //===========================================================================================
 // This hack centers names in the Name/HP/PP boxes when you press Select outside.
 //===========================================================================================
 
 .center_names:
 push {r2,r4-r5,lr}
-ldr  r2,=#0x8D1CF78          // This is the address of the 8x8 font width table
+ldr  r2,=#{small_font_width} // This is the address of the 8x8 font width table
 mov  r0,r9
 mov  r3,#0
 mov  r4,#0
@@ -156,7 +157,7 @@ mov  r1,r0                   // r1 has the string length now
 mov  r2,#0                   // r2 will be our loop counter
 mov  r0,#0                   // r0 will be our width counter
 ldr  r5,[sp,#0x24]           // load r5 with the address of the string
-ldr  r6,=#0x8D1CF78          // r6 has the address of our 8x8 font width table
+ldr  r6,=#{small_font_width} // r6 has the address of our 8x8 font width table
 
 //--------------------------------------------------------------------------------------------
 // Now we need to do a loop to get the total width of the current string
@@ -195,15 +196,15 @@ pop  {r1-r6,pc}
 
 .is_small_font:
 push {r1-r2}
-ldr  r0,=#0x2027CAC          //Load the font address
+ldr  r0,=#{current_font_overworld}     //Load the font address
 ldr  r0,[r0,#0]
 mov  r2,#1
-ldr  r1,=#0x8D0B010          //Small font address
+ldr  r1,=#{small_font}                 //Small font address
 cmp  r0,r1
 beq  +
 mov  r2,#0
 +
-mov  r0,r2                   //Put the output in r2
+mov  r0,r2                             //Put the output in r2
 
 pop  {r1-r2}
 bx   lr
