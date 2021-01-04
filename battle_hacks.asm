@@ -3318,7 +3318,9 @@ pop  {pc}
 //=============================================================================================
 .inventory_printing_routine_up_call:
 push {lr}
-mov  r1,#2
+lsl  r1,r1,#2
+mov  r2,#2
+orr  r1,r2
 bl   .inventory_printing_routine
 pop  {pc}
 
@@ -3327,9 +3329,33 @@ pop  {pc}
 //=============================================================================================
 .inventory_printing_routine_down_call:
 push {lr}
-mov  r1,#3
+lsl  r1,r1,#2
+mov  r2,#3
+orr  r1,r2
 bl   .inventory_printing_routine
 pop  {pc}
+
+//=============================================================================================
+// Setup whether the top item's index changed (Scrolling)
+//=============================================================================================
+.inventory_printing_routine_ud_setup:
+push {r5,lr}
+mov  r5,r4
+add  r5,#0x34
+ldrb r5,[r5,#0]
+bl   $8091938
+mov  r1,r4
+add  r1,#0x34
+ldrb r1,[r1,#0]
+cmp  r1,r5
+beq  +
+mov  r1,#1
+b    .inventory_printing_routine_ud_setup_end
++
+mov  r1,#0
+
+.inventory_printing_routine_ud_setup_end:
+pop  {r5,pc}
 
 //=============================================================================================
 // Improve battle menus printing - based on 0x807E61C.
@@ -3348,14 +3374,14 @@ mov  r7,r10
 mov  r6,r9
 mov  r5,r8
 push {r5-r7}
-add  sp,#-0x9C
+add  sp,#-0x98
 mov  r6,r0
 ldr  r0,[r6,#0x40]
 cmp  r0,#5
 bne  +
 b    .inventory_printing_routine_end
 +
-str  r1,[sp,#0x98]                     //Extra piece of code
+mov  r5,r1                             //Extra piece of code
 
 mov  r0,#0                             //Base code
 str  r0,[sp,#0x74]
@@ -3380,9 +3406,8 @@ str  r2,[sp,#0x80]
 add  r3,sp,#0x6C
 mov  r10,r3
 
-ldr  r0,[sp,#0x98]
-lsr  r0,r0,#2
-cmp  r0,#0
+lsr  r5,r5,#2
+cmp  r5,#0
 bne  +
 b    .inventory_printing_routine_after_cycle
 +  
@@ -3502,7 +3527,7 @@ mov  r1,#2
 bl   $806E308
 mov  r0,sp
 mov  r1,#2
-bl   $8064E98
+bl   $80649E8
 b    .inventory_printing_routine_end_of_cycle
 
 .inventory_printing_routine_no_item:
@@ -3724,7 +3749,7 @@ mov  r1,#2
 bl   $80649E8
 
 .inventory_printing_routine_end:
-add  sp,#0x9C
+add  sp,#0x98
 pop  {r3-r5}
 mov  r8,r3
 mov  r9,r4
