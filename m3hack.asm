@@ -1784,6 +1784,13 @@ org $804F780; bl improve_performances_menus.equip_avoid_left_reprint //Don't rep
 org $80473D8; bl improve_performances_menus.status_vram_equip_descriptors //Load OAM entries in VRAM
 org $8044130; b $80441A2 //Remove OAM entries
 
+//Improve the in-battle inventory menu
+org $807E47C; bl battle_menus_improvement_hacks.inventory_printing_routine_up_call
+org $807E4BC; bl battle_menus_improvement_hacks.inventory_printing_routine_down_call
+org $807E4FC; bl battle_menus_improvement_hacks.inventory_printing_routine_lr_call
+org $807E53C; bl battle_menus_improvement_hacks.inventory_printing_routine_lr_call
+org $807E57C; bl battle_menus_improvement_hacks.inventory_printing_routine_select_call
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================

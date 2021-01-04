@@ -97,7 +97,7 @@ push {r0-r3,r6}
 
 //-------------------------------------------------------------------------------------------
 
-ldr  r6,=#0x8D1CE78          // r2 contains 08D1CE78, the width table's address
+ldr  r6,=#{main_font_width}  // r2 contains 08D1CE78, the width table's address
 mov  r0,#0x0                 // initialize the total width counter
 ldr  r3,=#0xFEFF             // r3 has the [END] code
 
@@ -459,7 +459,7 @@ add  r0,r0,r1                // Add the old X position to r0
 sub  r6,#4                   // Move the pointer back some for now 
 ldr  r5,[r6,#0]              // Load r5 with our current character
 
-ldr  r6,=#0x8D1CE78          // r6 = address of 16x16 font width table
+ldr  r6,=#{main_font_width}  // r6 = address of 16x16 font width table
 add  r6,r6,r4                // add r4 to r6, it'll be 8D1CF78 if the 8x8 font is being used
 
 ldr  r4,=#0x1FF              // see if the letter is in the normal text range
@@ -567,7 +567,7 @@ add  r0,r0,r1
 
 push {r5-r6}
 ldr  r6,=#0x2014300          // Load r6 with the base address of our custom RAM block
-ldr  r5,=#0x8D1CE78          // load r5 with the address of the font width table
+ldr  r5,=#{main_font_width}  // load r5 with the address of the font width table
 
 cmp  r7,#0
 bne  +                       // if we're on the first character, init stuff, else do main code
@@ -789,7 +789,7 @@ add  sp,#0x04                // Get the un-needed value off the stack
 
 push {r5-r6}                 // we really need these registers right now
 
-ldr  r5,=#0x8D1CE78          // load r5 with the address of the font width table
+ldr  r5,=#{main_font_width}  // load r5 with the address of the font width table
 ldr  r6,=#0x2014300          // Load r6 with the base address of our custom RAM block
 
 //--------------------------------------------------------------------------------------------
@@ -1061,7 +1061,7 @@ add  r0,r0,r1
 
 mov  r1,#0xFF
 lsl  r1,r1,#8
-ldr  r4,=#0x8D1CF78
+ldr  r4,=#{small_font_width}
 mov  r5,#0
 
 -
@@ -1557,7 +1557,7 @@ add  r0,r0,r1
 
 push {r5-r7}
 ldr  r6,=#0x2014300          // Load r6 with the base address of our custom RAM block
-ldr  r5,=#0x8D1CE78          // load r5 with the address of the font width table
+ldr  r5,=#{main_font_width}  // load r5 with the address of the font width table
 
 mov  r7,r9
 cmp  r7,#0
@@ -1658,7 +1658,7 @@ add sp,#0x04                 // Get the un-needed value off the stack
 
 push {r5-r6}                 // we really need these registers right now
 
-ldr  r5,=#0x8D1CE78          // load r5 with the address of the font width table
+ldr  r5,=#{main_font_width}  // load r5 with the address of the font width table
 ldr  r6,=#0x2014300          // Load r6 with the base address of our custom RAM block
 
 //--------------------------------------------------------------------------------------------
@@ -1789,7 +1789,7 @@ add  r0,r0,r1
 
 push {r5-r6}
 ldr  r6,=#0x2014300          // Load r6 with the base address of our custom RAM block
-ldr  r5,=#0x8D1CE78          // load r5 with the address of the font width table
+ldr  r5,=#{main_font_width}  // load r5 with the address of the font width table
 
 cmp  r7,#0
 bne  +                       // if we're on the first character, init stuff, else do main code
@@ -1886,7 +1886,7 @@ add  sp,#0x04                // Get the un-needed value off the stack
 
 push {r5-r6}                 // we really need these registers right now
 
-ldr  r5,=#0x8D1CE78          // load r5 with the address of the font width table
+ldr  r5,=#{main_font_width}  // load r5 with the address of the font width table
 ldr  r6,=#0x2014300          // Load r6 with the base address of our custom RAM block
 
 //--------------------------------------------------------------------------------------------
@@ -2182,7 +2182,7 @@ add  r0,r0,r1
 push {r5-r7}
 mov  r7,r6
 ldr  r6,=#0x2014300          // Load r6 with the base address of our custom RAM block
-ldr  r5,=#0x8D1CE78          // load r5 with the address of the font width table
+ldr  r5,=#{main_font_width}  // load r5 with the address of the font width table
 
 cmp  r7,#0
 bne  +                       // if we're on the first character, init stuff, else do main code
@@ -2296,7 +2296,7 @@ add sp,#0x04                 // Get the un-needed value off the stack
 
 push {r5-r6}                 // we really need these registers right now
 
-ldr  r5,=#0x8D1CE78          // load r5 with the address of the font width table
+ldr  r5,=#{main_font_width}  // load r5 with the address of the font width table
 ldr  r6,=#0x2014300          // Load r6 with the base address of our custom RAM block
 
 //--------------------------------------------------------------------------------------------
@@ -3289,3 +3289,444 @@ strb r3,[r1,#1]
 pop  {r0-r7}
 bl   $8091938                //Clobbered code
 pop  {pc}
+
+//=============================================================================================
+// Improve battle menus printing
+//=============================================================================================
+battle_menus_improvement_hacks:
+
+//=============================================================================================
+// Call the improved inventory printing routine, Select was pressed
+//=============================================================================================
+.inventory_printing_routine_select_call:
+push {lr}
+mov  r1,#0
+bl   .inventory_printing_routine
+pop  {pc}
+
+//=============================================================================================
+// Call the improved inventory printing routine, Left/Right were pressed
+//=============================================================================================
+.inventory_printing_routine_lr_call:
+push {lr}
+mov  r1,#1
+bl   .inventory_printing_routine
+pop  {pc}
+
+//=============================================================================================
+// Call the improved inventory printing routine, Up was pressed
+//=============================================================================================
+.inventory_printing_routine_up_call:
+push {lr}
+mov  r1,#2
+bl   .inventory_printing_routine
+pop  {pc}
+
+//=============================================================================================
+// Call the improved inventory printing routine, Down was pressed
+//=============================================================================================
+.inventory_printing_routine_down_call:
+push {lr}
+mov  r1,#3
+bl   .inventory_printing_routine
+pop  {pc}
+
+//=============================================================================================
+// Improve battle menus printing - based on 0x807E61C.
+// It will print only what it needs to.
+// r0 contains the menu's pointer. r1 will contain custom info that will allow understanding
+// whether we scrolled or not...
+// 0 nothing (Select was pressed)
+// 1 left/right
+// 2 up
+// 3 down
+// 3rd bit set to 1 - scrolled
+//=============================================================================================
+.inventory_printing_routine:
+push {r4-r7,lr}
+mov  r7,r10
+mov  r6,r9
+mov  r5,r8
+push {r5-r7}
+add  sp,#-0x9C
+mov  r6,r0
+ldr  r0,[r6,#0x40]
+cmp  r0,#5
+bne  +
+b    .inventory_printing_routine_end
++
+str  r1,[sp,#0x98]                     //Extra piece of code
+
+mov  r0,#0                             //Base code
+str  r0,[sp,#0x74]
+mov  r1,r6
+add  r1,#0x34
+str  r1,[sp,#0x84]
+add  r2,sp,#0x50
+mov  r8,r2
+mov  r3,r6
+add  r3,#0x36
+str  r3,[sp,#0x8C]
+mov  r0,r6
+add  r0,#0x35
+str  r0,[sp,#0x88]
+mov  r1,sp
+add  r1,#0x70
+str  r1,[sp,#0x90]
+add  r7,sp,#0x5C
+mov  r2,sp
+add  r2,#0x68
+str  r2,[sp,#0x80]
+add  r3,sp,#0x6C
+mov  r10,r3
+
+ldr  r0,[sp,#0x98]
+lsr  r0,r0,#2
+cmp  r0,#0
+bne  +
+b    .inventory_printing_routine_after_cycle
++  
+
+.inventory_printing_routine_start_of_cycle_Y:
+mov  r0,#0
+mov  r9,r0
+ldr  r1,[sp,#0x74]
+add  r1,#1
+str  r1,[sp,#0x94]
+ldr  r3,[sp,#0x74]
+mov  r0,#0xB8
+mov  r2,r3
+mul  r2,r0
+str  r2,[sp,#0x78]
+mov  r0,r2
+add  r0,#0xB4
+add  r0,r6,r0
+str  r0,[sp,#0x7C]
+
+.inventory_printing_routine_start_of_cycle_X:
+ldr  r2,[sp,#0x84]
+mov  r1,#0
+ldsb r1,[r2,r1]                        //Starting index
+mov  r0,r6                             //Information
+ldr  r2,[sp,#0x74]                     //Y
+mov  r3,r9                             //X
+bl   $807E994                          //Gets an item's ID
+lsl  r0,r0,#0x10
+lsr  r4,r0,#0x10
+cmp  r4,#0
+bne  +
+b    .inventory_printing_routine_no_item
++
+
+ldr  r1,[r6,#0x1C]
+add  r1,#0xB8
+mov  r3,#0
+ldsh r0,[r1,r3]
+add  r0,r6,r0
+ldr  r1,[r1,#4]
+bl   $8091938                          //Load character's data
+mov  r2,r0
+mov  r0,sp
+mov  r1,r4
+mov  r3,#0
+bl   $80649AC                          //Setup stuff
+mov  r0,r8
+bl   $806E274                          //Setup stuff
+ldr  r0,[sp,#0x84]
+mov  r1,#0
+ldsb r1,[r0,r1]                        //Starting index
+mov  r0,r6                             //Information
+ldr  r2,[sp,#0x74]                     //Y
+mov  r3,r9                             //X
+bl   $807EAB4                          //Is the item equipped?
+lsl  r0,r0,#0x18
+lsr  r0,r0,#0x18
+mov  r1,#0
+cmp  r0,#1
+bne  +
+ldr  r1,=#0xFF22                       //If it's equipped, load this value
++
+mov  r0,r8
+bl   $806E34C
+mov  r0,r7
+mov  r1,sp
+bl   $8064B30                          //Print item
+mov  r0,r8
+mov  r1,r7
+bl   $806E374
+mov  r0,r7
+mov  r1,#2
+bl   $806E308
+mov  r0,#0x5C
+mov  r2,r9
+mul  r2,r0
+ldr  r1,[sp,#0x78]
+add  r0,r1,r6
+add  r0,r2,r0
+mov  r4,r0
+add  r4,#0xB4
+ldr  r1,[r4,#0x1C]
+add  r1,#0x80
+ldr  r3,[sp,#0x7C]
+add  r5,r3,r2
+mov  r2,#0
+ldsh r0,[r1,r2]
+add  r0,r5,r0
+ldr  r2,[r1,#4]
+mov  r1,r8
+bl   $809193C
+mov  r0,sp
+bl   $8064F3C                          //Returns 0 if the item is a Key Item, otherwise it returns 1
+lsl  r0,r0,#0x18
+lsr  r1,r0,#0x18
+ldr  r2,[r4,#0x1C]
+add  r2,#0x90
+mov  r3,#0
+ldsh r0,[r2,r3]
+add  r0,r5,r0
+sub  r1,#1
+ldr  r3,[sp,#0x80]
+cmp  r1,#0
+beq  +
+mov  r1,#0xA0
+mov  r3,r10
++
+strb r1,[r3,#0]
+strb r1,[r3,#1]
+strb r1,[r3,#2]
+ldr  r2,[r2,#4]
+mov  r1,r3
+bl   $809193C
+mov  r0,r8
+mov  r1,#2
+bl   $806E308
+mov  r0,sp
+mov  r1,#2
+bl   $8064E98
+b    .inventory_printing_routine_end_of_cycle
+
+.inventory_printing_routine_no_item:
+mov  r0,#0x5C
+mov  r4,r9
+mul  r4,r0
+ldr  r1,[sp,#0x78]
+add  r0,r1,r6
+add  r0,r4,r0
+add  r0,#0xB4
+ldr  r5,[r0,#0x1C]
+add  r5,#0x80
+ldr  r2,[sp,#0x7C]
+add  r4,r2,r4
+mov  r3,#0
+ldsh r0,[r5,r3]
+add  r4,r4,r0
+mov  r0,sp
+bl   $806E274                          //Setup stuff
+ldr  r2,[r5,#4]
+mov  r0,r4
+mov  r1,sp
+bl   $809193C
+mov  r0,sp
+mov  r1,#2
+bl   $806E308
+
+.inventory_printing_routine_end_of_cycle:
+mov  r0,#1
+add  r9,r0
+mov  r1,r9
+cmp  r1,#1
+bgt  +
+b    .inventory_printing_routine_start_of_cycle_X
++
+ldr  r2,[sp,#0x94]
+str  r2,[sp,#0x74]
+cmp  r2,#2
+bgt  +
+b    .inventory_printing_routine_start_of_cycle_Y
++
+
+.inventory_printing_routine_after_cycle:
+mov  r3,#0xB7
+lsl  r3,r3,#2
+add  r0,r6,r3
+ldr  r1,[sp,#0x8C]
+mov  r2,#0
+ldsb r2,[r1,r2]
+ldr  r3,[sp,#0x88]
+mov  r4,#0
+ldsb r4,[r3,r4]
+mov  r1,#0x6C
+mov  r3,r2
+mul  r3,r1
+add  r3,#3
+lsl  r1,r4,#1
+add  r1,r1,r4
+lsl  r1,r1,#2
+sub  r1,#3
+add  r2,sp,#0x70
+strh r3,[r2,#0]
+ldr  r2,[sp,#0x90]
+strh r1,[r2,#2]
+ldr  r1,[sp,#0x90]
+bl   $808B1A8                          //Update cursor's coordinates
+mov  r3,#0xDE
+lsl  r3,r3,#2
+add  r4,r6,r3
+ldr  r0,[sp,#0x84]
+mov  r1,#0
+ldsb r1,[r0,r1]
+sub  r1,#1
+mov  r0,r6
+mov  r2,#0
+mov  r3,#0
+bl   $807E994                          //Get item above the top one's ID
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0x10
+neg  r1,r0
+orr  r1,r0
+lsr  r1,r1,#0x1F
+mov  r0,r4
+bl   $806DB38
+ldr  r1,=#0x414
+add  r4,r6,r1
+ldr  r2,[sp,#0x84]
+mov  r1,#0
+ldsb r1,[r2,r1]
+add  r1,#3
+mov  r0,r6
+mov  r2,#0
+mov  r3,#0
+bl   $807E994                          //Get item below the bottom one's ID
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0x10
+neg  r1,r0
+orr  r1,r0
+lsr  r1,r1,#0x1F
+mov  r0,r4
+bl   $806DB38
+mov  r3,#0x96
+lsl  r3,r3,#3
+add  r4,r6,r3
+ldr  r1,[r6,#0x1C]
+add  r1,#0xC0
+mov  r2,#0
+ldsh r0,[r1,r2]
+add  r0,r6,r0
+ldr  r1,[r1,#4]
+bl   $8091938                          //Is the Select menu open?
+mov  r1,r0
+mov  r0,r4
+bl   $806D7DC
+ldr  r3,[sp,#0x84]
+mov  r1,#0
+ldsb r1,[r3,r1]
+ldr  r0,[sp,#0x88]
+mov  r2,#0
+ldsb r2,[r0,r2]
+ldr  r0,[sp,#0x8C]
+mov  r3,#0
+ldsb r3,[r0,r3]
+mov  r0,r6
+bl   $807E994                          //Get selected item's ID
+mov  r4,r0
+lsl  r4,r4,#0x10
+lsr  r4,r4,#0x10
+ldr  r1,[r6,#0x1C]
+add  r1,#0xB8
+mov  r2,#0
+ldsh r0,[r1,r2]
+add  r0,r6,r0
+ldr  r1,[r1,#4]
+bl   $8091938                          //Get character's data
+mov  r2,r0
+mov  r0,sp
+mov  r1,r4
+mov  r3,#0
+bl   $80649AC
+ldr  r3,=#0x51C
+add  r4,r6,r3
+ldr  r1,[r6,#0x1C]
+add  r1,#0xC0
+mov  r2,#0
+ldsh r0,[r1,r2]
+add  r0,r6,r0
+ldr  r1,[r1,#4]
+bl   $8091938                          //Is the Select menu open?
+mov  r1,r0
+mov  r0,r4
+bl   $80867D4
+mov  r0,sp
+bl   $8064B20                          //Get selected item's ID
+mov  r1,r0
+lsl  r1,r1,#0x10
+lsr  r1,r1,#0x10
+mov  r0,r4
+bl   $80867F8                          //Save item's ID in game's struct
+ldr  r3,=#0x54C
+add  r4,r6,r3
+ldr  r1,[r6,#0x1C]
+add  r1,#0xC0
+mov  r2,#0
+ldsh r0,[r1,r2]
+add  r0,r6,r0
+ldr  r1,[r1,#4]
+bl   $8091938                          //Is the Select menu open?
+mov  r1,r0
+mov  r0,r4
+bl   $806E948
+mov  r0,r8
+mov  r1,sp
+mov  r2,#0
+bl   $807A1F4                          //Print Item Description, top line
+mov  r0,r4
+mov  r1,r8
+bl   $8071150
+mov  r0,r8
+mov  r1,#2
+bl   $806E308
+mov  r3,#0xB5
+lsl  r3,r3,#3
+add  r4,r6,r3
+ldr  r1,[r6,#0x1C]
+add  r1,#0xC0
+mov  r2,#0
+ldsh r0,[r1,r2]
+add  r0,r6,r0
+ldr  r1,[r1,#4]
+bl   $8091938                          //Is the Select menu open?
+mov  r1,r0
+mov  r0,r4
+bl   $806E948
+mov  r0,r8
+mov  r1,sp
+mov  r2,#1
+bl   $807A1F4                          //Print Item Description, bottom line
+mov  r0,r4
+mov  r1,r8
+bl   $8071150
+mov  r0,r8
+mov  r1,#2
+bl   $806E308
+ldr  r3,=#0x604
+add  r4,r6,r3
+ldr  r1,[r6,#0x1C]
+add  r1,#0xC0
+mov  r2,#0
+ldsh r0,[r1,r2]
+add  r0,r6,r0
+ldr  r1,[r1,#4]
+bl   $8091938                          //Is the Select menu open?
+mov  r1,r0
+mov  r0,r4
+bl   $806DB38
+mov  r0,sp
+mov  r1,#2
+bl   $80649E8
+
+.inventory_printing_routine_end:
+add  sp,#0x9C
+pop  {r3-r5}
+mov  r8,r3
+mov  r9,r4
+mov  r10,r5
+pop  {r4-r7,pc}
