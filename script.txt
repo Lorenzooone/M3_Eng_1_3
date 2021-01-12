@@ -10841,10 +10841,10 @@
 233-51E:@Thanks[PAUSE 28 00].[PAUSE 28 00].[PAUSE 28 00].[PAUSE A0 00][END]
 233-52:Added text
 233-52E:@*hop*.[WAIT]  Now that my saving job is over, I think I'll[BREAK]  settle down and take care of the tadpoles.[WAIT]@Thank you for everything.[BREAK]  [PAUSE 3C 00]No, wait, it's the other way around.[PAUSE 3C 00][WAIT]@.[PAUSE 10 00].[PAUSE 10 00].[PAUSE 10 00]Whoa[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 18 00]a[PAUSE 20 00]a[PAUSE 28 00]a~[WAIT]  I've just been possessed by the spirit of the[BREAK]  translation developers...![WAIT]@Heya! Here's something you might not have[BREAK]  known![WAIT]@Press and hold the L and R Buttons when[BREAK]  entering the Status menu.[WAIT]@Something will happen when you do this.[BREAK]  But it's a secret, so don't tell anyone![WAIT]@Okay, time to go back to being a regular frog![WAIT]@...[WAIT]@...[WAIT]@Thank you for everything.[END]
-// this replaces the frog's text if you have the silver star at the end
+// this replaces the frog's text if you have either the bronze or the silver star at the end
 233-53:Padded text
 233-53E:@*hop*.[WAIT]  Now that my saving job is over, I think I'll[BREAK]  settle down and take care of the tadpoles.[WAIT]@Thank you for everything.[BREAK]  [PAUSE 3C 00]No, wait, it's the other way around.[PAUSE 3C 00][WAIT]@.[PAUSE 10 00].[PAUSE 10 00].[PAUSE 10 00]Whoa[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 10 00]a[PAUSE 18 00]a[PAUSE 20 00]a[PAUSE 28 00]a~[WAIT]  I've just been possessed by the spirit of the[BREAK]  translation developers...![WAIT]@Wow! You must be a real hardcore fan of this[BREAK]  game to completely fill up your Battle Memory![WAIT]@You're amazing![WAIT]@So amazing that you deserve an extra bonus![BREAK]  So listen close![WAIT]@Name yourself "HARD MODE" in Chapter 1! It'll[BREAK]  make things a bit more challenging! Good luck![WAIT]@But this is a secret just between you and me,[BREAK]  so don't tell aaaaanyone![WAIT]@Okay, time to go back to being a regular frog![WAIT]@...[WAIT]@...[WAIT]@Thank you for everything.[END]
-// this replaces the frog's text if you have the gold + silver star at the end
+// this replaces the frog's text if you have the gold star at the end
 
 [Container 239]
 239-0:[END]
