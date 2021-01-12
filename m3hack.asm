@@ -1538,6 +1538,9 @@ org $9163DD8; db $01
 org $9163DE4; db $70
 org $9163DE7; db $00
 
+//Fix gift boxes issues in room 025, optimizing sprite usage
+org $913E1D4; incbin object_table_4_025_segment.bin
+
 //Fix gift boxes issues in room 1D9 and 058 using room 346 as a reference - 346's sprite table = 1162428
 
 //Insert new sprites

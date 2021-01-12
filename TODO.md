@@ -1,3 +1,1 @@
 - IMPROVE REFRESHES' STRUCTURE!!! (very ugly to look at, right now)
-- Fixing the new "Skull gift box" issue
-- Check out Tanetane's infinite running area
