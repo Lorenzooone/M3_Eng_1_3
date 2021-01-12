@@ -5788,8 +5788,11 @@ pop  {pc}
 //=============================================================================================
 // This set of hacks cleans the writing stack
 //=============================================================================================
-
 refreshes:
+
+//=============================================================================================
+// The main hack that clears the actual writing stack
+//=============================================================================================
 .main:
 push {lr}
 ldr  r1,=#0x2013040          //Address of the stack
@@ -5801,11 +5804,97 @@ str  r0,[r1,#0x18]
 str  r0,[r1,#0x1C]
 pop  {pc}
 
+
+//=============================================================================================
+// These hacks call the main one to clear the writing stack
+//=============================================================================================
 .lr:
 push {lr}
 bl   .main
 ldrh r1,[r5,#0xA]            //Normal stuff the game expects from us
 ldr  r2,=#0x4264
+pop  {pc}
+
+.b:
+push {lr}
+bl   .main
+mov  r0,#0xD3                //Normal stuff the game expects from us
+bl   $800399C
+pop  {pc}
+
+.status_a:
+push {lr}
+bl   .main
+mov  r0,r4                   //Normal stuff the game expects from us
+bl   $804EDFC
+pop  {pc}
+
+.inv_spec_a:
+push {lr}
+bl   .main
+ldr  r1,=#0x426A             //Normal stuff the game expects from us
+add  r0,r1,r7
+pop  {pc}
+
+.memo_a:
+push {lr}
+bl   .main
+mov  r0,r5                   //Normal stuff the game expects from us
+bl   $804EEE8
+pop  {pc}
+
+.equip_a:
+push {lr}
+bl   .main
+mov  r0,r4                   //Normal stuff the game expects from us
+bl   $804EB68
+pop  {pc}
+
+.inv_submenu_a:
+ldr  r0,=#0x804E84F          //We have to return here instead of where the call happened
+push {r0}
+bl   .main
+bl   $804FCB0                //Normal stuff the game expects from us
+pop  {pc}
+
+.inner_memo_scroll:
+push {r1,lr}                 //Let's save r1, since the game needs it
+bl   .main
+pop  {r1}
+mov  r0,r1                   //Normal stuff the game expects from us
+bl   $804EF38
+pop  {pc}
+
+.inner_equip_a:
+push {lr}
+bl   .main
+ldr  r7,=#0x2016028          //Normal stuff the game expects from us
+ldr  r0,=#0x41C6
+pop  {pc}
+
+.switch_lr:
+push {lr}
+bl   .main
+ldrh r0,[r4,#4]              //Normal stuff the game expects from us
+bl   $8053E98
+pop  {pc}
+
+.status_lr:
+push {lr}
+bl   .main
+ldrh r1,[r4,#0xA]            //Normal stuff the game expects from us
+ldr  r2,=#0x4264
+pop  {pc}
+
+//=============================================================================================
+// These hacks call the main one to clear the writing stack and then blank out the tiles.
+// This makes it so the printing process isn't showed
+//=============================================================================================
+.deposit_lr:
+push {lr}
+bl   .main
+bl   main_menu_hacks.delete_vram
+bl   $804C35C                //Normal stuff the game expects from us
 pop  {pc}
 
 .psi_select:
@@ -5816,13 +5905,20 @@ mov  r0,#0xD2                //Normal stuff the game expects from us
 bl   $800399C
 pop  {pc}
 
-.b:
+//=============================================================================================
+// This hack calls the main one to clear the writing stack.
+// It then changes how the withdraw menu swaps character. (Top index and selected item won't change)
+//=============================================================================================
+.withdraw_lr:
 push {lr}
-bl   .main
-mov  r0,#0xD3                //Normal stuff the game expects from us
-bl   $800399C
+bl   .main                   //Don't refresh the withdraw menu when we swap character...
+bl   main_menu_hacks.prepare_swap_char_withdraw
 pop  {pc}
 
+//=============================================================================================
+// This hack calls the main one to clear the writing stack.
+// It then moves the text up/down and prints only the bottom/top line
+//=============================================================================================
 .up_and_down:
 push {r0-r2,lr}
 bl   .main
@@ -5830,6 +5926,10 @@ bl   .main
 bl   main_menu_hacks.up_down_scrolling_print
 pop  {r0-r2,pc}
 
+//=============================================================================================
+// This hack calls the main one to clear the writing stack only if the game's done printing.
+// If the game's done printing, it then moves the text up/down and prints only the bottom/top line
+//=============================================================================================
 .up_and_down_battle_memoes:
 push {lr}
 add  sp,#-4
@@ -5855,6 +5955,12 @@ pop  {r0-r2}
 add  sp,#4
 pop  {pc}
 
+//=============================================================================================
+// This hack calls the main one to clear the writing stack.
+// If the battle memo's top index changed by <= 2, it moves the rest of the text and only prints
+// the stuff that is needed.
+// If 3 or more lines have to be printed, it reprints the entire menu as the Japanese version does
+//=============================================================================================
 .up_and_down_battle_memoes_left_right:
 push {lr}
 add  sp,#-8
@@ -5900,20 +6006,9 @@ pop  {r0-r2}
 add  sp,#8
 pop  {pc}
 
-.status_a:
-push {lr}
-bl   .main
-mov  r0,r4                   //Normal stuff the game expects from us
-bl   $804EDFC
-pop  {pc}
-
-.inv_spec_a:
-push {lr}
-bl   .main
-ldr  r1,=#0x426A             //Normal stuff the game expects from us
-add  r0,r1,r7
-pop  {pc}
-
+//=============================================================================================
+// These hacks allow input reading only if the game's done printing.
+//=============================================================================================
 .inv_block_a:
 push {lr}
 bl   main_menu_hacks.check_if_printed
@@ -5938,90 +6033,6 @@ bne  +
 ldrh r1,[r4,#0]              //Normal input loading
 +
 mov  r0,#3
-pop  {pc}
-
-.inv_load_new_old_size:
-push {lr}
-add  sp,#-4
-mov  r1,r0
-bl   main_menu_hacks.get_character_inventory_total_indexes
-str  r0,[sp,#0]              //Save old inventory's size
-mov  r0,r1
-bl   $80524EC                //Routine that updates inventory's size
-bl   main_menu_hacks.get_character_inventory_total_indexes
-ldr  r1,[sp,#0]              //Put in r0 the new size and in r1 the old one
-add  sp,#4
-pop  {pc}
-
-.inv_handle_item_movement:
-push {r4,lr}
-add  sp,#-0x50
-mov  r4,#0
-str  r4,[sp,#0xC]            //Set this address to a default
-mov  r4,r2
-bl   main_menu_hacks.store_menu_movement_data
-bl   .inv_load_new_old_size
-
-cmp  r0,r1
-bne  +                       //Did the inventory's size change?
-                             //If it did not, check if we should move the item to the bottom
-cmp  r4,#1
-bne  .inv_handle_item_movement_end
-
-str  r0,[sp,#0xC]            //Save the fact that we should move the item to the bottom
-mov  r0,sp
-mov  r1,#0                   //Copy from the arrangements
-mov  r2,#0x10
-add  r2,r2,r0                //Load the item's arrangements in
-bl   main_menu_hacks.new_inventory_copy_arrangement
-
-+
-mov  r0,sp
-bl   main_menu_hacks.new_inventory_deposit_swap_arrangement
-ldr  r0,[sp,#0xC]
-cmp  r0,#0
-beq  +
-
-sub  r0,r0,#1
-str  r0,[sp,#8]              //Put the target in the movement data
-mov  r0,sp
-mov  r1,#1                   //Copy to the arrangements
-mov  r2,#0x10
-add  r2,r2,r0                //Move the item's arrangement to the bottom
-bl   main_menu_hacks.new_inventory_copy_arrangement
-
-+
-bl   main_menu_hacks.store_arrangements_buffer
-mov  r0,#0                   //Return the fact that the size changed
-.inv_handle_item_movement_end:
-add  sp,#0x50
-pop  {r4,pc}
-
-.inv_use_throw:
-push {r2,lr}
-mov  r2,#0                   //If the size stays the same, no operation to be done
-bl   .inv_handle_item_movement
-cmp  r0,#0
-bne  +
-ldr  r0,=#0x2015D98
-ldrb r1,[r0,#0]
-mov  r2,#4                   //Prevents glitch in which the new currently selected item's data would show up for the top OAM
-orr  r1,r2
-strb r1,[r0,#0]
-+
-pop  {r2,pc}
-
-.inv_give:
-push {r2,lr}
-mov  r2,#1                   //If the size stays the same, move the item to the bottom
-bl   .inv_handle_item_movement
-pop  {r2,pc}
-
-.memo_a:
-push {lr}
-bl   .main
-mov  r0,r5                   //Normal stuff the game expects from us
-bl   $804EEE8
 pop  {pc}
 
 .sell_block_input_up_and_down:
@@ -6057,42 +6068,6 @@ bl   $804F0D4
 +
 pop  {pc}
 
-.sell_confirmed_a:
-push {lr}
-add  sp,#-0x10
-bl   main_menu_hacks.store_menu_movement_data
-bl   main_menu_hacks.get_menu_valid_options
-str  r0,[sp,#0xC]
-
-bl   $8050218
-add  sp,#0x10
-pop  {pc}
-
-.sell_confirmed_equipment_a:
-push {lr}
-add  sp,#-0x10
-bl   main_menu_hacks.store_menu_movement_data
-bl   main_menu_hacks.get_menu_valid_options
-str  r0,[sp,#0xC]
-
-bl   $805030C
-add  sp,#0x10
-pop  {pc}
-
-.sell_equipment_confirmed_printing_pressed_a:
-push {lr}
-mov  r0,sp
-add  r0,#0x1C
-bl   main_menu_hacks.printing_pressed_a_update_grey
-pop  {pc}
-
-.sell_confirmed_printing_pressed_a:
-push {lr}
-mov  r0,sp
-add  r0,#0x14
-bl   main_menu_hacks.printing_pressed_a_update_grey
-pop  {pc}
-
 .psi_prevent_input_a_select:
 push {lr}
 bl   main_menu_hacks.check_if_printed
@@ -6104,102 +6079,6 @@ ldr  r0,=#0xFFFA
 and  r1,r0                   //Prevent using A and SELECT if the PSI menu isn't fully done printing
 +
 cmp  r1,#1                   //Clobbered code
-pop  {pc}
-
-.psi_used:
-push {r4,lr}
-add  sp,#-4
-mov  r4,r0
-bl   main_menu_hacks.get_menu_valid_options
-str  r0,[sp,#0]              //Get the valid options now
-mov  r0,r4
-bl   $8052864                //Do the PSI used routine...
-mov  r0,r4
-bl   main_menu_hacks.get_menu_valid_options
-ldr  r1,[sp,#0]
-eor  r0,r1                   //If the valid options changed, change
-cmp  r0,#0                   //the assigned palette for those that changed
-beq  +                       //and then set the arrangements to be updated
-ldr  r1,=#0x201697A
-bl   main_menu_hacks.change_psi_options
-bl   main_menu_hacks.store_arrangements_buffer
-+
-add  sp,#4
-pop  {r4,pc}
-
-.equip_a:
-push {lr}
-bl   .main
-mov  r0,r4                   //Normal stuff the game expects from us
-bl   $804EB68
-pop  {pc}
-
-.inv_submenu_a:
-ldr  r0,=#0x804E84F          //We have to return here instead of where the call happened
-push {r0}
-bl   .main
-bl   $804FCB0                //Normal stuff the game expects from us
-pop  {pc}
-
-.deposit_a:
-push {lr}
-bl   main_menu_hacks.check_if_printed
-mov  r0,#0                   //Do the thing only IF we're done printing.
-cmp  r1,#0                   //Prevents issues with arrangements not being there
-bne  +
-add  sp,#-0xC                //Prepare the item's index for the deposit-movement routine
-bl   main_menu_hacks.store_menu_movement_data
-
-bl   .main
-mov  r0,r4                   //Normal stuff the game expects from us
-bl   $804F1D8
-add  sp,#0xC
-+
-pop  {pc}
-
-.deposit_printing_pressed_a:
-push {lr}
-mov  r0,sp
-add  r0,#0x1C
-bl   main_menu_hacks.new_inventory_deposit_swap_arrangement
-bl   main_menu_hacks.store_arrangements_buffer
-pop  {pc}
-
-.withdraw_a:
-push {lr}
-add  sp,#-0xC
-bl   main_menu_hacks.store_menu_movement_data
-
-bl   main_menu_hacks.check_if_printed
-cmp  r1,#0                   //Do the thing only IF we're done printing.
-bne  .withdraw_a_end         //Prevents issues with arrangements not being there
-
-ldr  r0,=#0x201A294          //Check if the inventory is full. If it is, then the game won't print again and we need to let it do its thing. We need to manually increment this, as the original devs forgot to do it.
-ldrh r1,[r0,#0]
-cmp  r1,#0x10
-bge  +
-
-add  r1,#1
-strh r1,[r0,#0]
-bl   .main
-+
-
-mov  r0,r5                   //Normal stuff the game expects from us
-bl   $804F294
-
-.withdraw_a_end:
-add  sp,#0xC
-pop  {pc}
-
-.withdraw_printing_pressed_a:
-push {lr}
-mov  r0,sp
-add  r0,#0x14
-bl   main_menu_hacks.printing_pressed_a
-cmp  r0,#1
-bne  +                       //Store the arrangements buffer if it returned 1
-bl   main_menu_hacks.store_arrangements_buffer
-+
 pop  {pc}
 
 .withdraw_psi_memo_block_input_up_and_down:
@@ -6240,47 +6119,6 @@ bl   $8053754
 +
 add  sp,#4
 pop  {pc}
-
-.inner_memo_scroll:
-push {r1,lr}                 //Let's save r1, since the game needs it
-bl   .main
-pop  {r1}
-mov  r0,r1                   //Normal stuff the game expects from us
-bl   $804EF38
-pop  {pc}
-
-.inner_equip_a:
-push {lr}
-bl   .main
-ldr  r7,=#0x2016028          //Normal stuff the game expects from us
-ldr  r0,=#0x41C6
-pop  {pc}
-
-.buy_a:
-push {lr}
-add  sp,#-4
-bl   .main
-bl   main_menu_hacks.get_menu_valid_options
-str  r0,[sp,#0]              //Get the valid options now
-mov  r0,r4
-bl   $8052F9C                //Do the confirming buying routine...
-bl   main_menu_hacks.get_menu_valid_options
-ldr  r1,[sp,#0]
-eor  r0,r1                   //If the valid options changed, change
-cmp  r0,#0                   //the assigned palette for those that changed
-beq  +                       //and then set the arrangements to be updated
-ldr  r1,=#0x2016992
-bl   main_menu_hacks.change_shop_options
-bl   main_menu_hacks.store_arrangements_buffer
-+
-add  sp,#4
-pop  {pc}
-
-.sell_after_buy_a:
-push {r4,lr}
-mov  r4,r5                   //Cover the -selling old equipment
-bl   .buy_a                  //after buying new one- case
-pop  {r4,pc}
 
 .buy_block_a:
 push {lr}
@@ -6327,45 +6165,6 @@ bl   $8053754
 add  sp,#4
 pop  {pc}
 
-.buy_lr:
-push {lr}
-add  sp,#-4
-bl   .main
-bl   main_menu_hacks.get_menu_valid_options
-str  r0,[sp,#0]              //Get the valid options now
-bl   main_menu_hacks.prepare_swap_char_buying
-bl   main_menu_hacks.get_menu_valid_options
-ldr  r1,[sp,#0]
-eor  r0,r1                   //If the valid options changed, change
-cmp  r0,#0                   //the assigned palette for those that changed
-beq  +                       //and then set the arrangements to be updated
-ldr  r1,=#0x2016992
-bl   main_menu_hacks.change_shop_options
-bl   main_menu_hacks.store_arrangements_buffer
-+
-add  sp,#4
-pop  {pc}
-
-.deposit_lr:
-push {lr}
-bl   .main
-bl   main_menu_hacks.delete_vram
-bl   $804C35C                //Normal stuff the game expects from us
-pop  {pc}
-
-.withdraw_lr:
-push {lr}
-bl   .main                   //Don't refresh the withdraw menu when we swap character...
-bl   main_menu_hacks.prepare_swap_char_withdraw
-pop  {pc}
-
-.switch_lr:
-push {lr}
-bl   .main
-ldrh r0,[r4,#4]              //Normal stuff the game expects from us
-bl   $8053E98
-pop  {pc}
-
 .equip_block_input_lr:
 push {lr}
 add  sp,#-4
@@ -6404,11 +6203,288 @@ bl   $8053754
 add  sp,#4
 pop  {pc}
 
-.status_lr:
+
+
+//=============================================================================================
+// This hack updates the inventory.
+// It then returns both the new inventory size and the one before updating it
+//=============================================================================================
+.inv_load_new_old_size:
 push {lr}
+add  sp,#-4
+mov  r1,r0
+bl   main_menu_hacks.get_character_inventory_total_indexes
+str  r0,[sp,#0]              //Save old inventory's size
+mov  r0,r1
+bl   $80524EC                //Routine that updates inventory's size
+bl   main_menu_hacks.get_character_inventory_total_indexes
+ldr  r1,[sp,#0]              //Put in r0 the new size and in r1 the old one
+add  sp,#4
+pop  {pc}
+
+//=============================================================================================
+// This hack handles using/giving/throwing inventory items in an optimized way by not printing
+//=============================================================================================
+.inv_handle_item_movement:
+push {r4,lr}
+add  sp,#-0x50
+mov  r4,#0
+str  r4,[sp,#0xC]            //Set this address to a default
+mov  r4,r2
+bl   main_menu_hacks.store_menu_movement_data
+bl   .inv_load_new_old_size
+
+cmp  r0,r1
+bne  +                       //Did the inventory's size change?
+                             //If it did not, check if we should move the item to the bottom
+cmp  r4,#1
+bne  .inv_handle_item_movement_end
+
+str  r0,[sp,#0xC]            //Save the fact that we should move the item to the bottom
+mov  r0,sp
+mov  r1,#0                   //Copy from the arrangements
+mov  r2,#0x10
+add  r2,r2,r0                //Load the item's arrangements in
+bl   main_menu_hacks.new_inventory_copy_arrangement
+
++
+mov  r0,sp
+bl   main_menu_hacks.new_inventory_deposit_swap_arrangement
+ldr  r0,[sp,#0xC]
+cmp  r0,#0
+beq  +
+
+sub  r0,r0,#1
+str  r0,[sp,#8]              //Put the target in the movement data
+mov  r0,sp
+mov  r1,#1                   //Copy to the arrangements
+mov  r2,#0x10
+add  r2,r2,r0                //Move the item's arrangement to the bottom
+bl   main_menu_hacks.new_inventory_copy_arrangement
+
++
+bl   main_menu_hacks.store_arrangements_buffer
+mov  r0,#0                   //Return the fact that the size changed
+.inv_handle_item_movement_end:
+add  sp,#0x50
+pop  {r4,pc}
+
+//=============================================================================================
+// This hack handles using and throwing inventory items
+//=============================================================================================
+.inv_use_throw:
+push {r2,lr}
+mov  r2,#0                   //If the size stays the same, no operation to be done
+bl   .inv_handle_item_movement
+cmp  r0,#0
+bne  +
+ldr  r0,=#0x2015D98
+ldrb r1,[r0,#0]
+mov  r2,#4                   //Prevents glitch in which the new currently selected item's data would show up for the top OAM
+orr  r1,r2
+strb r1,[r0,#0]
++
+pop  {r2,pc}
+
+//=============================================================================================
+// This hack handles giving inventory items (It's a special case because you can give them
+// to the same character and change the inventory's order without changing its size)
+//=============================================================================================
+.inv_give:
+push {r2,lr}
+mov  r2,#1                   //If the size stays the same, move the item to the bottom
+bl   .inv_handle_item_movement
+pop  {r2,pc}
+
+//=============================================================================================
+// These hacks save which entries are valid and then update them.
+// This allows changing the palette of certain entries instead of reprinting them
+//=============================================================================================
+.sell_confirmed_a:
+push {lr}
+add  sp,#-0x10
+bl   main_menu_hacks.store_menu_movement_data
+bl   main_menu_hacks.get_menu_valid_options
+str  r0,[sp,#0xC]
+
+bl   $8050218
+add  sp,#0x10
+pop  {pc}
+
+.sell_confirmed_equipment_a:
+push {lr}
+add  sp,#-0x10
+bl   main_menu_hacks.store_menu_movement_data
+bl   main_menu_hacks.get_menu_valid_options
+str  r0,[sp,#0xC]
+
+bl   $805030C
+add  sp,#0x10
+pop  {pc}
+
+//=============================================================================================
+// These hacks update the palette of certain entries instead of reprinting them.
+// They also remove the sold item and only print the one at the bottom (if it exists)
+//=============================================================================================
+.sell_equipment_confirmed_printing_pressed_a:
+push {lr}
+mov  r0,sp
+add  r0,#0x1C
+bl   main_menu_hacks.printing_pressed_a_update_grey
+pop  {pc}
+
+.sell_confirmed_printing_pressed_a:
+push {lr}
+mov  r0,sp
+add  r0,#0x14
+bl   main_menu_hacks.printing_pressed_a_update_grey
+pop  {pc}
+
+//=============================================================================================
+// These hacks update the palette of certain entries instead of reprinting them
+//=============================================================================================
+.psi_used:
+push {r4,lr}
+add  sp,#-4
+mov  r4,r0
+bl   main_menu_hacks.get_menu_valid_options
+str  r0,[sp,#0]              //Get the valid options now
+mov  r0,r4
+bl   $8052864                //Do the PSI used routine...
+mov  r0,r4
+bl   main_menu_hacks.get_menu_valid_options
+ldr  r1,[sp,#0]
+eor  r0,r1                   //If the valid options changed, change
+cmp  r0,#0                   //the assigned palette for those that changed
+beq  +                       //and then set the arrangements to be updated
+ldr  r1,=#0x201697A
+bl   main_menu_hacks.change_psi_options
+bl   main_menu_hacks.store_arrangements_buffer
++
+add  sp,#4
+pop  {r4,pc}
+
+.buy_a:
+push {lr}
+add  sp,#-4
 bl   .main
-ldrh r1,[r4,#0xA]            //Normal stuff the game expects from us
-ldr  r2,=#0x4264
+bl   main_menu_hacks.get_menu_valid_options
+str  r0,[sp,#0]              //Get the valid options now
+mov  r0,r4
+bl   $8052F9C                //Do the confirming buying routine...
+bl   main_menu_hacks.get_menu_valid_options
+ldr  r1,[sp,#0]
+eor  r0,r1                   //If the valid options changed, change
+cmp  r0,#0                   //the assigned palette for those that changed
+beq  +                       //and then set the arrangements to be updated
+ldr  r1,=#0x2016992
+bl   main_menu_hacks.change_shop_options
+bl   main_menu_hacks.store_arrangements_buffer
++
+add  sp,#4
+pop  {pc}
+
+.buy_lr:
+push {lr}
+add  sp,#-4
+bl   .main
+bl   main_menu_hacks.get_menu_valid_options
+str  r0,[sp,#0]              //Get the valid options now
+bl   main_menu_hacks.prepare_swap_char_buying
+bl   main_menu_hacks.get_menu_valid_options
+ldr  r1,[sp,#0]
+eor  r0,r1                   //If the valid options changed, change
+cmp  r0,#0                   //the assigned palette for those that changed
+beq  +                       //and then set the arrangements to be updated
+ldr  r1,=#0x2016992
+bl   main_menu_hacks.change_shop_options
+bl   main_menu_hacks.store_arrangements_buffer
++
+add  sp,#4
+pop  {pc}
+
+.sell_after_buy_a:
+push {r4,lr}
+mov  r4,r5                   //Cover the -selling old equipment
+bl   .buy_a                  //after buying new one- case
+pop  {r4,pc}
+
+//=============================================================================================
+// This hack allows input reading only if the game's done printing.
+// If it is done, then it saves the current position of the cursor in order to
+// only remove what is needed without reprinting the entire menu
+//=============================================================================================
+.deposit_a:
+push {lr}
+bl   main_menu_hacks.check_if_printed
+mov  r0,#0                   //Do the thing only IF we're done printing.
+cmp  r1,#0                   //Prevents issues with arrangements not being there
+bne  +
+add  sp,#-0xC                //Prepare the item's index for the deposit-movement routine
+bl   main_menu_hacks.store_menu_movement_data
+
+bl   .main
+mov  r0,r4                   //Normal stuff the game expects from us
+bl   $804F1D8
+add  sp,#0xC
++
+pop  {pc}
+
+//=============================================================================================
+// This hack moves the items in the deposit menu around instead of reprinting them
+//=============================================================================================
+.deposit_printing_pressed_a:
+push {lr}
+mov  r0,sp
+add  r0,#0x1C
+bl   main_menu_hacks.new_inventory_deposit_swap_arrangement
+bl   main_menu_hacks.store_arrangements_buffer
+pop  {pc}
+
+//=============================================================================================
+// This hack allows input reading only if the game's done printing.
+// If it is done, then it saves the current position of the cursor in order to
+// only remove what is needed without reprinting the entire menu
+// It also checks whether there is space in the character's inventory
+//=============================================================================================
+.withdraw_a:
+push {lr}
+add  sp,#-0xC
+bl   main_menu_hacks.store_menu_movement_data
+
+bl   main_menu_hacks.check_if_printed
+cmp  r1,#0                   //Do the thing only IF we're done printing.
+bne  .withdraw_a_end         //Prevents issues with arrangements not being there
+
+ldr  r0,=#0x201A294          //Check if the inventory is full. If it is, then the game won't print again and we need to let it do its thing. We need to manually increment this, as the original devs forgot to do it.
+ldrh r1,[r0,#0]
+cmp  r1,#0x10
+bge  +
+
+add  r1,#1
+strh r1,[r0,#0]
+bl   .main
++
+
+mov  r0,r5                   //Normal stuff the game expects from us
+bl   $804F294
+
+.withdraw_a_end:
+add  sp,#0xC
+pop  {pc}
+
+//=============================================================================================
+// This hack moves the items in the withdraw menu around instead of reprinting them
+//=============================================================================================
+.withdraw_printing_pressed_a:
+push {lr}
+mov  r0,sp
+add  r0,#0x14
+bl   main_menu_hacks.printing_pressed_a
+cmp  r0,#1
+bne  +                       //Store the arrangements buffer if it returned 1
+bl   main_menu_hacks.store_arrangements_buffer
++
 pop  {pc}
 
 
