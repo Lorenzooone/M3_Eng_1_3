@@ -1786,12 +1786,36 @@ org $8044130; b $80441A2 //Remove OAM entries
 
 //Improve the in-battle inventory menu
 org $807E46E; bl battle_menus_improvement_hacks.inventory_printing_routine_ud_setup
-org $807E47C; bl battle_menus_improvement_hacks.inventory_printing_routine_up_call
+org $807E47C; bl battle_menus_improvement_hacks.inventory_printing_routine_up_down_call
 org $807E4AE; bl battle_menus_improvement_hacks.inventory_printing_routine_ud_setup
-org $807E4BC; bl battle_menus_improvement_hacks.inventory_printing_routine_down_call
-org $807E4FC; bl battle_menus_improvement_hacks.inventory_printing_routine_lr_call
-org $807E53C; bl battle_menus_improvement_hacks.inventory_printing_routine_lr_call
-org $807E57C; bl battle_menus_improvement_hacks.inventory_printing_routine_select_call
+org $807E4BC; bl battle_menus_improvement_hacks.inventory_printing_routine_up_down_call
+org $807E4FC; bl battle_menus_improvement_hacks.inventory_printing_routine_select_lr_call
+org $807E53C; bl battle_menus_improvement_hacks.inventory_printing_routine_select_lr_call
+org $807E57C; bl battle_menus_improvement_hacks.inventory_printing_routine_select_lr_call
+org $807E5BC; bl battle_menus_improvement_hacks.inventory_printing_routine_ab_call
+org $807E60C; bl battle_menus_improvement_hacks.inventory_printing_routine_ab_call
+
+//Improve the in-battle psi menu
+org $808C5FA; bl battle_menus_improvement_hacks.psi_printing_routine_ud_setup
+org $808C608; bl battle_menus_improvement_hacks.psi_printing_routine_up_down_call
+org $808C676; bl battle_menus_improvement_hacks.psi_printing_routine_ud_setup
+org $808C684; bl battle_menus_improvement_hacks.psi_printing_routine_up_down_call
+org $808C6C6; bl battle_menus_improvement_hacks.psi_printing_routine
+org $808C73A; bl battle_menus_improvement_hacks.psi_printing_routine
+org $808C794; bl battle_menus_improvement_hacks.psi_printing_routine
+org $808C7BA; bl battle_menus_improvement_hacks.psi_printing_routine
+org $808BFFC; bl battle_menus_improvement_hacks.psi_printing_routine_change_layer_call
+org $808C0B0; bl battle_menus_improvement_hacks.psi_printing_routine_change_layer_call
+
+//Improve the in-battle skills menu
+org $808DA34; bl battle_menus_improvement_hacks.skills_printing_routine
+org $808DA74; bl battle_menus_improvement_hacks.skills_printing_routine
+org $808DAB4; bl battle_menus_improvement_hacks.skills_printing_routine
+org $808DAF4; bl battle_menus_improvement_hacks.skills_printing_routine
+org $808DB34; bl battle_menus_improvement_hacks.skills_printing_routine
+org $808D5EC; bl battle_menus_improvement_hacks.skills_printing_routine_enter_call
+org $808DB74; nop; nop
+org $808DBC4; nop; nop
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF

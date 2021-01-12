@@ -1,4 +1,3 @@
 - IMPROVE REFRESHES' STRUCTURE!!! (very ugly to look at, right now)
-- Improving the battle inventory/psi/skills printing system (worse than the main menu one)
 - Fixing the new "Skull gift box" issue
 - Check out Tanetane's infinite running area
