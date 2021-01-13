@@ -1,0 +1,65 @@
+Fixes of translation bugs/issues:
+- Fixed the Summary's lag
+- Made it so the menus' writing buffer is properly cleared (Fixes leftover text issue)
+- Fixed some articles in text in the overworld
+- Fixed missing articles in the battle text
+- Fixed line of Debug Locria that was missing one entry
+- Fixed text overflow in various boxes
+- Made it so Soup and Stew are not drinkable
+- Fixed various typoes in the Memo text
+- Fixed line about the position of one of the Needles
+- Fixed article within an highroad dog's line
+- Fixed small cursor's issue in the naming screen
+- Fixed issues with the stars in the Battle Memories
+
+Fixes of the Japanese version's bugs/issues:
+- Made it so the Thunder Tower's frog can still move when in contact with the party (Fixes softlock)
+- Fixed New Game Plus bug (A patch will be made available that removes the fix for those who want it)
+- Fixed swapped gift boxes bug (A patch will be made available that removes the fix for those who want it)
+- Fixed Salsa's reflect text during the Pork Tank's battle
+- Fixed various graphical/collision issues in the overworld
+- Fixed Lucas' talking bug in Chapter 5
+- Fixed the Skull Gift Box glitch in 3 locations
+- Fixed the Boney's Sludge Pond Glitch (Could crash the game)
+- Fixed the Steel Mechorilla's sounds
+- Fixed door's collision data for one bathroom in Chapter 8
+- Fixed issue with actions being executed more times than intended
+- Fixed flickering during Fassad's low voice speech
+- Fixed issue with Claus' PP if the first battle is lost
+- Fixed wrong text being displayed for the train's requested money
+- Fixed issue with Thomas disappearing in Chapter 1 after the notebook is collected
+- Fixed issue with mouse talking directly to humans
+- Fixed Debug Room's Pigmask changing sprite in certain situations
+- Standardized Boney's minimum level during Chapter 4
+- Fixed issue with Mementoes being used while in the inventory
+- Fixed issue with Leder's counter ticking when it shouldn't and viceversa
+- Fixed 0 damage being reported as > 0 if comboes are used
+- Fixed minor graphical issues within some menus
+- Fixed Nana's age in Chapter 8's concert
+- Fixed Caroline's bakery causing inventory issues in Chapters 1 through 3
+- Fixed the Delete All Saves menu's lag
+
+
+Improvements:
+- Optimized text printing in menus for a smoother experience
+- Reduced the load on the GBA's CPU in certain menus in order to ensure a smoother experience
+- Added NPC in the Debug Room
+--- It allows accessing the other tables of the Debug Room
+--- It allows viewing the Attract Mode sequences
+--- Other useful features
+- Improved Debug Room's Staff roll option
+- Made it so all the Memoes can be seen
+- Made it so the mother mouse's text is different if only one mouse is missing
+- Changed "BOM" to "BOOM"
+- Updated some enemies' sprites to match the translation
+- Restored a trade with a ghost in the castle's kitchen
+- Made consuming cheese consistent for Claus
+
+For the other translations:
+- Made it easier for future translations to edit graphics
+- Allowed more text per line and per screen in the Memoes menu
+- Allowed more text per screen in the overworld notebooks
+- Lowered the OAM footprint of names in the overworld
+- Added guideline that shows which enemy uses which battle text line
+- Added enemy articles in the main script
+- Added program that allows for more custom text lines
