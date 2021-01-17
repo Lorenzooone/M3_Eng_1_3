@@ -3116,6 +3116,9 @@ ldr  r2,[r0,#4]                   //Load in ram hits counter and check whether t
 cmp  r1,r2
 bgt  .end                         //This shouldn't happen, however in case it does... Just be safe and don't update the counter, since it means the "action stack" is too little
 
+cmp  r1,#0                        //Skip editing stuff for an ally's action
+beq  .end
+
 str  r1,[r0,#4]                   //Save the normal hits counter
 
 .end:
