@@ -20524,7 +20524,7 @@
 
 [Container 894]
 894-0:◆ＮＯ　ＯＰＥＲＡＴＩＯＮ[END]
-894-0E:@What do you want to do?[WAIT][MENU 05 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Change table[RIGHT][BREAK]  [LEFT]Attract mode[RIGHT][BREAK]  [LEFT]Unlock PSI[RIGHT][BREAK]  [LEFT]Heal party[RIGHT][BREAK][ENDCHOICES][END]
+894-0E:@What do you want to do?[WAIT][MENU 06 00]  [LEFT]END SELECTION[RIGHT][BREAK]  [LEFT]Change table[RIGHT][BREAK]  [LEFT]Attract mode[RIGHT][BREAK]  [LEFT]Unlock PSI[RIGHT][BREAK]  [LEFT]Heal party[RIGHT][BREAK]  [LEFT]Game Over[RIGHT][BREAK][ENDCHOICES][END]
 // This line goes unused, so we reuse it for our purposes
 // It said:@NO OPERATION[END]
 894-1:◆ＣＨＡＰＴＥＲ１　ＳＴＡＲＴ[WAIT][MENU 02 00]　　　いいえ　　　はい[ENDCHOICES][END]
