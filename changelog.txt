@@ -38,6 +38,7 @@ Fixes of the Japanese version's bugs/issues:
 - Fixed Nana's age in Chapter 8's concert
 - Fixed Caroline's bakery causing inventory issues in Chapters 1 through 3
 - Fixed the Delete All Saves menu's lag
+- Fixed issue with quickly opening and closing maps
 
 
 Improvements:

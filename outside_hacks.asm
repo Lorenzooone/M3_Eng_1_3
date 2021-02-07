@@ -300,7 +300,7 @@ pop  {pc}
 //===========================================================================================
 // This hack is used in order to make it so maps aren't loaded too fast by spamming R
 //===========================================================================================
-define map_block_frames $4
+define map_block_frames $5
 define map_block_address $2004170
 
 .block_loading_map:
