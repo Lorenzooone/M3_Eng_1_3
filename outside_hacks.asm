@@ -296,3 +296,82 @@ bl   $8001ACC
 .different_tiles_storage_end:
 
 pop  {pc}
+
+//===========================================================================================
+// This hack is used in order to make it so maps aren't loaded too fast by spamming R
+//===========================================================================================
+define map_block_frames $4
+define map_block_address $2004170
+
+.block_loading_map:
+ldr  r1,=#{map_block_address}
+ldrb r3,[r1,#0]
+cmp  r3,#0
+beq  +
+mov  r0,#0                   //Inaccessible map if this was too fast
+b    .block_loading_map_end
++
+
+mov  r3,#{map_block_frames}  //Otherwise setup the timer for the map-side
+strb r3,[r1,#0]
+
+.block_loading_map_end:
+pop  {r3}                    //Default code
+mov  r8,r3
+bx   lr
+
+//===========================================================================================
+// This hack is used in order to make it so you can't exit maps too fast
+//===========================================================================================
+.block_loading_map_inside:
+push {r4,lr}
+ldr  r4,=#{map_block_address}
+ldrb r3,[r4,#0]
+cmp  r3,#0
+bne  +                       //Inaccessible map if this was too fast
+
+bl   $80052E4                //Actual routine that closes the map
+mov  r3,#{map_block_frames}  //Setup the timer for the overworld-side
+strb r3,[r4,#0]
+
++
+pop  {r4,pc}
+
+//===========================================================================================
+// Routine that accesses the map block and decrements it if it's > 0
+//===========================================================================================
+.decrement_block_map_logic:
+push {lr}
+ldr  r0,=#{map_block_address}
+ldrb r1,[r0,#0]
+cmp  r1,#0
+beq  .decrement_block_map_logic_end
+sub  r1,#1
+cmp  r1,#{map_block_frames}
+ble  +
+mov  r1,#{map_block_frames}
++
+strb r1,[r0,#0]
+
+.decrement_block_map_logic_end:
+pop  {pc}
+
+//===========================================================================================
+// Wrapper that decrements the map block for the normal overworld
+//===========================================================================================
+.decrement_block_map:
+push {lr}
+bl   .decrement_block_map_logic
+mov  r0,#0                   //Default code
+bl   $8036BD8
+pop  {pc}
+
+//===========================================================================================
+// Wrapper that decrements the map block for the map menu
+//===========================================================================================
+.decrement_block_map_inside:
+push {lr}
+bl   .decrement_block_map_logic
+ldr  r3,=#0x20196A8          //Default code
+ldrh r2,[r3,#0]
+pop  {pc}

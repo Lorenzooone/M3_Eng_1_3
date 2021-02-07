@@ -1820,6 +1820,12 @@ org $808D5EC; bl battle_menus_improvement_hacks.skills_printing_routine_enter_ca
 org $808DB74; nop; nop
 org $808DBC4; nop; nop
 
+//Prevent the map-lowering volume issue
+org $800B01A; bl outside_hacks.decrement_block_map
+org $801A1A4; bl outside_hacks.block_loading_map
+org $8026E4A; bl outside_hacks.decrement_block_map_inside
+org $802704C; bl outside_hacks.block_loading_map_inside
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
