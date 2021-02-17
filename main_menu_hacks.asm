@@ -3603,7 +3603,9 @@ bl   $8054FE0                          //Get character's address
 mov  r5,r0
 bl   .delete_vram_status
 cmp  r0,#0                             //Can this character's data be shown?
-bne  .new_status_print_end
+beq  +
+b    .new_status_print_end
++
 
 mov  r4,#0
 mov  r7,r5
@@ -3643,6 +3645,89 @@ bls  -
 mov  r0,r5
 bl   $8047B0C                          //Print Skill
 
+ldr  r0,=#0x20169FA                    //Has the gray text been printed?
+ldrh r0,[r0,#0]
+cmp  r0,#0
+beq  +
+b    .new_status_print_end
++
+
+mov  r0,#0x47                          //If it hasn't, reprint it
+bl   $80486A0                          //Level text, get the pointer to it
+mov  r5,#1
+neg  r5,r5
+mov  r4,#1
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#3
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x48                          //Offense text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#4
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x49                          //Defense text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#5
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x4A                          //IQ text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#6
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x4B                          //Speed text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#7
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x4C                          //EXP text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#8
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x4D                          //Next Level text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#9
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x4E                          //HP text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#9
+mov  r2,#3
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x50                          //PP text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#9
+mov  r2,#4
+mov  r3,r5
+
+bl improve_performances_menus.status_vram_equip_descriptors //Load OAM entries in VRAM
+
 .new_status_print_end:
 add  sp,#4
 pop  {r4-r7,pc}
@@ -3658,7 +3743,9 @@ bl   $8054FE0                          //Get character's address
 mov  r5,r0
 bl   .delete_vram_equip
 cmp  r0,#0                             //Can this character's data be shown?
-bne  .new_equip_print_end
+beq  +
+b    .new_equip_print_end
++
 
 mov  r4,#0
 mov  r6,r5
@@ -3702,6 +3789,75 @@ bl   $8047B9C                          //Order its printing
 add  r4,#1
 cmp  r4,#3                             //Cycle the equipment in its entirety
 bls  -
+
+ldr  r0,=#0x20169FA                    //Has the gray text been printed?
+ldrh r0,[r0,#0]
+cmp  r0,#0
+beq  +
+b    .new_equip_print_end
++
+
+//If it hasn't, reprint it
+bl improve_performances_menus.equipment_vram_equip_descriptors //Load OAM entries in VRAM
+
+mov  r0,#0x47                          //Level text
+bl   $80486A0                          //Get the pointer to it
+mov  r5,#1
+neg  r5,r5
+mov  r4,#1
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#3
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x4F                          //Max HP text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#4
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x51                          //Max PP text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#5
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x48                          //Offense text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#6
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x49                          //Defense text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#7
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x4A                          //IQ text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#8
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+mov  r0,#0x4B                          //Speed text
+bl   $80486A0                          //Get the pointer to it
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#1
+mov  r2,#9
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
 
 .new_equip_print_end:
 add  sp,#4
