@@ -1895,9 +1895,6 @@ org $804CA42; bl fix_lag_delete_all.hack //Set it back once we can read the inpu
 //Set/Reset the flag, so everything works
 org $804A2EA; bl summary_hacks.flag_reset
 
-//If the cursor's position changes, refresh the OAM. If Yes has been pressed, do not refresh OAM at all.
-org $8042D4A; bl summary_hacks.check_change_and_stop_OAM
-
 //Remove the OAM entry for Favorite Food
 org $8042DDC; mov r1,#1; neg r1,r1; mov r9,r1; add r2,#0x14; b $8042DFF
 

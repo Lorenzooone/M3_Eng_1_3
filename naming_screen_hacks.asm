@@ -239,45 +239,80 @@ mov  r0,#0
 strb r0,[r1,#0]
 
 .keep_keep:
-bl   $8050EED                       //This is the standard OAM refreshing routine, call it in case it's 1 or 0, since we need to print
+bl   $8050EEC                       //This is the standard OAM refreshing routine, call it in case it's 1 or 0, since we need to print
 
 .rest:
 pop  {r4-r5,pc}
 
 .partially:
-ldr  r4,=#0x2003F08                 //This cicle, we don't print a thing...
-ldrb r0,[r4,#0]
-cmp  r0,r12                         //Do we need to print the cursor/New text? If we do, r12 will have changed! What a handy register!
-beq  .handy_check
-ldr  r4,=#0x2015D98                 //Address that tells us if we're still in the yes/no portion of the summary screen, if we aren't, we don't need to print anything!
-ldrb r0,[r4,#0]
-mov  r4,#2
-cmp  r0,#2                          //If this is 2, the cursor still needs to be printed!
-bne  +
-mov  r4,#1                          //Reset the flag
-+
-cmp  r0,#0                          //The same address goes to 0 every time we enter a new menu, resetting for us and avoiding a lot of problems!
-bne  +
-mov  r4,#0                          //If this is not 0 or 2, then just keep it 2 and avoid printing!
-+
-mov  r0,r4
-ldr  r4,=#0x2003F08
-sub  r4,#4
-strb r0,[r4,#0]                     //Let's store the updated status of the printing flag!
-add  r4,#4
-mov  r0,r12
-strb r0,[r4,#0]                     //Let's store the cursor's current status, to see if we have to update the next time or not
+bl   .special_restore_objs
 
-.handy_check:
-cmp  r0,#1
-beq  +
-cmp  r0,#0x1A                       //If this isn't 0x1A or 0x1, we're not in the summary screen! Let's store 0. This is to prevent some possible glitches.
-beq  +
-mov  r0,#0
-sub  r4,#4
-strb r0,[r4,#0]
+b    .keep_keep
+
+//--------------------------------------------------------
+//Picks the text's old OAM entries and adds them back to the new OAM
+//--------------------------------------------------------
+.special_restore_objs:
+push {r4-r6,lr}
+mov  r6,#2
+lsl  r6,r6,#8
+ldr  r4,=#0x7000000
+ldr  r0,=#0x2022648
+ldr  r5,[r0,#0]                        //Where the new OAM entries are
+mov  r2,r5
+
+-
+add  r2,#8
+ldrh r1,[r2,#0]
+and  r1,r6                             //Is this entry enabled?
+cmp  r1,#0
+beq  -
+
+mov  r5,r2                             //Get the address the first blank is at
+lsl  r6,r6,#1
+sub  r6,#1                             //10 bits for tile number
+mov  r2,r4                             //Where the old OAM entries are
+
+-
+add  r2,#8
+ldrh r1,[r2,#4]
+and  r1,r6                             //Is this entry the first text one?
+cmp  r1,#0
+bne  -
+
+add  r6,#1
+lsr  r6,r6,#1                          //Enabled entry value
+mov  r4,r2
+
+-
+add  r2,#8
+ldrh r1,[r2,#0]
+and  r1,r6                             //Is this entry enabled?
+cmp  r1,#0
+beq  -
+
+ldr  r1,=#0x40000D4
+sub  r3,r2,r4
+lsr  r3,r3,#1                          //How many 16-bit units we must copy
+mov  r0,#8
+lsl  r2,r0,#28                         //Enable DMA Transfer
+orr  r3,r2
+
+str  r4,[r1,#0]
+str  r5,[r1,#4]
+str  r3,[r1,#8]                        //Start the actual transfer
+ldr  r0,[r1,#8]
+
+cmp  r0,#0
+bge  +
+-
+ldr  r0,[r1,#8]                        //Make sure the transfer happens properly
+and  r0,r2
+cmp  r0,#0
+bne  -
 +
-b    .rest
+
+pop  {r4-r6,pc}
 
 //--------------------------------------------------------------------------------------------------
 //This function manually fixes the save copying bug (New Game Plus)
@@ -346,77 +381,6 @@ b    .ending
 mov  r1,r0
 lsl  r1,r1,#0x10                    //Stuff the game does
 pop  {pc}                           //Return to the cycle
-
-//---------------------------------------------------------------------------------------------------
-
-//Third part of the new hacks
-
-.check_change_and_stop_OAM:
-push {r1-r3, lr}
-mov  r2,r0                          //Load cursor's position
-ldrh r1,[r2,#4]
-lsl  r2,r1,#2
-add  r2,r2,r1
-lsl  r2,r2,#0x13
-mov  r1,#0xA0
-lsl  r1,r1,#0xF
-add  r2,r2,r1
-asr  r2,r2,#0x10                    //Cursor's position is loaded into r2
-
-ldr  r1,=#0x2003F00
-ldrb r3,[r1,#0]
-cmp  r3,r2
-beq  .check_ending
-ldrb r3,[r1,#4]                     //Load our flag
-cmp  r3,#2                          //Is it set to -not printing?
-bne  +
-mov  r3,#1                          //If it is, set it to printing, the cursor just changed position!
-strb r3,[r1,#4]
-+
-strb r2,[r1,#0]                     //Store the new position of the cursor
-
-.check_ending:
-ldrb r3,[r1,#4]
-cmp  r3,#2                          //If set to not printing, don't create the OAM entries if in a specific moment
-bne  .normalEnd
-ldrb r3,[r1,#0xC]
-cmp  r3,#1
-bne  .normalEnd                     //Are yes no out yet? If they're not, then keep going normally. Weird stuff happens otherwise
-ldr  r2,=#0x2015D98                 //Do we need to print?
-ldrb r3,[r2,#0]
-cmp  r3,#2
-beq  .oneBeforeEnd
-.gotoEnd:
-pop  {r4-r6}                        //Clear the stack
-pop  {r4}
-bl   $8042F43
-
-.oneBeforeEnd:                      //Called during the Yes/No choice. Unless we need to print, let's only create the OAM entry we need for timing purposes: the cursor
-mov  r7,r10
-mov  r6,r9
-mov  r5,r8
-pop  {r1-r3}                        //Normal stuff the game does
-pop  {r1}
-push {r5-r7}
-add  sp,#-8
-mov  r10,r0
-mov  r4,#0x94                       //Properly setup registers
-ldr  r5,=#0x201AB1A
-mov  r6,#0xC0
-sub  r6,r5,r6
-mov  r7,#0xF
-mov  r8,r7
-mov  r7,#0
-sub  r7,#1
-mov  r9,r7
-mov  r7,#1
-
-bl   $8042F17                       //Do the cursor's routine
-
-.normalEnd:
-mov  r7,r10
-mov  r6,r9
-pop  {r1-r3, pc}                    //Normal stuff the game does
 
 //--------------------------------------------------------------------------------------------------
 
