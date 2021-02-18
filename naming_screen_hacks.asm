@@ -269,30 +269,21 @@ cmp  r1,#0
 beq  -
 
 mov  r5,r2                             //Get the address the first blank is at
-lsl  r6,r6,#1
-sub  r6,#1                             //10 bits for tile number
-mov  r2,r4                             //Where the old OAM entries are
 
--
-add  r2,#8
-ldrh r1,[r2,#4]
-and  r1,r6                             //Is this entry the first text one?
-cmp  r1,#0
-bne  -
+.special_restore_objs_cycle:
+mov  r0,r4
+bl   .find_oam_text                    //Find the closest text oam
 
-add  r6,#1
-lsr  r6,r6,#1                          //Enabled entry value
-mov  r4,r2
+ldrh r1,[r0,#0]
+and  r1,r6
+cmp  r1,#0                             //End search if the end of the entries has been found instead
+bne  .special_restore_objs_end
 
--
-add  r2,#8
-ldrh r1,[r2,#0]
-and  r1,r6                             //Is this entry enabled?
-cmp  r1,#0
-beq  -
+mov  r4,r0                             //This is the address of the first text oam entry found
+bl   .find_oam_end_of_text             //Find the end of the text oam entry
 
 ldr  r1,=#0x40000D4
-sub  r3,r2,r4
+sub  r3,r0,r4
 lsr  r3,r3,#1                          //How many 16-bit units we must copy
 mov  r0,#8
 lsl  r2,r0,#28                         //Enable DMA Transfer
@@ -312,7 +303,64 @@ cmp  r0,#0
 bne  -
 +
 
+lsl  r3,r3,#1
+add  r5,r5,r3
+add  r4,r4,r3
+b    .special_restore_objs_cycle
+
+.special_restore_objs_end:
 pop  {r4-r6,pc}
+
+//--------------------------------------------------------------------------------------------------
+//This function returns the address of the nearest text entry to the address in r0
+//--------------------------------------------------------------------------------------------------
+.find_oam_text:
+lsl  r3,r6,#1
+sub  r3,r3,#1
+mov  r2,r0
+sub  r2,#8
+mov  r0,#0x18
+lsl  r0,r0,#4
+
+-
+add  r2,#8
+ldrh r1,[r2,#0]
+and  r1,r6
+cmp  r1,#0                             //End search if the end of the entries has been found
+bne  +
+ldrh r1,[r2,#4]
+and  r1,r3                             //Is this entry a text one? If it is, we found one!
+cmp  r1,r0
+bge  -
+
++
+mov  r0,r2
+bx   lr
+
+//--------------------------------------------------------------------------------------------------
+//This function returns the address of the end of the sequence of text entries after r0
+//--------------------------------------------------------------------------------------------------
+.find_oam_end_of_text:
+lsl  r3,r6,#1
+sub  r3,r3,#1
+mov  r2,r0
+mov  r0,#0x18
+lsl  r0,r0,#4
+
+-
+add  r2,#8
+ldrh r1,[r2,#0]
+and  r1,r6
+cmp  r1,#0                             //End text if the end of the entries has been found
+bne  +
+ldrh r1,[r2,#4]
+and  r1,r3                             //Is this entry a text one? Check if we're at the end
+cmp  r1,r0
+blt  -
+
++
+mov  r0,r2
+bx   lr
 
 //--------------------------------------------------------------------------------------------------
 //This function manually fixes the save copying bug (New Game Plus)
