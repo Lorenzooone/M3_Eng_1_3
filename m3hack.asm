@@ -623,6 +623,14 @@ org $804F56C; db $32,$F6
 //org $8053D1C; db $09
 //org $8053D8C; db $09
 
+// Make the game reprint stuff only when needed
+org $804DC7A; bl naming_screen_hacks.pressed_a_check_print
+org $804DCEC; bl naming_screen_hacks.pressed_b_check_print
+org $8042968; bl naming_screen_hacks.compare_currently_displayed_entry
+org $8042B90; bl naming_screen_hacks.compare_currently_displayed_entry
+org $804C77E; bl naming_screen_hacks.reprint_invalid_duplicated
+org $804E560; bl naming_screen_hacks.reprint_after_invalid_duplicated
+
 // Disable L and R alphabet switching
 org $803E79F; db $E0
 
@@ -1893,7 +1901,7 @@ org $804CA42; bl fix_lag_delete_all.hack //Set it back once we can read the inpu
 //OAM hacks for the summary
 
 //Set/Reset the flag, so everything works
-org $804A2EA; bl summary_hacks.flag_reset
+org $804A2EA; bl naming_screen_hacks.flag_reset
 
 //Remove the OAM entry for Favorite Food
 org $8042DDC; mov r1,#1; neg r1,r1; mov r9,r1; add r2,#0x14; b $8042DFF
@@ -1905,10 +1913,10 @@ org $8042E2E; add r2,#0x14; b $8042E4B
 org $8042E76; b $8042E93
 
 //Improve performances: use graphics for "Is This Okay? Yes No"
-org $8042EEC; bl summary_hacks.change_is_this_okay; b $8042F17
+org $8042EEC; bl naming_screen_hacks.change_is_this_okay; b $8042F17
 
 //Stop the refreshing of the OAM if the flag is set
-org $803E6F0; bl summary_hacks.impede_refresh_oam
+org $803E6F0; bl naming_screen_hacks.impede_refresh_oam
 
 //============================================================================================
 //                                   8 LETTERS FAKE NAMES

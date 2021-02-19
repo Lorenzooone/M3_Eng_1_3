@@ -209,11 +209,8 @@ pop  {r3-r7,pc}
 
 
 //--------------------------------------------------------
-//                 New summary hacks!
+//                 New summary & naming screen hacks!
 //--------------------------------------------------------
-
-summary_hacks:
-
 //First part of the new hacks
 
 .impede_refresh_oam:
@@ -260,6 +257,7 @@ ldr  r4,=#0x7000000
 ldr  r0,=#0x2022648
 ldr  r5,[r0,#0]                        //Where the new OAM entries are
 mov  r2,r5
+sub  r2,#8
 
 -
 add  r2,#8
@@ -365,7 +363,6 @@ bx   lr
 //--------------------------------------------------------------------------------------------------
 //This function manually fixes the save copying bug (New Game Plus)
 //--------------------------------------------------------------------------------------------------
-
 .fix_copy_bug:
 ldr  r1,=#0x2004F80
 mov  r5,#0
@@ -401,15 +398,23 @@ str  r5,[r1,#0]
 bx   lr
 
 //--------------------------------------------------------------------------------------------------
-
 //Second part of the new hacks
-
+//--------------------------------------------------------------------------------------------------
 .flag_reset:
 push {lr}
 cmp  r0,#0x4F                       //Summary's arrangement is being loaded?
-bne  .NotCycle
+bne  .CheckOtherArrangements
 
 bl   .fix_copy_bug
+b    .Flag_Stuff
+
+.CheckOtherArrangements:
+cmp  r0,#0x51                       //Text Speed/Window flavour arrangement
+beq  .Flag_Stuff
+cmp  r0,#0x48                       //Naming screen arrangements for the player's name are at 0x48
+beq  .Flag_Stuff
+cmp  r0,#0x47                       //Naming screen arrangements are at 0x47
+bne  .NotCycle
 
 .Flag_Stuff:
 ldr  r1,=#0x2003F04                 //Flag
@@ -431,9 +436,159 @@ lsl  r1,r1,#0x10                    //Stuff the game does
 pop  {pc}                           //Return to the cycle
 
 //--------------------------------------------------------------------------------------------------
+//Make the game print the naming screen only when the name changes - "A" version
+//--------------------------------------------------------------------------------------------------
+.pressed_a_check_print:
+push {lr}
+add  sp,#-0x24
+mov  r0,sp
+bl   .save_name                     //Save the current name to stack
 
+mov  r0,r6
+bl   $804F51C                       //Default code which can change the name
+
+mov  r0,sp
+bl   .reprint_if_updated
+
+add  sp,#0x24
+pop  {pc}
+
+//--------------------------------------------------------------------------------------------------
+//Make the game print the naming screen only when the name changes - "B" version
+//--------------------------------------------------------------------------------------------------
+.pressed_b_check_print:
+push {lr}
+add  sp,#-0x24
+mov  r0,sp
+bl   .save_name                     //Save the current name to stack
+
+bl   $8050628                       //Default code which can change the name
+
+mov  r0,sp
+bl   .reprint_if_updated
+
+add  sp,#0x24
+pop  {pc}
+
+//--------------------------------------------------------------------------------------------------
+//If the name changed from the one in r0, it sets the flag for re-printing
+//--------------------------------------------------------------------------------------------------
+.reprint_if_updated:
+push  {lr}
+bl   .has_name_changed              //Has the name changed?
+cmp  r0,#1
+bne  +
+ldr  r0,=#0x2003F04                 //Flag
+mov  r1,#1
+strb r1,[r0,#0]                     //Set it to 1, so it prints
++
+pop  {pc}
+
+//--------------------------------------------------------------------------------------------------
+//Save the currently selected name to stack
+//--------------------------------------------------------------------------------------------------
+.save_name:
+push {lr}
+mov  r1,r0                          //r0 has the address of the stack
+ldr  r0,=#0x201AE1C                 //The currently selected name's address is here
+ldr  r0,[r0,#0]
+str  r0,[r1,#0]                     //Save the current name's address as well
+add  r1,#4
+mov  r2,#0x10                       //How many halfwords
+swi  #0xB                           //Copy to stack
+pop  {pc}
+
+//--------------------------------------------------------------------------------------------------
+//Compare the currently selected name to the one saved in the stack
+//--------------------------------------------------------------------------------------------------
+.has_name_changed:
+push {r4,lr}
+mov  r4,r0                          //r0 has the address of the stack
+ldr  r0,=#0x201AE1C                 //The currently selected name's address is here
+mov  r3,#0
+ldr  r0,[r0,#0]
+ldr  r1,[r4,#0]                     //Check if the currently loaded name changed
+cmp  r1,r0
+bne  +
+add  r4,#4
+-
+ldrh r1,[r0,#0]
+ldrh r2,[r4,#0]
+cmp  r1,r2
+bne  +
+add  r0,#2
+add  r4,#2
+add  r3,#1
+cmp  r3,#0x10
+blt  -
+
+mov  r0,#0
+b    .has_name_changed_end          //Name hasn't changed
+
++
+mov  r0,#1                          //Name has changed
+
+.has_name_changed_end:
+pop  {r4,pc}
+
+//--------------------------------------------------------------------------------------------------
+//Compare the currently diplayed entry to the one saved.
+//If they don't match, set re-printing
+//--------------------------------------------------------------------------------------------------
+.compare_currently_displayed_entry:
+push {lr}
+ldr  r1,=#0x2003F04
+ldrb r2,[r1,#4]
+cmp  r2,r0                          //Is the entry that has to be displayed the same?
+beq  +
+strb r0,[r1,#4]                     //If it isn't, re-print and update the value
+mov  r2,#1
+strb r2,[r1,#0]
++
+bl   $80486A0                       //Default code
+pop  {pc}
+
+//--------------------------------------------------------------------------------------------------
+//Set the flag for reprinting, the Invalid/Duplicated name window popped up
+//--------------------------------------------------------------------------------------------------
+.reprint_invalid_duplicated:
+push {lr}
+ldr  r0,=#0x2003F04
+mov  r1,#1                          //Set to printing
+strb r1,[r0,#0]
+
+mov  r0,#0                          //Default code
+mov  r1,#4
+pop  {pc}
+
+//--------------------------------------------------------------------------------------------------
+//Set the flag for reprinting, the Invalid/Duplicated name window has been closed
+//--------------------------------------------------------------------------------------------------
+.reprint_after_invalid_duplicated:
+push {lr}
+ldr  r1,=#0x41CC
+ldr  r4,=#0x2016028                 //Default code
+add  r0,r4,r1
+ldrh r0,[r0,#0]
+cmp  r0,#0x33                       //Is this the right window? If it is, the displayed entry is 0x33
+bne  +
+
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
+cmp  r0,#0x11                       //Make sure this is the naming menu
+bne  +
+
+ldr  r0,=#0x2003F04
+mov  r1,#1                          //Set to printing
+strb r1,[r0,#0]
+ldr  r1,=#0x41CC                    //Set this back to what it should be
+
++
+pop  {pc}
+
+//--------------------------------------------------------------------------------------------------
 //Rearrange graphics for is this okay
-
+//--------------------------------------------------------------------------------------------------
 .change_is_this_okay:
 push {lr}
 
