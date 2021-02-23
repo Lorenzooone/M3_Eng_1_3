@@ -1436,8 +1436,8 @@ org $8D1EEA8; dd $00FE7E52
 org $9D06CCA; incbin text_statuses.bin
 
 // inserts enemy description text
-org $1B90134; dd $00032686
-org $1B90138; dd $00032886
+org $9B90134; dd $00032686
+org $9B90138; dd $00032886
 org $9BC2644; incbin text_enemydescriptions.bin
 
 // inserts map names

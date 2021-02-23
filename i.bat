@@ -30,6 +30,13 @@
 @echo.
 @echo.
 @echo ---------------------------------------------------------
+@echo Checking overlap of the files that will be used
+@echo ---------------------------------------------------------
+@echo.
+@python check_overlap.py m3hack.asm
+@echo.
+@echo.
+@echo ---------------------------------------------------------
 @echo Compiling .asm files and inserting all new data files
 @echo ---------------------------------------------------------
 @echo.
