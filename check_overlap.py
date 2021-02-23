@@ -1,5 +1,6 @@
 import os
 import sys
+import codecs
 
 def org_func(str, occupied_array, defines_dict, curr_addr, base_string):
     tokens = str.split()
@@ -131,7 +132,8 @@ def read_xkas_asm_file(asm_file, occupied_array, defines_dict):
     if asm_file is None:
         return None
     try:
-        with open(asm_file, 'r') as f:
+        with codecs.open(asm_file, 'r', encoding='utf-8',
+                         errors='ignore') as f:
             return search_overlaps(f, occupied_array, defines_dict)
     except FileNotFoundError as error:
         pass
