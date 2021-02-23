@@ -24,11 +24,13 @@ def fill_func(str, occupied_array, defines_dict, curr_addr, base_string):
     tokens = str.split()
     size = manip_entry(transform_line(tokens[1]), defines_dict)
     check_for_size(occupied_array, base_string, set(), curr_addr, size)
+    return curr_addr + size
     
 def incbin_func(str, occupied_array, defines_dict, curr_addr, base_string):
     bin_path = transform_line(str.split()[1].split("//", 1)[0])
     size = os.path.getsize(bin_path)
     check_for_size(occupied_array, base_string, set(), curr_addr, size)
+    return curr_addr + size
 
 operations_dict = {"define": define_func, "incbin": incbin_func, "dd": dd_func, \
                    "db": db_func, "dw": dw_func, "org": org_func, "fill": fill_func}
