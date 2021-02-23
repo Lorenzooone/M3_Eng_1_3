@@ -39,7 +39,7 @@ def occupied_check(addr, old_str, str, other_str):
     '''
     if not old_str in other_str:
         print("WARNING! FOUND OVERLAP IN " + hex(addr).upper() + "!" \
-              "CONFLICTING STRINGS:\n" + old_str + "\n" + str)
+              " - CONFLICTING STRINGS:\n" + old_str + "\n" + str)
         other_str.add(old_str)
     return other_str
 
