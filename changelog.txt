@@ -3,7 +3,7 @@ Fixes of translation bugs/issues:
 - Made it so the menus' writing buffer is properly cleared (Fixes leftover text issue)
 - Fixed some articles in text in the overworld
 - Fixed missing articles in the battle text
-- Fixed line of Debug Locria that was missing one entry
+- Fixed line of Debug Phrygia that was missing one entry
 - Fixed text overflow in various boxes
 - Made it so Soup and Stew are not drinkable
 - Fixed various typoes in the Memo text

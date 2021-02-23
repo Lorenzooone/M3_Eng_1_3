@@ -631,6 +631,9 @@ org $8042B90; bl naming_screen_hacks.compare_currently_displayed_entry
 org $804C77E; bl naming_screen_hacks.reprint_invalid_duplicated
 org $804E560; bl naming_screen_hacks.reprint_after_invalid_duplicated
 
+// If you use OAM for "Is this okay? Yes No", uncomment the line below
+//org $8042EFC; bl naming_screen_hacks.compare_currently_displayed_entry
+
 // Disable L and R alphabet switching
 org $803E79F; db $E0
 
@@ -1903,20 +1906,24 @@ org $804CA42; bl fix_lag_delete_all.hack //Set it back once we can read the inpu
 //Set/Reset the flag, so everything works
 org $804A2EA; bl naming_screen_hacks.flag_reset
 
-//Remove the OAM entry for Favorite Food
+//Stop the refreshing of the OAM if the flag is set
+org $803E6F0; bl naming_screen_hacks.impede_refresh_oam
+
+//If you want to use OAM for the entries below instead, comment them.
+//Also remember to uncomment the "Is this okay? Yes No" line in
+//the NAMING SCREEN HACKS section (the one for 8042EFC)
+
+//Remove the OAM entry for Favorite Food. Use graphics
 org $8042DDC; mov r1,#1; neg r1,r1; mov r9,r1; add r2,#0x14; b $8042DFF
 
-//Remove the OAM entry for Favorite Thing
+//Remove the OAM entry for Favorite Thing. Use graphics
 org $8042E2E; add r2,#0x14; b $8042E4B
 
-//Remove the OAM entry for Text Speed
+//Remove the OAM entry for Text Speed. Use graphics
 org $8042E76; b $8042E93
 
 //Improve performances: use graphics for "Is This Okay? Yes No"
 org $8042EEC; bl naming_screen_hacks.change_is_this_okay; b $8042F17
-
-//Stop the refreshing of the OAM if the flag is set
-org $803E6F0; bl naming_screen_hacks.impede_refresh_oam
 
 //============================================================================================
 //                                   8 LETTERS FAKE NAMES
