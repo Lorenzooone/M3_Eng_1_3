@@ -1360,9 +1360,9 @@ org {enemynames_address}; incbin text_enemynames.bin
 org $8D23494; incbin text_enemynames_short.bin
 
 // insert music titles
-org $8086CF4; dd $08CFB3F8
-org $9C8F38C; dd $08CFB3F8
-org $8CFB3F8; incbin text_musicnames.bin
+org $8086CF4; dd $09FD8000
+org $9C8F38C; dd $09FD8000
+org $9FD8000; incbin text_musicnames.bin
 
 // inserts misc. sound player menu text
 org $9C926A0; dd $FF06D298
