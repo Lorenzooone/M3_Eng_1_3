@@ -1116,6 +1116,35 @@ pop {pc}
 bx   lr
 
 //===========================================================================================
+// This hack puts an end in the multi-line menus and makes odd lines even (which fixes stuff)
+//===========================================================================================
+
+define size_limit $FE
+define empty_tile $EB
+
+.end_line_multi_menu:
+mov  r2,r0
+sub  r2,r2,r5                //r2 has the number of characters to store now
+lsl  r2,r2,#0x10
+lsr  r2,r2,#0x10             //Unsigned short in r2
+cmp  r2,#{size_limit}
+ble  +
+mov  r2,#{size_limit}        //Limit the number of characters in order to make this safe
++
+add  r1,r6,r2                //Get to the section's end
+mov  r0,#2
+and  r0,r2
+cmp  r0,#0                   //If it's not even, make this even so the last tile isn't removed
+beq  +
+mov  r0,#{empty_tile}        //Add an empty tile to make it work
+strh r0,[r1,#0]
+add  r1,#2                   //Go forward by 1 letter
++
+ldr  r0,=#0xFFFF
+strh r0,[r1,#0]              //Store the end of the line
+bx   lr
+
+//===========================================================================================
 // This set of hacks makes it so a displayed script can have no speaker displayed while the
 // speaker keeps speaking.
 //===========================================================================================

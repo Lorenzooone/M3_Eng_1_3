@@ -956,12 +956,13 @@ org $8021FFE; bl main_script_hacks.favfood_fix
 // of 6, this changes it to 8, don't know if it's ever used or how
 org $8021FCA; db $08
 
-// make debug room menus pad the text with 3Fs instead of ACs for test purposes
-org $80226FC; dw $00EB,$00EB
-
 // set a special flag when 4+ menu option line is being processed
 org $802269C; bl main_script_hacks.set_specialmenuflag
 
+//Change where multi-break menus are stored and how they work
+org $80226F8; dd $203F800-$201B7A0
+org $80226A8; b $80226BA
+org $80226C0; bl main_script_hacks.end_line_multi_menu
 
 //============================================================================================
 //                                  MISC OUTSIDE HACKS
