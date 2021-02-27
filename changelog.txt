@@ -59,6 +59,7 @@ Improvements:
 For the other translations:
 - Made it easier for future translations to edit graphics
 - Allowed more text per line and per screen in the Memoes menu
+- Allowed more text per line in the overworld Debug menus
 - Allowed more text per screen in the overworld notebooks
 - Lowered the OAM footprint of names in the overworld
 - Added guideline that shows which enemy uses which battle text line
