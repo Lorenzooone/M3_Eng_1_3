@@ -54,5 +54,6 @@ if len(sys.argv) < 3:
     print("You need to pass both the source file and the target file as a parameters!")
 else:
     valid_strings = read_txt_file(sys.argv[1])
-    write_txt_file(sys.argv[2], valid_strings)
+    if valid_strings is not None:
+        write_txt_file(sys.argv[2], valid_strings)
     
