@@ -244,7 +244,12 @@ bne  +
 b    .cc_it_articles
 +
 
-cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
+cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase pronoun for items
+bne  +
+b    .cc_it_articles
++
+
+cmp  r0,#0x17                // check for 0xEF17, which will print a lowercase past-tense verb for items
 bne  +
 b    .cc_it_articles
 +
@@ -264,9 +269,8 @@ cmp  r4,#0x20                    // check if this is EF 30 or more
 blt  +
 ldr  r0,=#0x2014724              // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
-ldrh r1,[r0,#0]                  // load the current item #
-lsl  r0,r1,#3
-sub  r0,r0,r1                    // offset = item ID * 7 bytes
+ldrh r0,[r0,#0]                  // load the current item #
+lsl  r0,r0,#3                    // offset = item ID * 8 bytes
 ldr  r1,=#{item_extras_address}  // this is the base address of our extra item data table in ROM
 add  r0,r0,r1                    // r0 now has the proper address of the current item's data slot
 ldrb r0,[r0,r2]                  // load the proper line # to use from custom_text.bin
@@ -1298,7 +1302,12 @@ bne  +
 b    .ecc_it_articles
 +
 
-cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase reference for items
+cmp  r0,#0x16                // check for 0xEF16, which will print a lowercase pronoun for items
+bne  +
+b    .ecc_it_articles
++
+
+cmp  r0,#0x17                // check for 0xEF17, which will print a lowercase past-tense verb for items
 bne  +
 b    .ecc_it_articles
 +
@@ -1330,9 +1339,8 @@ cmp  r7,#0x20                    // check if this is > EF 30
 blt  +
 ldr  r0,=#0x2014724              // then load the second last item for the extra data, this location is used by another hack to save the second last item's id
 +
-ldrh r1,[r0,#0]                  // load the current item #
-lsl  r0,r1,#3
-sub  r0,r0,r1                    // offset = item ID * 7 bytes
+ldrh r0,[r0,#0]                  // load the current item #
+lsl  r0,r0,#3                    // offset = item ID * 8 bytes
 ldr  r1,=#{item_extras_address}  // this is the base address of our extra item data table in ROM
 add  r0,r0,r1                    // r0 now has the proper address of the current item's data slot
 ldrb r0,[r0,r2]                  // load the proper line # to use from custom_text.bin

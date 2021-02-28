@@ -203,9 +203,9 @@
 0-80:◇[ITEM B1 00]は　もう　もてない。[END]
 0-80E:@You can't carry any more stuff.[END]
 0-81:◇ハコには[BREAK]　[81 FF]がはいっていた。[WAIT]◇しかし　[81 FF]は[BREAK]　もう　もてなかった。[END]
-0-81E:@Inside the present, there was[BREAK]  [EF 11][81 FF].[WAIT]@But you can't carry any more stuff.[END]
+0-81E:@Inside the present, there [EF 17][BREAK]  [EF 11][81 FF].[WAIT]@But you can't carry any more stuff.[END]
 0-82:◇ハコには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[ITEM F0 FF]は[BREAK]　もう　もてなかった。[END]
-0-82E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
+0-82E:@Inside the present, there [EF 97][BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
 // Repeats: 0-82, 836-5, 839-6
 0-83:◇じどうばいばいきが　ある。[WAIT]◇ごりように　なりますか？[BREAK][MENU 02 00]　　　はい　　　いいえ[BREAK][ENDCHOICES][END]
 0-83E:@There's a vending machine here.[WAIT]@Would you like to use it? [WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[BREAK][ENDCHOICES][END]
@@ -221,7 +221,7 @@
 0-88:◇さんそほきゅうマシンがある。[WAIT]　おねがいしますか？[BREAK][MENU 02 00]　　　はい　　　いいえ[BREAK][ENDCHOICES][END]
 0-88E:@There's an oxygen supply machine here.[WAIT]  Ask it for some oxygen?[WAIT][MENU 02 00][MENUSPACEYES]Yes[MENUSPACENO]No[BREAK][ENDCHOICES][END]
 0-89:◇ゴミばこには[BREAK]　[81 FF]がはいっていた。[WAIT]◇しかし　[81 FF]は[BREAK]　もう　もてなかった。[END]
-0-89E:@Inside the trash can, there was[BREAK]  [EF 11][81 FF].[WAIT]@But you can't carry any more stuff.[END]
+0-89E:@Inside the trash can, there [EF 17][BREAK]  [EF 11][81 FF].[WAIT]@But you can't carry any more stuff.[END]
 0-90:◇こころに　なにか[BREAK]　あたたかいものが　かんじられた。[END]
 0-90E:@You felt something warm inside your heart.[END]
 // Repeats: 0-90, 28-13, 28-16, 642-8
@@ -3938,7 +3938,7 @@
 39-5E:@It doesn't look like you can get through this[BREAK]  chain-link shutter.[END]
 // Repeats: 39-5, 509-5
 39-6:◇はこには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[81 FF]は[BREAK]　もう　もてなかった。[END]
-39-6E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But [81 FF] can't carry any more stuff.[END]
+39-6E:@Inside the present, there [EF 97][BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But [81 FF] can't carry any more stuff.[END]
 // Repeats: 39-6, 509-6
 39-7:◇うすぐらい　くうかんが[BREAK]　ひろがっている。[WAIT]◇どこにつうじているのか[BREAK]　わからない。[END]
 39-7E:@A dim passage can be seen beyond this[BREAK]  chain-link shutter.[WAIT]@Where it leads to is anyone's guess.[END]
@@ -17055,7 +17055,7 @@
 509-5E:@It doesn't look like you can get through this[BREAK]  chain-link shutter.[END]
 // Repeats: 39-5, 509-5
 509-6:◇はこには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[81 FF]は[BREAK]　もう　もてなかった。[END]
-509-6E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But [81 FF] can't carry any more stuff.[END]
+509-6E:@Inside the present, there [EF 97][BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But [81 FF] can't carry any more stuff.[END]
 // Repeats: 39-6, 509-6
 509-7:[END]
 509-7E:[END]
@@ -19199,7 +19199,7 @@
 836-4E:@Got [EF 91][ITEM F0 FF]![PAUSE 40 00][END]
 // Repeats: 0-45, 836-4, 839-5
 836-5:◇ハコには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[ITEM F0 FF]は[BREAK]　もう　もてなかった。[END]
-836-5E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
+836-5E:@Inside the present, there [EF 97][BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
 // Repeats: 0-82, 836-5, 839-6
 
 [Container 837]
@@ -19244,7 +19244,7 @@
 839-5E:@Got [EF 91][ITEM F0 FF]![PAUSE 40 00][END]
 // Repeats: 0-45, 836-4, 839-5
 839-6:◇ハコには[BREAK]　[ITEM F0 FF]がはいっていた。[WAIT]◇しかし　[ITEM F0 FF]は[BREAK]　もう　もてなかった。[END]
-839-6E:@Inside the present, there was[BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
+839-6E:@Inside the present, there [EF 97][BREAK]  [EF 91][ITEM F0 FF].[WAIT]@But you can't carry any more stuff.[END]
 // Repeats: 0-82, 836-5, 839-6
 839-7:[END]
 839-7E:[END]

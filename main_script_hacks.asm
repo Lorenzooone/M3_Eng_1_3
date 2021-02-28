@@ -284,8 +284,7 @@ b    .custom_cc_end
 .custom_cc_item:
 sub  r2,#0x10
 ldrh r0,[r0,#0]                   // load the current item #
-lsl  r1,r0,#3
-sub  r0,r1,r0                     // offset = item ID * 7 bytes
+lsl  r0,r0,#3                     // offset = item ID * 8 bytes
 ldr  r1,=#{item_extras_address}   // this is the base address of our extra item data table in ROM
 
 .custom_cc_end:
@@ -532,8 +531,7 @@ b    .chap_end_custom_cc_end
 .chap_end_custom_cc_item:
 sub  r2,#0x10
 ldrh r0,[r0,#0]                   // load the current item #
-lsl  r1,r0,#3
-sub  r0,r1,r0                     // offset = item ID * 7 bytes
+lsl  r0,r0,#3                     // offset = item ID * 8 bytes
 ldr  r1,=#{item_extras_address}   // this is the base address of our extra item data table in ROM
 
 .chap_end_custom_cc_end:
