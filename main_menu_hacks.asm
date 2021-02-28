@@ -1509,7 +1509,7 @@ mov  r2,#0x6C                    // size of each item data block
 mul  r0,r2                       // item_num * 6C
 add  r0,r0,r1                    // stored at this address is the current item's type
 ldrb r0,[r0,#0]                  // load the item type
-add  r0,#20                      // add 20 -- starting on line 20 of item_extras.txt are the strings we want
+add  r0,#4                       // add 4 -- starting on line 4 of custom_extras.txt are the strings we want
 mov  r1,#40
 mul  r0,r1
 ldr  r1,=#{custom_text_address}  // this is the base address of our custom text array
