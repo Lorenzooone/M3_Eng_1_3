@@ -1720,8 +1720,9 @@ org $9FD7078; incbin logic_blocks_37F_380.bin
 org $919A80C; dd $00E3E468; dd $00E3E474; dd $00E3E4DC; dd $00E3E4EC
 
 //Fix pigmask in debug room changing sprite
-org $93682E8; dd $0000130E; dd $0000130E; dd $0000130E
-org $93683F4; dd $0000130E; dd $0000130E; dd $0000130E
+org $9369CD0; incbin logic_fix_debug_pigmask.bin
+org $93682E8; dd $270B000C
+org $93683F4; dd $270E000C
 
 //Fix Boney not having the right sprite if chapter 4 is accessed via the debug room option "Violet's Room"
 org $9366519; db $05
