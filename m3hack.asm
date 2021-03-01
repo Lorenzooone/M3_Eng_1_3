@@ -1716,8 +1716,9 @@ org $93600A2; dw $264C
 org $9368049; db $0D
 org $9FD6B98; incbin object_tables_debug.bin
 org $9137120; dd $00EA4040; dd $00EA4220; dd $00EA42E0; dd $00EA4388; dd $00EA4430
-org $9FD7078; incbin logic_blocks_37F_380.bin
+org $9FD7078; incbin logic_blocks_37F_380_381_382.bin
 org $919A80C; dd $00E3E468; dd $00E3E474; dd $00E3E4DC; dd $00E3E4EC
+org $919A81C; dd $00E3E77C; dd $00E3E788; dd $00E3E820; dd $00E3E82C
 
 //Fix pigmask in debug room changing sprite
 org $9369CD0; incbin logic_fix_debug_pigmask.bin
@@ -1770,8 +1771,8 @@ org $919A02C; dd $00E3D2F0 //Point to the pointers
 org $9013AB4; incbin gfx_highway_layer3_[c].bin
 org $90D0140; incbin gfx_highway_graphics_[c].bin
 org $8D3D91C; dd $00394C60
-org $9FD738C; incbin gfx_highway_tilemap_[c].bin
-org $904E01C; dd $00F899C0
+org $9FD74D4; incbin gfx_highway_tilemap_[c].bin
+org $904E01C; dd $00F89B08
 
 //Fix issue with Porky in Absolutely Safe Capsule when comboed
 org $809F45A; bl battle_hacks.fix_total_damage
@@ -1841,6 +1842,14 @@ org $802704C; bl outside_hacks.block_loading_map_inside
 
 //Fix option "Clay Factory" of Chapter 5's NPC in the Debug Room
 org $9362AC8; dd $00000A01
+
+//Fix Chapter 7's Kumatora when warping from Debug entries
+org $9369CE8; incbin logic_fix_debug_chapter7_kumatora.bin
+org $93676CC; dd $2730000C
+org $93676F8; dd $2733000C
+org $9367724; dd $2736000C
+org $9367750; dd $2739000C
+org $936777C; dd $273C000C
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
