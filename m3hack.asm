@@ -544,6 +544,7 @@ org $804D556; bl refreshes.buy_block_up_down
 org $804D562; bl refreshes.up_and_down
 org $804D5A8; bl refreshes.buy_block_lr
 org $804D5C8; bl refreshes.buy_lr; nop; nop
+org $804E358; bl refreshes.shop_block_b_update
 org $804E944; bl refreshes.buy_block_a
 org $805007A; bl refreshes.buy_a; nop; nop
 org $8050440; bl refreshes.sell_after_buy_a; nop; nop

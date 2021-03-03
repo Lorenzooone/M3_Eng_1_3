@@ -6359,8 +6359,6 @@ bl   $8053754
 add  sp,#4
 pop  {pc}
 
-
-
 //=============================================================================================
 // This hack updates the inventory.
 // It then returns both the new inventory size and the one before updating it
@@ -6376,6 +6374,20 @@ bl   $80524EC                //Routine that updates inventory's size
 bl   main_menu_hacks.get_character_inventory_total_indexes
 ldr  r1,[sp,#0]              //Put in r0 the new size and in r1 the old one
 add  sp,#4
+pop  {pc}
+
+//=============================================================================================
+// This hack makes it so if we're in the buying menu, a certain B branch doesn't update the screen.
+// This happens in the "Equip X?" and "Sell X?" submenus
+//=============================================================================================
+.shop_block_b_update:
+push {lr}
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]              //Load the menu type
+cmp  r0,#0xA                 //Is this the buying menu?
+beq  +
+bl   $8046D90                //If not, proceed normally
++
 pop  {pc}
 
 //=============================================================================================
