@@ -716,8 +716,8 @@ pop  {pc}
 
 .optimized_character_search_overworld:
 push {lr}
-add  sp,#-8
 add  r6,r2,r1      //Default code
+add  sp,#-8
 
 str  r4,[sp,#0]
 mov  r0,#0xCC
@@ -759,7 +759,68 @@ b    .optimized_character_search_overworld_end
 +
 
 //We found something we need to print in this line! Print away with the normal routine!
+//We'll make part of the loading process much faster...
 ldr  r4,[sp,#0]
+
+ldr  r1,=#0x2014304
+ldrb r1,[r1,#0]    //This is 1 if we're in a special menu. If we are, skip this...
+cmp  r1,#1
+bne  +
+b    .optimized_character_search_overworld_end
++
+
+add  r4,#4
+mov  r0,r7
+mov  r1,r4
+mov  r5,r9
+sub  r5,r5,#4
+mov  r2,r5
+bl   $8008ECC      //Load the start of the line in pixels
+push {r6}
+ldrh r5,[r5,#0]    //Load the amount of pixels
+mov  r6,#0         //Amount of characters read that we won't print
+
+-
+ldr  r1,[r4,#0]
+lsl  r0,r1,#0xE
+cmp  r0,#0         //Do we need to print this character?
+bge  +
+lsl  r0,r1,#0x14   //If not, add its size to the one the game's currently calculating
+lsr  r0,r0,#0x14
+bl   $8009DDC      //Load the character's size
+add  r5,r5,r0
+add  r6,#1
+add  r4,#4
+b    -
++
+
+//In r4 we have the first printable character, we now need to prepare some things to
+//match what the game expects
+mov  r2,r9
+sub  r2,r2,#4
+strh r5,[r2,#0]    //Save the current width of the line
+ldr  r2,=#0x322A
+add  r0,r7,r2
+cmp  r6,#0         //If nothing has been printed yet (r6 is 0), keep this at 0 so it sets the background
+beq  +
+ldrb r2,[r0,#0]
+mov  r1,#1
+orr  r2,r1
+strb r2,[r0,#0]
++
+add  r0,#2
+sub  r1,r4,#4
+str  r1,[r0,#0]
+mov  r1,#1
+and  r1,r6         //If we're in an odd position, move the buffer to the next one
+pop  {r6}
+cmp  r1,#0
+bne  +
+mov  r1,r8
+sub  r1,#1         //We prepare the swap
+mov  r8,r1
++
+bl   .move_to_next_glyph
 
 .optimized_character_search_overworld_end:
 add  sp,#8
