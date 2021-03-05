@@ -710,6 +710,60 @@ mov  r2,r0
 mov  r0,r5         // clobbered code
 pop  {pc}
 
+//===========================================================================================
+// This hack is an optimized version of the normal overworld search for printing characters
+//===========================================================================================
+
+.optimized_character_search_overworld:
+push {lr}
+add  sp,#-8
+add  r6,r2,r1      //Default code
+
+str  r4,[sp,#0]
+mov  r0,#0xCC
+lsl  r0,r0,#4
+add  r0,r4,r0
+str  r0,[sp,#4]    //Save where we'll end
+add  r4,#4         //The first one is empty, it makes the game print 0xC from the left
+
+.optimized_character_search_overworld_fast_search_loop:
+ldr  r0,[r4,#0]
+lsl  r0,r0,#0x14
+cmp  r0,#0
+bne  +
+
+ldr  r4,[sp,#0]    //If we found a 0, go forward a bit
+mov  r0,#4
+lsl  r0,r0,#8
+add  r4,r4,r0      //0xFF letters per line
+sub  r0,r4,#4
+str  r0,[sp,#0]    //Move to the next line if we find 0
+ldr  r1,[sp,#4]
+cmp  r4,r1         //Check if we're at the end of the buffer
+blt  .optimized_character_search_overworld_fast_search_loop
+sub  r4,r1,#4
+b    .optimized_character_search_overworld_end
++
+
+ldr  r0,[r4,#0]
+lsl  r0,r0,#0xE
+cmp  r0,#0         //Do we need to print this line?
+bge  +
+
+add  r4,#4
+ldr  r1,[sp,#4]
+cmp  r4,r1         //Check if we're at the end of the buffer
+blt  .optimized_character_search_overworld_fast_search_loop
+sub  r4,r1,#4
+b    .optimized_character_search_overworld_end
++
+
+//We found something we need to print in this line! Print away with the normal routine!
+ldr  r4,[sp,#0]
+
+.optimized_character_search_overworld_end:
+add  sp,#8
+pop  {pc}
 
 //===========================================================================================
 // These hacks give proper text positioning to scrolling/notebook text

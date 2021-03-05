@@ -901,8 +901,7 @@ org $8006C30; dw $0D8A
 org $800A09A; bl main_script_hacks.change_clear_amount
 org $8008A22
   mov r1,#0xC8
-  add r6,r2,r1
-  nop
+  bl  main_script_hacks.optimized_character_search_overworld
 
 // fixes the flyover text, only 50 letters per line allowed
 org $8024F76; bl main_script_hacks.prepare_info_zone
