@@ -711,7 +711,31 @@ mov  r0,r5         // clobbered code
 pop  {pc}
 
 //===========================================================================================
+// This hack saves data used for optimizing character printing
+//===========================================================================================
+
+define line_printing_data $203FF98
+
+.save_data_optimized_printing:
+ldrh r2,[r5,#2]    //Load the current height
+ldrh r5,[r5,#0]
+add  r0,r0,r5      //Default code, calculated the current width for printing
+ldr  r1,=#{line_printing_data}
+str  r4,[r1,#4]
+lsl  r2,r2,#8
+orr  r2,r0
+strh r2,[r1,#2]    //Store both width and height
+ldrh r2,[r1,#0]    //Store letter counter
+add  r2,#1
+strh r2,[r1,#0]    //Increment the counter by 1
+bx   lr
+
+//===========================================================================================
 // This hack is an optimized version of the normal overworld search for printing characters
+// In particular, it finds the correct line to print faster for special menus...
+// For the other type of lines, it instantly loads where the game is in terms of line width
+// and address, skipping a good amount of useless checks that really slowed the overworld
+// printing process
 //===========================================================================================
 
 .optimized_character_search_overworld:
@@ -719,6 +743,74 @@ push {lr}
 add  r6,r2,r1      //Default code
 add  sp,#-8
 
+ldr  r1,=#0x2014304
+ldrb r1,[r1,#0]    //This is 1 if we're in a special menu. If we are, skip this...
+cmp  r1,#1
+bne  +
+b    .optimized_character_search_overworld_special_menu
++
+
+ldr  r1,[r4,#4]
+lsl  r0,r1,#0xE
+cmp  r0,#0         //Is this a new line? If it is, it will be 0 here
+bge  .optimized_character_search_overworld_new_line
+mov  r1,#4         //Check if there is a new line in the second line
+lsl  r1,r1,#8
+sub  r1,r1,#4
+add  r4,r4,r1
+ldr  r1,[r4,#4]
+lsl  r0,r1,#0x14   //If this is 0, this bottom line is entirely empty
+cmp  r0,#0
+beq  .optimized_character_search_overworld_not_new_line
+lsl  r0,r1,#0xE
+cmp  r0,#0         //Do we need to print this line?
+blt  .optimized_character_search_overworld_not_new_line
+
+.optimized_character_search_overworld_new_line:
+ldr  r1,=#{line_printing_data}
+mov  r0,#0
+str  r0,[r1,#0]    //Set width and current letter to 0
+str  r0,[r1,#4]    //Set last used address to 0
+b    .optimized_character_search_overworld_end
+
+.optimized_character_search_overworld_not_new_line:
+ldr  r1,=#{line_printing_data}
+ldr  r4,[r1,#4]
+add  r4,#4         //Get the next letter
+ldrh r5,[r1,#2]    //Get the current width + height
+ldrh r3,[r1,#0]    //Get the current number of printed letters
+
+//In r4 we have the first printable character, we now need to prepare some things to
+//match what the game expects
+mov  r2,r9
+sub  r2,r2,#4
+lsl  r0,r5,#0x18
+lsr  r0,r0,#0x18
+strh r0,[r2,#0]    //Save the current width of the line
+lsr  r0,r5,#8
+strh r0,[r2,#2]    //Save the current height of the line
+ldr  r2,=#0x322A
+add  r0,r7,r2
+ldrb r2,[r0,#0]
+mov  r1,#1
+orr  r2,r1
+strb r2,[r0,#0]
+add  r0,#2
+sub  r1,r4,#4
+str  r1,[r0,#0]
+mov  r1,#1
+and  r1,r3         //If we're in an odd position, move the buffer to the next one
+cmp  r1,#0
+bne  +
+mov  r1,r8
+sub  r1,#1         //We prepare the swap
+mov  r8,r1
++
+bl   .move_to_next_glyph
+b    .optimized_character_search_overworld_end
+
+//Faster line loading for the special menus
+.optimized_character_search_overworld_special_menu:
 str  r4,[sp,#0]
 mov  r0,#0xCC
 lsl  r0,r0,#4
@@ -761,66 +853,6 @@ b    .optimized_character_search_overworld_end
 //We found something we need to print in this line! Print away with the normal routine!
 //We'll make part of the loading process much faster...
 ldr  r4,[sp,#0]
-
-ldr  r1,=#0x2014304
-ldrb r1,[r1,#0]    //This is 1 if we're in a special menu. If we are, skip this...
-cmp  r1,#1
-bne  +
-b    .optimized_character_search_overworld_end
-+
-
-add  r4,#4
-mov  r0,r7
-mov  r1,r4
-mov  r5,r9
-sub  r5,r5,#4
-mov  r2,r5
-bl   $8008ECC      //Load the start of the line in pixels
-push {r6}
-ldrh r5,[r5,#0]    //Load the amount of pixels
-mov  r6,#0         //Amount of characters read that we won't print
-
--
-ldr  r1,[r4,#0]
-lsl  r0,r1,#0xE
-cmp  r0,#0         //Do we need to print this character?
-bge  +
-lsl  r0,r1,#0x14   //If not, add its size to the one the game's currently calculating
-lsr  r0,r0,#0x14
-bl   $8009DDC      //Load the character's size
-add  r5,r5,r0
-add  r6,#1
-add  r4,#4
-b    -
-+
-
-//In r4 we have the first printable character, we now need to prepare some things to
-//match what the game expects
-mov  r2,r9
-sub  r2,r2,#4
-strh r5,[r2,#0]    //Save the current width of the line
-ldr  r2,=#0x322A
-add  r0,r7,r2
-cmp  r6,#0         //If nothing has been printed yet (r6 is 0), keep this at 0 so it sets the background
-beq  +
-ldrb r2,[r0,#0]
-mov  r1,#1
-orr  r2,r1
-strb r2,[r0,#0]
-+
-add  r0,#2
-sub  r1,r4,#4
-str  r1,[r0,#0]
-mov  r1,#1
-and  r1,r6         //If we're in an odd position, move the buffer to the next one
-pop  {r6}
-cmp  r1,#0
-bne  +
-mov  r1,r8
-sub  r1,#1         //We prepare the swap
-mov  r8,r1
-+
-bl   .move_to_next_glyph
 
 .optimized_character_search_overworld_end:
 add  sp,#8
