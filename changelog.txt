@@ -11,6 +11,7 @@ Fixes of translation bugs/issues:
 - Fixed article within an highroad dog's line
 - Fixed small cursor's issue in the naming screen
 - Fixed issues with the stars in the Battle Memories
+- Fixed "Text Slowdown" when printing text in CPU heavy areas in the overworld
 
 Fixes of the Japanese version's bugs/issues:
 - Made it so the Thunder Tower's frog can still move when in contact with the party (Fixes softlock)
@@ -39,7 +40,6 @@ Fixes of the Japanese version's bugs/issues:
 - Fixed Caroline's bakery causing inventory issues in Chapters 1 through 3
 - Fixed the Delete All Saves menu's lag
 - Fixed issue with quickly opening and closing maps
-
 
 Improvements:
 - Optimized text printing in menus for a smoother experience
