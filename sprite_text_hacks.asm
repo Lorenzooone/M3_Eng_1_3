@@ -1251,6 +1251,122 @@ bne  -
 mov  r0,r3
 pop  {r2-r7,pc}            // restore registers and leave
 
+//============================================================================================
+// This code sets caches addresses of certain entries' addresses in order to make
+// the checking process in .special_checks_move_zone faster later
+//============================================================================================
+
+define on_whom_entry $3B
+define on_whom_address $30
+define menu_entry $3C
+define menu_address $34
+define to_whom_entry $3D
+define to_whom_address $38
+define give_entry $3F
+define give_address $3C
+
+.special_checks_setup:
+push {r4,lr}
+mov  r4,r0
+ldr  r2,[r0,#0x2C]                     //Which menu is this?
+cmp  r2,#0
+beq  .special_checks_setup_inventory
+cmp  r2,#2
+bne  .special_checks_setup_end
+
+.special_checks_setup_psi:
+mov  r0,#{on_whom_entry}
+bl   $80486A0                          //Get the address for this entry
+str  r0,[r4,#{on_whom_address}]        //Cache the address for later
+b    .special_checks_setup_end
+
+.special_checks_setup_inventory:
+mov  r0,#{on_whom_entry}
+bl   $80486A0                          //Get the address for this entry
+str  r0,[r4,#{on_whom_address}]        //Cache the address for later
+mov  r0,#{menu_entry}
+bl   $80486A0                          //Get the address for this entry
+str  r0,[r4,#{menu_address}]           //Cache the address for later
+mov  r0,#{to_whom_entry}
+bl   $80486A0                          //Get the address for this entry
+str  r0,[r4,#{to_whom_address}]        //Cache the address for later
+mov  r0,#{give_entry}
+bl   $80486A0                          //Get the address for this entry
+str  r0,[r4,#{give_address}]           //Cache the address for later
+
+.special_checks_setup_end:
+pop  {r4,pc}
+
+//============================================================================================
+// This code sets specific entries in certain menus to an OAM zone in order to prevent
+// issues with flickering.
+// r0 = Stack pointer of the main function
+//============================================================================================
+
+define new_pos_base $6011800-$80
+define new_pos_tile $C0-$4
+define new_pos_base_alternative $6011C00-$80
+define new_pos_tile_alternative $E0-$4
+define new_pos_base_alternative2 $6012000-$80
+define new_pos_tile_alternative2 $100-$4
+
+.special_checks_move_zone:
+push {r4,lr}
+mov  r4,r0
+ldr  r2,[r0,#0x2C]         //Which menu is this?
+cmp  r2,#0
+beq  .special_checks_move_zone_inventory
+cmp  r2,#2
+bne  .special_checks_move_zone_end
+
+.special_checks_move_zone_psi:
+ldr  r0,[r4,#{on_whom_address}]
+ldr  r1,[r4,#0]
+cmp  r0,r1
+bne  .special_checks_move_zone_end
+ldr  r0,=#{new_pos_base_alternative2}
+ldr  r1,=#{new_pos_tile_alternative2}
+b    .special_checks_move_zone_change_place
+
+.special_checks_move_zone_inventory:
+ldr  r0,[r4,#{menu_address}]
+ldr  r1,[r4,#0]
+cmp  r0,r1
+bne  +
+ldr  r0,=#{new_pos_base}
+ldr  r1,=#{new_pos_tile}
+b    .special_checks_move_zone_change_place
+
++
+ldr  r0,[r4,#{give_address}]
+ldr  r1,[r4,#0]
+cmp  r0,r1
+bne  +
+ldr  r0,=#{new_pos_base_alternative}
+ldr  r1,=#{new_pos_tile_alternative}
+b    .special_checks_move_zone_change_place
+
++
+ldr  r0,[r4,#{on_whom_address}]
+ldr  r1,[r4,#0]
+cmp  r0,r1
+beq  +
+
+ldr  r0,[r4,#{to_whom_address}]
+ldr  r1,[r4,#0]
+cmp  r0,r1
+bne  .special_checks_move_zone_end
+
++
+ldr  r0,=#{new_pos_base_alternative2}
+ldr  r1,=#{new_pos_tile_alternative2}
+
+.special_checks_move_zone_change_place:
+str  r0,[r4,#0xC]          //Change the OAM address this will go to
+str  r1,[r4,#0x18]         //Change the OAM tile this will go to
+
+.special_checks_move_zone_end:
+pop  {r4,pc}
 
 //============================================================================================
 // This routine is called right after all sprite strings have been processed. It clears out
@@ -1312,24 +1428,27 @@ bx   r0
 
 .main_routine:
 push {r4-r7,lr}
-ldr  r4,=#0x2003F04
-ldrb r7,[r4,#0]
-cmp  r7,#2
+ldr  r4,=#0x201A288
+ldrb r2,[r4,#0]
+cmp  r2,#0x11
 bne  +
-ldr  r7,=#0x201A288                       //If this is the naming screen, then stop printing if the flag is active.
+ldr  r7,=#0x2003F04                       //If this is the naming screen, then stop printing if the flag is active.
 ldrb r7,[r7,#0]
-cmp  r7,#0x11
+cmp  r7,#2
 beq  .way_out
 +
 mov  r7,r10
 mov  r6,r9
 mov  r5,r8
 push {r5-r7}
-add  sp,#-0x2C
+add  sp,#-0x40
+str  r2,[sp,#0x2C]                        //We'll use this later - Save which menu this is
 str  r0,[sp,#0x8]
 ldr  r2,=#0x76D9
 add  r1,r0,r2
 bl   sprite_text_weld.init                // init
+mov  r0,sp
+bl   .special_checks_setup
 
 ldr  r0,=#0x2016028
 ldr  r3,=#0xC620
@@ -1394,6 +1513,8 @@ ldr  r0,[r6,#0]
 str  r0,[sp,#0]
 mov  r7,#0
 str  r7,[sp,#0x14]
+mov  r0,sp
+bl   .special_checks_move_zone
 ldrh r0,[r6,#0xE]
 cmp  r7,r0
 bcc  +
@@ -1609,7 +1730,7 @@ add  r1,r1,r0
 ldrh r0,[r2,#0]
 strh r1,[r2,#0]
 
-add  sp,#0x2C
+add  sp,#0x40
 pop  {r3-r5}
 mov  r8,r3
 mov  r9,r4
