@@ -1252,6 +1252,29 @@ mov  r0,r3
 pop  {r2-r7,pc}            // restore registers and leave
 
 //============================================================================================
+// This code understands if an entry is from a character or not
+//============================================================================================
+
+define first_char_name $200417E
+define char_data_size $6C
+
+.is_entry_character_name:
+push {lr}
+ldr  r1,=#{first_char_name}
+sub  r0,r0,r1
+mov  r1,#{char_data_size}
+swi  #6
+mov  r2,#0
+cmp  r1,#0
+bne  +
+cmp  r0,#0xC
+bgt  +
+mov  r2,#1                             //This is a character's name
++
+mov  r0,r2
+pop  {pc}
+
+//============================================================================================
 // This code sets caches addresses of certain entries' addresses in order to make
 // the checking process in .special_checks_move_zone faster later
 //============================================================================================
@@ -1269,10 +1292,18 @@ define give_address $3C
 push {r4,lr}
 mov  r4,r0
 ldr  r2,[r0,#0x2C]                     //Which menu is this?
+cmp  r2,#3
+bgt  .special_checks_setup_end
 cmp  r2,#0
 beq  .special_checks_setup_inventory
 cmp  r2,#2
-bne  .special_checks_setup_end
+beq  .special_checks_setup_psi
+
+.special_checks_setup_status_equip:
+mov  r0,#0
+str  r0,[r4,#0x30]                     //OAM Address
+str  r0,[r4,#0x34]                     //Tile
+b    .special_checks_setup_end
 
 .special_checks_setup_psi:
 mov  r0,#{on_whom_entry}
@@ -1314,10 +1345,36 @@ define new_pos_tile_alternative2 $100-$4
 push {r4,lr}
 mov  r4,r0
 ldr  r2,[r0,#0x2C]         //Which menu is this?
+cmp  r2,#3
+bgt  .special_checks_move_zone_end
 cmp  r2,#0
 beq  .special_checks_move_zone_inventory
 cmp  r2,#2
-bne  .special_checks_move_zone_end
+beq  .special_checks_move_zone_psi
+
+.special_checks_move_zone_status_equip:
+ldr  r0,[r4,#0]
+bl   .is_entry_character_name
+cmp  r0,#1
+bne  +
+ldr  r0,[r4,#0xC]
+str  r0,[r4,#0x30]         //Temp store the tile and address that should normally be next
+ldr  r0,[r4,#0x18]
+str  r0,[r4,#0x34]
+ldr  r0,=#{new_pos_base_alternative2}
+ldr  r1,=#{new_pos_tile_alternative2}
+b    .special_checks_move_zone_change_place
+
++
+ldr  r0,[r4,#0x30]         //Did we temp store the next tile and address it should have been?
+cmp  r0,#0
+beq  .special_checks_move_zone_end
+mov  r2,#0
+ldr  r0,[r4,#0x30]         //If we did, get them and reset them
+ldr  r1,[r4,#0x34]
+str  r2,[r4,#0x30]
+str  r2,[r4,#0x34]
+b    .special_checks_move_zone_change_place
 
 .special_checks_move_zone_psi:
 ldr  r0,[r4,#{on_whom_address}]
