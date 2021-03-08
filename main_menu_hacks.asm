@@ -1589,6 +1589,48 @@ pop {r0}
 pop  {r0-r2,pc}
 
 //=============================================================================================
+// This hack deletes the content of text's OAM VRAM that can be used
+//=============================================================================================
+.delete_oam_vram:
+push {r0-r2,lr}
+
+mov  r0,#0
+push {r0}
+mov  r0,sp
+ldr  r1,=#0x06010000
+ldr  r2,=#0x01000C00         // (0x3000 => The full OAM we use for text)
+
+swi  #0x0C                   // clear old data out
+pop {r0}
+
+pop  {r0-r2,pc}
+
+//=============================================================================================
+// This hack deletes the content of a subsection of text's OAM VRAM that can be used
+//=============================================================================================
+
+//These 2 values must reflect {new_pos_base_alternative2}!!!
+define delete_oam_vram_subsection_target_addr $6012000
+define delete_oam_vram_subsection_zone_size ($6013000-$6012000)/$4
+
+.delete_oam_vram_subsection:
+push {r0-r3,lr}
+
+mov  r0,#0
+push {r0}
+mov  r0,sp
+ldr  r1,=#{delete_oam_vram_subsection_target_addr}
+ldr  r2,=#{delete_oam_vram_subsection_zone_size}
+mov  r3,#1
+lsl  r3,r3,#0x18
+orr  r2,r3                   // (0x1000 => The rest of the OAM)
+
+swi  #0x0C                   // clear old data out
+pop {r0}
+
+pop  {r0-r3,pc}
+
+//=============================================================================================
 // This hack deletes the content of VRAM in equip when the data shouldn't be shown. Optimized.
 //=============================================================================================
 .delete_vram_equip:
@@ -1770,22 +1812,26 @@ pop  {r1-r7,pc}
 
 //=============================================================================================
 // This hack deletes the content of VRAM that is being shown when going from the inventory to the battle memory
+// It also clears OAM's text VRAM.
 //=============================================================================================
 .delete_vram_inv_to_battle_memory:
 push {lr}
 
 bl   .delete_vram
+bl   .delete_oam_vram
 
 bl   $800399C                // Clobbered code
 pop  {pc}
 
 //=============================================================================================
 // This hack deletes the content of VRAM that is being shown when going from the battle memory to the inventory
+// It also clears OAM's text VRAM.
 //=============================================================================================
 .delete_vram_battle_memory_to_inv:
 push {lr}
 
 bl   .delete_vram
+bl   .delete_oam_vram
 
 bl   $804BE64                // Clobbered code
 pop  {pc}
@@ -5978,13 +6024,6 @@ mov  r0,#0xD3                //Normal stuff the game expects from us
 bl   $800399C
 pop  {pc}
 
-.status_a:
-push {lr}
-bl   .main
-mov  r0,r4                   //Normal stuff the game expects from us
-bl   $804EDFC
-pop  {pc}
-
 .inv_spec_a:
 push {lr}
 bl   .main
@@ -6004,13 +6043,6 @@ push {lr}
 bl   .main
 mov  r0,r4                   //Normal stuff the game expects from us
 bl   $804EB68
-pop  {pc}
-
-.inv_submenu_a:
-ldr  r0,=#0x804E84F          //We have to return here instead of where the call happened
-push {r0}
-bl   .main
-bl   $804FCB0                //Normal stuff the game expects from us
 pop  {pc}
 
 .inner_memo_scroll:
@@ -6059,6 +6091,41 @@ bl   .main
 bl   main_menu_hacks.delete_vram
 mov  r0,#0xD2                //Normal stuff the game expects from us
 bl   $800399C
+pop  {pc}
+
+.status_a:
+push {lr}
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
+cmp  r0,#4
+bne  +
+bl   .main
+bl   main_menu_hacks.delete_oam_vram
++
+bl   $8046D90                //Normal stuff the game expects from us
+pop  {pc}
+
+.skills_b:
+push {lr}
+bl   .main
+bl   main_menu_hacks.delete_oam_vram
+mov  r0,#0xD3                //Normal stuff the game expects from us
+bl   $800399C
+pop  {pc}
+
+//=============================================================================================
+// This hack blanks out a part of OAM's text tiles.
+// This makes it so the printing process isn't showed
+//=============================================================================================
+.inv_submenu_a:
+push {lr}
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
+cmp  r0,#0                   //Make sure we're in the inventory. Double checking never hurts
+bne  +                       //If we are, clean a subsection of OAM's VRAM
+bl   main_menu_hacks.delete_oam_vram_subsection
++
+bl   $804FA5C                //Normal stuff the game expects from us
 pop  {pc}
 
 //=============================================================================================

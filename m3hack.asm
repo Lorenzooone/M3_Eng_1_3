@@ -479,7 +479,7 @@ org $804CB52; bl refreshes.lr
 org $804CC24; bl refreshes.up_and_down
 
 //Inventory submenu
-//org $804E81C; bl refreshes.inv_submenu_a
+org $804E7E0; bl refreshes.inv_submenu_a
 org $804FD6A; bl refreshes.inv_use_throw; nop; nop //use
 org $804FBA4; bl refreshes.inv_use_throw; nop; nop //use, chicken/chick case
 org $804FEF4; bl refreshes.inv_use_throw; nop; nop //throw
@@ -516,14 +516,14 @@ org $804EDE6; bl refreshes.psi_used //Party-wide PSI, also fixes a bug in the ba
 org $804FFC2; bl refreshes.psi_used; nop; nop //Single-target PSI
 
 //Status
-org $804CE78; bl refreshes.status_a; nop
+org $804EE46; bl refreshes.status_a
 org $804CEB2; bl refreshes.status_block_input_lr; nop
 org $804CEBE; bl refreshes.status_lr
 org $804CEF4; bl main_menu_hacks.move_and_print
 org $804CF0A; bl main_menu_hacks.move_and_print
 
 //Skills
-org $804CF4C; bl refreshes.b; nop
+org $804CF4C; bl refreshes.skills_b; nop
 org $804CFA0; bl refreshes.lr
 org $804D050; bl refreshes.up_and_down
 
