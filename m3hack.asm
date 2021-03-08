@@ -1857,6 +1857,10 @@ org $936777C; dd $273C000C
 //Change priority of top text in the naming screens to allow better caching
 org $8042974; mov r2,#0
 
+//Re-enable Caroline's Wess line - The Game Logic's pattern
+//suggests this line was mistakenly removed
+org $923F525; db $13
+
 //============================================================================================
 //                                  MEMO SCREEN STUFF
 //============================================================================================
