@@ -587,6 +587,80 @@ ldr  r1,=#0x41CC                    //Set this back to what it should be
 pop  {pc}
 
 //--------------------------------------------------------------------------------------------------
+//Changes the printing order of text in the naming screen so the game caches stuff better
+//--------------------------------------------------------------------------------------------------
+.change_printing_order:
+push {lr}
+push {r3}
+add  sp,#-8
+ldr  r2,=#0x80C69CC
+ldr  r1,=#0x4A30
+ldr  r4,=#0x2016028
+add  r0,r4,r1
+ldrb r1,[r0,#0]
+lsl  r0,r1,#1
+add  r0,r0,r1
+lsl  r0,r0,#2
+add  r0,r0,r2
+ldrh r0,[r0,#6]
+bl   .compare_currently_displayed_entry
+mov  r3,#1
+neg  r3,r3
+mov  r1,#0xF
+str  r1,[sp,#0]
+mov  r2,#1
+mov  r8,r2
+str  r2,[sp,#4]
+mov  r1,#0x78
+mov  r2,#0x1B
+bl   $8047CDC
+mov  r0,#1
+bl   $8047E04
+ldr  r3,[sp,#8]
+ldrb r0,[r3,#0]
+ldr  r1,=#0x4DF4
+cmp  r0,#0xD
+blt  .change_printing_order_normal_names
+add  r0,r6,r1
+ldr  r0,[r0,#0]
+mov  r1,#0xF
+str  r1,[sp,#0]
+mov  r1,#1
+str  r1,[sp,#4]
+mov  r1,#0x68
+mov  r6,r1
+mov  r3,#0x10
+b    +
+
+.change_printing_order_normal_names:
+add  r0,r6,r1
+ldr  r0,[r0,#0]
+mov  r1,#0xF
+str  r1,[sp,#0]
+mov  r1,#1
+str  r1,[sp,#4]
+mov  r1,#0x78
+mov  r6,r1
+mov  r3,#9
+
++
+mov  r2,#6
+bl   $8047CDC
+mov  r0,#1
+bl   $8047E04
+mov  r0,r6
+ldr  r2,=#0x4ECA
+add  r1,r4,r2
+ldrh r3,[r1,#0]
+mov  r1,#6
+mov  r2,#8
+bl   $80458B8
+
+add  sp,#8
+pop  {r3}
+pop  {pc}
+
+//--------------------------------------------------------------------------------------------------
 //Rearrange graphics for is this okay
 //--------------------------------------------------------------------------------------------------
 .change_is_this_okay:

@@ -97,7 +97,7 @@ org $803EA6C; bl sprite_text_weld.fix_sprite_total
 org $80497B2; bl text_weld   // these are used by the sprite text routine to fill the glyph structs
 org $80497C2; bl text_weld
 org $804981A; bl text_weld   // these are used by the 8x8 sprite text routine
-org $804982A; bl text_weld
+org $804982A; nop; nop
 org $803E170; bl sprite_text_weld.set_fadeout_flag
 org $803E24C; bl sprite_text_weld.clear_table
 
@@ -1855,7 +1855,7 @@ org $9367750; dd $2739000C
 org $936777C; dd $273C000C
 
 //Change priority of top text in the naming screens to allow better caching
-org $8042974; mov r2,#0
+org $80428FC; bl naming_screen_hacks.change_printing_order; b $8042988
 
 //Re-enable Caroline's Wess line - The Game Logic's pattern
 //suggests this line was mistakenly removed

@@ -29,10 +29,12 @@ define current_font_menu $20225C4
 
 text_weld:
 push {r4-r7,lr}          // This is all original code, slightly modified to be more efficient
+add  sp,#-4
 mov  r5,r0
+mov  r6,r0
+add  r6,#0x20
 mov  r4,r1
 
-mov  r6,r3
 lsl  r2,r2,#0x10
 lsr  r2,r2,#0x6
 ldr  r0,=#0x8CDF9F8
@@ -41,6 +43,22 @@ add  r2,r2,r0
 ldr  r7,=#0x2014320
 ldrb r3,[r7,#0x6]        // load the current letter's width
 ldrb r7,[r7,#0x5]        // r7 = curr_x
+
+cmp  r7,#8
+blt  +
+mov  r0,#7
+and  r7,r0
+add  r5,#0x20
+add  r6,#0x6C
++
+str  r6,[sp,#0]          //The tile to the right of the current one
+
+add  r3,#7               //If this isn't a multiple of 8, it will go over a multiple of 8 now
+lsr  r6,r3,#3            //Get total tiles number
+cmp  r6,#2
+ble  +
+mov  r6,#2               //Prevent bad stuff
++
 
 mov  r3,#0
 //cmp  r3,r6               // check to see if r6 < 0, if so just quit the routine now
@@ -54,356 +72,214 @@ push {r0}
 mov  r8,r6
 
 .loop_start:
-mov  r1,r7               // r1 = curr_x
+push {r3-r4,r7}
+push {r2}
 
-// ONE
-ldrb r0,[r4,#0]          // load the current byte of the glyph from the stack, store in r0
-lsl  r0,r0,#0x18         // move the current 1bpp glyph data all the way to the left
-lsr  r0,r1               // now shift the current byte over the correct # of bits
-mov  r6,r0               // r6 now has the correct order of bits for this 32 pixel row of 1bpp
+mov  r3,#0xFF
+lsr  r3,r7               //Get the valid left-tile positions
+lsl  r3,r3,#0x18
+lsr  r6,r3,#8
+orr  r3,r6
+lsr  r6,r3,#0x10
+orr  r3,r6
+neg  r6,r3               //Get the inverted version
+sub  r6,#1
+ldr  r2,[r4,#0]          //Load the first 4 rows
+mov  r1,r2
+lsr  r2,r7               //Shift them by curr_x
+mov  r0,#8
+sub  r0,r7,r0
+neg  r0,r0
+lsl  r1,r0
+and  r2,r3               //Left side
+and  r1,r6               //Right side
+ldr  r4,[r4,#4]          //Load the other 4 rows
+mov  r0,r4
+lsr  r4,r7               //Shift them by curr_x
+sub  r7,r7,#4
+sub  r7,r7,#4
+neg  r7,r7
+lsl  r0,r7
+and  r4,r3               //r4 = Left side, last 4 rows
+and  r0,r6               //Right side
+mov  r3,r2               //r3 = Left side, first 4 rows
+mov  r6,r1               //r6 = Right side, first 4 rows
+mov  r7,r0               //r7 = Right side, last 4 rows
 
-push {r5}                // we'll need this original value later
+pop  {r2}
 
-lsr  r0,r0,#0x18         // but now we gotta do conversion to 4bpp
+// ONE - LEFT
+lsl  r0,r3,#0x18         // Get only one byte
+lsr  r0,r0,#0x18
+
 lsl  r0,r0,#2            // now multiply by four
 ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
 ldr  r1,[r5,#0]          // load what's in the current row
 orr  r1,r0               // OR them together
 str  r1,[r5,#0]          // and now store it back
 
-lsl  r0,r6,#0x8
+// TWO - LEFT
+lsl  r0,r3,#0x10         // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
+
+lsl  r0,r0,#2            // now multiply by four
 ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x20]       // load what's in the next 8x8 tile over
-orr  r1,r0
-str  r1,[r5,#0x20]       // store in the next 8x8 tile over
+ldr  r1,[r5,#4]          // load what's in the current row
+orr  r1,r0               // OR them together
+str  r1,[r5,#4]          // and now store it back
 
-add  r5,#0x8C
-lsl  r0,r6,#0x10
+// THREE - LEFT
+lsl  r0,r3,#0x8          // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
+
+lsl  r0,r0,#2            // now multiply by four
 ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r5,#0]          // store data in the next struct over
+ldr  r1,[r5,#8]          // load what's in the current row
+orr  r1,r0               // OR them together
+str  r1,[r5,#8]          // and now store it back
 
-lsl  r0,r6,#0x18
-lsr  r0,r0,#0x16
+// FOUR - LEFT
+lsr  r0,r3,#0x18         // Get only one byte
+
+lsl  r0,r0,#2            // now multiply by four
 ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r5,#0x20]       // store data in the next struct over, next 8x8 tile over
+ldr  r1,[r5,#0x0C]       // load what's in the current row
+orr  r1,r0               // OR them together
+str  r1,[r5,#0x0C]       // and now store it back
 
-pop  {r5}                // get original r5 back
-add  r5,#4               // and increment it properly
-
-add  r4,#1               // increment the stack read address
-
-// TWO
-mov  r1,r7
-
-ldrb r0,[r4,#0]
-lsl  r0,r0,#0x18
-lsr  r0,r1
-mov  r6,r0
-
-push {r5}
-
+// FIVE - LEFT
+lsl  r0,r4,#0x18         // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0]
-orr  r1,r0
-str  r1,[r5,#0]
 
-lsl  r0,r6,#0x8
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0x10]       // load what's in the current row
+orr  r1,r0               // OR them together
+str  r1,[r5,#0x10]       // and now store it back
+
+// SIX - LEFT
+lsl  r0,r4,#0x10         // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0x20]
-orr  r1,r0
-str  r1,[r5,#0x20]
 
-add  r5,#0x8C
-lsl  r0,r6,#0x10
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0x14]       // load what's in the current row
+orr  r1,r0               // OR them together
+str  r1,[r5,#0x14]       // and now store it back
+
+// SEVEN - LEFT
+lsl  r0,r4,#0x8          // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-str  r0,[r5,#0]
 
-lsl  r0,r6,#0x18
-lsr  r0,r0,#0x16
-ldr  r0,[r2,r0]
-str  r0,[r5,#0x20]
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0x18]       // load what's in the current row
+orr  r1,r0               // OR them together
+str  r1,[r5,#0x18]       // and now store it back
 
-pop  {r5}
-add  r5,#4
+// EIGHT - LEFT
+lsr  r0,r4,#0x18         // Get only one byte
 
-add  r4,#1
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0x1C]       // load what's in the current row
+orr  r1,r0               // OR them together
+str  r1,[r5,#0x1C]       // and now store it back
 
-// THREE
-mov  r1,r7
 
-ldrb r0,[r4,#0]
-lsl  r0,r0,#0x18
-lsr  r0,r1
-mov  r6,r0
 
-push {r5}
+// Now we do the right side!
+ldr  r4,[sp,#0x10]
 
+
+// ONE - RIGHT
+lsl  r0,r6,#0x18         // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0]
-orr  r1,r0
-str  r1,[r5,#0]
 
-lsl  r0,r6,#0x8
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+str  r0,[r4,#0x00]       // store it now
+
+// TWO - RIGHT
+lsl  r0,r6,#0x10         // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0x20]
-orr  r1,r0
-str  r1,[r5,#0x20]
 
-add  r5,#0x8C
-lsl  r0,r6,#0x10
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+str  r0,[r4,#0x04]       // store it now
+
+// THREE - RIGHT
+lsl  r0,r6,#0x8          // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-str  r0,[r5,#0]
 
-lsl  r0,r6,#0x18
-lsr  r0,r0,#0x16
-ldr  r0,[r2,r0]
-str  r0,[r5,#0x20]
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+str  r0,[r4,#0x08]       // store it now
 
-pop  {r5}
-add  r5,#4
+// FOUR - RIGHT
+lsr  r0,r6,#0x18         // Get only one byte
 
-add  r4,#1
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+str  r0,[r4,#0x0C]       // store it now
 
-// FOUR
-mov  r1,r7
-
-ldrb r0,[r4,#0]
-lsl  r0,r0,#0x18
-lsr  r0,r1
-mov  r6,r0
-
-push {r5}
-
+// FIVE - RIGHT
+lsl  r0,r7,#0x18         // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0]
-orr  r1,r0
-str  r1,[r5,#0]
 
-lsl  r0,r6,#0x8
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+str  r0,[r4,#0x10]       // store it now
+
+// SIX - RIGHT
+lsl  r0,r7,#0x10         // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0x20]
-orr  r1,r0
-str  r1,[r5,#0x20]
 
-add  r5,#0x8C
-lsl  r0,r6,#0x10
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+str  r0,[r4,#0x14]       // store it now
+
+// SEVEN - RIGHT
+lsl  r0,r7,#0x8          // Get only one byte
 lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-str  r0,[r5,#0]
 
-lsl  r0,r6,#0x18
-lsr  r0,r0,#0x16
-ldr  r0,[r2,r0]
-str  r0,[r5,#0x20]
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+str  r0,[r4,#0x18]       // store it now
 
-pop  {r5}
-add  r5,#4
+// EIGHT - RIGHT
+lsr  r0,r7,#0x18         // Get only one byte
 
-add  r4,#1
+lsl  r0,r0,#2            // now multiply by four
+ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
+str  r0,[r4,#0x1C]       // store it now
 
-// FIVE
-mov  r1,r7
 
-ldrb r0,[r4,#0]
-lsl  r0,r0,#0x18
-lsr  r0,r1
-mov  r6,r0
 
-push {r5}
-
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0]
-orr  r1,r0
-str  r1,[r5,#0]
-
-lsl  r0,r6,#0x8
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0x20]
-orr  r1,r0
-str  r1,[r5,#0x20]
-
-add  r5,#0x8C
-lsl  r0,r6,#0x10
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-str  r0,[r5,#0]
-
-lsl  r0,r6,#0x18
-lsr  r0,r0,#0x16
-ldr  r0,[r2,r0]
-str  r0,[r5,#0x20]
-
-pop  {r5}
-add  r5,#4
-
-add  r4,#1
-
-// SIX
-mov  r1,r7
-
-ldrb r0,[r4,#0]
-lsl  r0,r0,#0x18
-lsr  r0,r1
-mov  r6,r0
-
-push {r5}
-
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0]
-orr  r1,r0
-str  r1,[r5,#0]
-
-lsl  r0,r6,#0x8
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0x20]
-orr  r1,r0
-str  r1,[r5,#0x20]
-
-add  r5,#0x8C
-lsl  r0,r6,#0x10
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-str  r0,[r5,#0]
-
-lsl  r0,r6,#0x18
-lsr  r0,r0,#0x16
-ldr  r0,[r2,r0]
-str  r0,[r5,#0x20]
-
-pop  {r5}
-add  r5,#4
-
-add  r4,#1
-
-// SEVEN
-mov  r1,r7
-
-ldrb r0,[r4,#0]
-lsl  r0,r0,#0x18
-lsr  r0,r1
-mov  r6,r0
-
-push {r5}
-
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0]
-orr  r1,r0
-str  r1,[r5,#0]
-
-lsl  r0,r6,#0x8
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0x20]
-orr  r1,r0
-str  r1,[r5,#0x20]
-
-add  r5,#0x8C
-lsl  r0,r6,#0x10
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-str  r0,[r5,#0]
-
-lsl  r0,r6,#0x18
-lsr  r0,r0,#0x16
-ldr  r0,[r2,r0]
-str  r0,[r5,#0x20]
-
-pop  {r5}
-add  r5,#4
-
-add  r4,#1
-
-// EIGHT
-mov  r1,r7
-
-ldrb r0,[r4,#0]
-lsl  r0,r0,#0x18
-lsr  r0,r1
-mov  r6,r0
-
-push {r5}
-
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0]
-orr  r1,r0
-str  r1,[r5,#0]
-
-lsl  r0,r6,#0x8
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-ldr  r1,[r5,#0x20]
-orr  r1,r0
-str  r1,[r5,#0x20]
-
-add  r5,#0x8C
-lsl  r0,r6,#0x10
-lsr  r0,r0,#0x18
-lsl  r0,r0,#2
-ldr  r0,[r2,r0]
-str  r0,[r5,#0]
-
-lsl  r0,r6,#0x18
-lsr  r0,r0,#0x16
-ldr  r0,[r2,r0]
-str  r0,[r5,#0x20]
-
-pop  {r5}
-add  r5,#4
-
-add  r4,#1
-
+pop  {r3-r4,r7}
 
 add  r3,#1               // increment counter
 cmp  r3,r8               // see if we're still under the # of bytes we need to convert
-bge  +
+bge  .routine_end
+ldr  r0,[sp,#4]
+sub  r1,r5,r0
+mov  r5,r0
+add  r0,#0x20
+cmp  r1,#0x20
+bne  +
+add  r0,#0x4C
++
+str  r0,[sp,#4]
+add  r4,#8
 b    .loop_start
 
-+
+//---------------------------------------------------------------------------------------------
+.routine_end:
 pop  {r0}
 
-//---------------------------------------------------------------------------------------------
-
-.routine_end:
 mov  r6,r8
 mov  r8,r0
+add  sp,#4
 pop  {r4-r7,pc}
 
 
@@ -1002,13 +878,8 @@ push {r0-r7,lr}
 
 add  r7,sp,#0x24         // make r7 be the pretend sp
 
-ldr  r0,[r7,#0x14]       // load the current letter #
-cmp  r0,#0               // if this isn't the first letter, skip this crap
-bne  .eff_check_end
-
 //-------------------------------------------------------------------------------------------
 
-+
 ldr  r6,=#0x2014300      // if fadeout_flag = TRUE, then don't bother with these checks
 mov  r1,#0x2D
 ldrb r0,[r6,r1]
@@ -1126,8 +997,7 @@ strb r0,[r6,#0xC]
 .eff_check_end:
 pop  {r0-r7}          // restore registers and return
 
-ldrh r1,[r3,#0x0]     // code we clobbered
-ldr  r0,=#0xFEFF
+
 pop  {pc}
 
 
@@ -1237,11 +1107,18 @@ push {r2-r7,lr}
 ldr  r2,=#0x1000193        // FNV_prime
 ldr  r3,=#0x811C9DC5       // offset_basis/hash
 mov  r4,#0                 // counter
+cmp  r1,#0
+bne  +
+mov  r1,#1
+ldrh r5,[r0,#0]
+b    .get_hash_element
++
 -
 ldrh r5,[r0,#0]
 add  r0,#2
 cmp  r5,#0xFF              // ignore control codes?
 bgt  -
+.get_hash_element:
 eor  r3,r5                 // hash ^= data
 mul  r3,r2                 // hash *= FNV_prime
 add  r4,#1
@@ -1572,23 +1449,26 @@ mov  r7,#0
 str  r7,[sp,#0x14]
 mov  r0,sp
 bl   .special_checks_move_zone
+mov  r4,r5
+add  r4,#0x84
+mov  r1,r5
+add  r1,#0x88
+str  r1,[sp,#0x24]
+bl   sprite_text_weld.efficiency_check
+
 ldrh r0,[r6,#0xE]
 cmp  r7,r0
 bcc  +
 b    .mr_eos
 
 +
-mov  r4,r5
-add  r4,#0x84
-mov  r1,r5
-add  r1,#0x88
-str  r1,[sp,#0x24]
 
 //-------------------------------------------------------------------------------------------
 
 .mr_innerloop:
 ldr  r3,[sp,#0]                           // start of big inner loop, does all letters in curr line
-bl   sprite_text_weld.efficiency_check
+ldrh r1,[r3,#0x0]                         // code we clobbered
+ldr  r0,=#0xFEFF
 
 cmp  r1,r0
 bls  .mr_createsprite
