@@ -5398,14 +5398,27 @@ pop  {pc}
 // Hack that stores the flag that puts the arrangement buffer back to VRAM
 //=============================================================================================
 .store_arrangements_buffer:
-push {r0-r1,lr}
-ldr  r1,=#0x0201AEF8
-ldr  r0,=#0x76DA
-add  r1,r1,r0
-mov  r0,#1
-lsl  r0,r0,#8
-strh r0,[r1,#0]
-pop  {r0-r1,pc}
+push {r0-r5,lr}
+
+mov  r0,#0x0                           //Order printing a blank tile
+bl   $80486A0                          //Blank text, get the pointer to it
+mov  r5,#1
+neg  r5,r5
+mov  r4,#1
+str  r4,[sp,#0]                        //Gray text
+mov  r1,#0
+mov  r2,#0
+mov  r3,r5
+bl   $8047B9C                          //Order its printing
+
+ldr  r4,=#0x201AEF8
+mov  r0,r4
+bl   $803E908                          //Print this to VRAM now!
+bl   $80487D4
+mov  r0,r4
+bl   $803E908
+
+pop  {r0-r5,pc}
 
 //=============================================================================================
 // Gets the array of the positions for swapping
