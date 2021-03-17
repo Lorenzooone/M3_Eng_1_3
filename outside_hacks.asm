@@ -193,16 +193,13 @@ pop  {r1-r6,pc}
 
 .gray_box_number:
 push {r0-r3}
-sub  r7,#0x24                 // Remove the valid tile parts from the beginning and the end
+sub  r7,#0x24                 // Remove the valid tile parts from the beginning and the end.
                               // Each double tile is 16 pixels long, however they all overlap
                               // by 4 pixels, making a double tile 0xC pixels long
-mov  r0,r7
-mov  r1,#0xC
+mov  r0,#0xB
+add  r0,r7,r0                 // By adding 0xB, we make it so the remainder
+mov  r1,#0xC                  // now rolls over to the next integer.
 swi  #6                       // Divide by 0xC
-cmp  r1,#0
-beq  +
-add  r0,#1                    // If there is remainder, increase the number of double tiles.
-+
 mov  r7,r0
 mov  r8,r7
 pop  {r0-r3}
