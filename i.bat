@@ -24,7 +24,13 @@
 @echo ---------------------------------------------------------
 @echo.
 @copy mother3j.gba test.gba
-@FreeSpace
+@echo.
+@echo.
+@echo ---------------------------------------------------------
+@echo Freeing enemy graphics' space
+@echo ---------------------------------------------------------
+@echo.
+@FreeSpace test.gba -v
 @echo.
 @echo.
 @echo ---------------------------------------------------------
@@ -55,7 +61,7 @@
 @xkas test.gba m3hack.asm
 @echo.
 @echo.
-@FreeSpace
+@FreeSpace test.gba
 @echo COMPLETE!
 @echo.
 @PAUSE
