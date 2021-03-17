@@ -61,7 +61,6 @@
 @xkas test.gba m3hack.asm
 @echo.
 @echo.
-@FreeSpace test.gba
 @echo COMPLETE!
 @echo.
 @PAUSE
