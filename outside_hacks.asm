@@ -193,7 +193,7 @@ pop  {r1-r6,pc}
 
 .gray_box_number:
 push {r0-r3}
-sub  r7,#0x24                 // Remove the valid tile parts from the beginning and the end.
+sub  r7,#0x21                 // Remove the valid tile parts from the beginning and the end.
                               // Each double tile is 16 pixels long, however they all overlap
                               // by 4 pixels, making a double tile 0xC pixels long
 mov  r0,#0xB
