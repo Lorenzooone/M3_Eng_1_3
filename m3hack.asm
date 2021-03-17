@@ -92,6 +92,7 @@ org $8049CB4; db $10
 org $8049CEE; db $10
 
 org $80496A4; bl sprite_text_weld.get_icon_coord; nop
+org $80496C2; bl sprite_text_weld.get_icon_coord; nop
 org $80496D6; db 1
 org $803EA6C; bl sprite_text_weld.fix_sprite_total
 org $80497B2; bl text_weld   // these are used by the sprite text routine to fill the glyph structs
