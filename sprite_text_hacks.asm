@@ -1058,7 +1058,7 @@ pop  {pc}
 //============================================================================================
 
 .recycle_old_oam:
-push {r4-r5,r7,lr}
+push {r4-r7,lr}
 mov  r4,r0
 ldr  r5,=#0x2014320
 ldr  r7,=#0x2014260
@@ -1071,6 +1071,14 @@ lsr  r3,r3,#0x19         // ignore "has_icon" in length
 cmp  r3,#0
 beq  .recycle_old_oam_success
 ldr  r0,[r4,#0x18]
+ldr  r2,[r4,#0x8]         // now to see if this is the first letter or not
+ldr  r1,=#0x76D9
+add  r6,r2,r1
+ldrb r2,[r6,#0]
+cmp  r2,#0                // r2 now has the letter # we're on
+beq  +
+add  r0,#4
++
 lsr  r0,r0,#2
 ldr  r2,=#0x7000000
 mov  r1,#{oam_tiles_stack_buffer}
@@ -1121,7 +1129,7 @@ bl   .handle_icons_recycled_oam
 mov  r0,#1
 
 .recycle_old_oam_end:
-pop  {r4-r5,r7,pc}
+pop  {r4-r7,pc}
 
 .recycle_old_oam_failure:
 mov  r0,#0
