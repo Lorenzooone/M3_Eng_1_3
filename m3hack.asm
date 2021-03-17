@@ -1025,9 +1025,12 @@ org $8023C2A; db $FB
 org $8023B98; db $03
 
 // makes the gray name boxes fit the names better
-org $8023A10; bl outside_hacks.gray_box_resize
-org $8023B32; bl outside_hacks.gray_box_resize
-org $8023CCC; bl outside_hacks.gray_box_resize
+org $8023A10; bl outside_hacks.gray_box_resize; cmp r7,#0x34
+org $8023A50; bl outside_hacks.gray_box_number
+org $8023B32; bl outside_hacks.gray_box_resize; cmp r7,#0x34
+org $8023B72; bl outside_hacks.gray_box_number
+org $8023CCC; bl outside_hacks.gray_box_resize; cmp r7,#0x34
+org $8023D0C; bl outside_hacks.gray_box_number
 
 // makes it so names occupy less obj tiles
 org $8009070; bl outside_hacks.different_oam_size

@@ -153,41 +153,60 @@ pop  {r2,r4-r7,pc}
 .gray_box_resize:
 push {r1-r6,lr}
 
+
 mov  r1,r0                   // r1 has the string length now
 mov  r2,#0                   // r2 will be our loop counter
-mov  r0,#0                   // r0 will be our width counter
+mov  r0,#4                   // r0 will be our width counter
 ldr  r5,[sp,#0x24]           // load r5 with the address of the string
-ldr  r6,=#{small_font_width} // r6 has the address of our 8x8 font width table
+ldr  r6,=#0x8D1CF78          // r6 has the address of our 8x8 font width table
+
 
 //--------------------------------------------------------------------------------------------
 // Now we need to do a loop to get the total width of the current string
+
 
 -
 ldrh r3,[r5,#0]              // load the current letter
 ldrb r3,[r6,r3]              // load the current letter's width
 add  r0,r0,r3                // add the current width to the total width
 
+
 add  r5,#2                   // increment the read address
+
 
 add  r2,#1                   // increment the loop counter
 cmp  r2,r1                   // compare the loop counter with the string length
 bge  +                       // if >= string length, then time to move to the math conv. stuff
 b    -
 
-//--------------------------------------------------------------------------------------------
-
-+
-mov  r1,#8                    // we're now going to divide the total width (in r0) by 8
-swi  #6
-cmp  r1,#0                    // r1 now has the remainder, if non-zero, we need to add 1 to r0
-beq  +
-add  r0,#1                    // add 1 because we used a partial tile in theory
 
 //--------------------------------------------------------------------------------------------
+
 
 +
 mov  r7,r0                    // r7 now has the final result
 pop  {r1-r6,pc}
+
+//===========================================================================================
+// This hack is used in order to better calculate how many grey boxes to use
+//===========================================================================================
+
+.gray_box_number:
+push {r0-r3}
+sub  r7,#0x24                 // Remove the valid tile parts from the beginning and the end
+                              // Each double tile is 16 pixels long, however they all overlap
+                              // by 4 pixels, making a double tile 0xC pixels long
+mov  r0,r7
+mov  r1,#0xC
+swi  #6                       // Divide by 0xC
+cmp  r1,#0
+beq  +
+add  r0,#1                    // If there is remainder, increase the number of double tiles.
++
+mov  r7,r0
+mov  r8,r7
+pop  {r0-r3}
+bx   lr
 
 //===========================================================================================
 // This hack is used in order to understand whether the game is printing 
