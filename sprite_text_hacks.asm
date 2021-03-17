@@ -574,7 +574,8 @@ blt  .add_width_end      // else just skip to the end
 
 //-------------------------------------------------------------------------------------------
 
-sub  r2,#16              // calculate the new curr_x for the new sprite tile
+lsl  r2,r2,#0x1C         // calculate the new curr_x for the new sprite tile
+lsr  r2,r2,#0x1C
 strb r2,[r0,#0x5]        // store the new curr_x
 mov  r2,#1
 strb r2,[r0,#0x7]        // new_tile_flag = TRUE
@@ -606,8 +607,8 @@ cmp  r0,#0               // if we didn't just move to a new tile, no problem, sk
 beq  +
 
 ldrb r0,[r3,#0x5]        // load r0 with curr_x
-cmp  r0,#1               // if we started a new tile and our curr_x <= 1, we don't really
-ble  +                   // need to allocate a new tile and sprite, it'd be a complete waste
+cmp  r0,#1               // if we started a new tile and our curr_x < 1, we don't really
+blt  +                   // need to allocate a new tile and sprite, it'd be a complete waste
 
 bl   .sprite_snip
 bl   .update_x_coord
