@@ -896,9 +896,11 @@ org $8008B56; bl main_script_hacks.move_to_next_glyph; nop
 // changes the letter per line limit from 22 to 255
 org $8008A0A; lsl r2,r2,#4
 org $8006B6A; lsl r4,r4,#4
+org $8006CE2; lsl r4,r4,#4
 org $8008B66; lsl r2,r2,#4
 org $8008BB2; lsl r0,r0,#4
 org $8006C30; dw $0D8A
+org $8006DA4; dw $0D8A
 org $800A09A; bl main_script_hacks.change_clear_amount
 org $8008A22
   mov r1,#0xC8
