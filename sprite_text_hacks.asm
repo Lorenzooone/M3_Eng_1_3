@@ -1009,9 +1009,6 @@ pop  {pc}
 
 .efficiency_branch:
 push {lr}
-add  r2,r2,r5             // original code
-mov  r9,r2
-
 ldr  r2,=#0x2014320
 ldrb r2,[r2,#0xB]         // load redraw_flag
 pop  {pc}
@@ -1110,12 +1107,11 @@ add  r0,r0,r1             // increase the address
 str  r0,[r4,#0xC]
 ldrb r0,[r5,#4]
 add  r0,r0,r3             // increase the number of used sprites
-str  r0,[r5,#4]
+strb r0,[r5,#4]
 mov  r1,#1
 strb r1,[r5,#0x7]         // new_tile_flag = TRUE
 mov  r1,#0
 strb r1,[r5,#0xA]         // new_line_flag = FALSE
-ldrb r0,[r5,#0xC]         // current entry + 1
 ldrb r3,[r7,#0]           // get its previous length
 lsr  r3,r3,#7             // get "has_icon"
 str  r3,[r4,#0x48]        // save "has_icon"
@@ -1193,20 +1189,57 @@ strb r0,[r3,#0]
 ldrh r0,[r6,#0xA]         // save X and Y coords
 strb r0,[r3,#1]
 add  r2,#0x20
-ldrb r1,[r1,#4]           // current sprite total
+ldrb r3,[r1,#4]           // current sprite total
 ldr  r0,[r5,#0x40]        // old sprite total
-sub  r1,r1,r0             // entry's sprite length
+sub  r3,r3,r0             // entry's sprite length
 add  r2,r2,r4
 ldr  r0,[r5,#0x48]        // get "has_icon" from stack
 lsl  r0,r0,#7             // max length = 0x5F
-orr  r1,r0                // orr them together so we use the length byte for other things
-strb r1,[r2,#0]           // save it here
-cmp  r0,#0
+orr  r3,r0                // orr them together so we use the length byte for other things
+strb r3,[r2,#0]           // save it here
+cmp  r0,#0                // if "has_icon" is true, save it
 beq  +
 bl   .save_icons
 +
 
 pop  {r0-r5,pc}
+
+
+//============================================================================================
+// This code resets some data when redraw_flag is FALSE, since we're not actually
+// printing entries. r0 is the stack pointer
+//============================================================================================
+
+.reset_data_redrawing:
+push {lr}
+ldr  r1,=#0x2014320
+ldrb r2,[r1,#0xB]         // load redraw_flag
+cmp  r2,#0
+bne  .reset_data_redrawing_end
+strb r2,[r1,#4]           // we're not printing entries, put this back to 0!
+ldr  r1,[r0,#0x8]
+ldr  r3,=#0x76D9
+add  r3,r1,r3
+ldrb r2,[r3,#0]           // is this 0?
+cmp  r2,#0
+beq  +
+
+mov  r2,#0
+strb r2,[r3,#0]           // if not, reset the letters counter
+ldr  r2,[r0,#0x18]
+add  r2,#4                // increase the number of the next target tile
+str  r2,[r0,#0x18]
+ldr  r2,[r0,#0xC]
+add  r2,#0x80             // increase the address
+str  r2,[r0,#0xC]
+
++
+mov  r2,#0x98             // reset this to the first entry
+lsl  r2,r2,#0x6
+add  r5,r1,r2
+
+.reset_data_redrawing_end:
+pop  {pc}
 
 
 //============================================================================================
@@ -1731,8 +1764,11 @@ ldr  r2,=#0x2018CC0     // code we clobbered
 pop  {pc}
 
 .way_out:
+ldr  r2,=#0x2014320
+mov  r0,#0
+strb r0,[r2,#4]         //We're not printing anything. Skip the storing to OAM VRAM
 pop  {r4-r7}
-pop  {r0}               //We're not printing the text 99 times, thanks!
+pop  {r0}               //We're hard skipping many things!
 bx   r0
 
 
@@ -1924,6 +1960,8 @@ mov  r2,#0x8B
 add  r2,r2,r5
 mov  r10,r2
 mov  r2,#0x8A
+add  r2,r2,r5             // original code
+mov  r9,r2
 bl   sprite_text_weld.efficiency_branch
 cmp  r2,#0
 bne  +
@@ -2063,6 +2101,8 @@ mov  r1,#0
 bl   $8049C70                           // setup the end of printing an oam entry
 mov  r0,sp
 bl   .save_entry_info
+mov  r0,sp
+bl   .reset_data_redrawing
 ldr  r0,[sp,#0x10]
 add  r0,#1
 lsl  r0,r0,#0x10
