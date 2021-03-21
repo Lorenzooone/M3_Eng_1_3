@@ -71,6 +71,437 @@ mov  r0,#0x16
 pop  {pc}                    // end of routine! r0 now has the correct # of tiles to erase
 
 
+//=========================================================================================== 
+// Replaces the printing routine for mostly battle text stuff.
+// In r8 we have the Y. We need to print 0xB rows of our characters (apparently).
+// In r3 we have the current VRAM base address.
+// In r6 we have the current colour.
+// In SP,#0x10 + (current_stack_size) we have the glyph.
+// In SP,#0x3C + (current_stack_size) we have the current letter.
+// In SP,#0x0C + (current_stack_size) we have the info for our X and our Y.
+//=========================================================================================== 
+
+.fast_printing:
+push {lr}
+add  sp,#-8
+ldr  r0,[sp,#0x24]
+ldr  r1,[sp,#0x14]
+bl   $8088E58                // clobbered code
+mov  r2,r6
+mov  r6,r8
+mov  r0,#7
+and  r6,r0                   // get the initial row # in the tiles
+ldr  r7,[sp,#0x18]
+mov  r1,#0
+ldsh r7,[r7,r1]              // get the X
+cmp  r7,#0
+bge  +
+add  r7,#7
++
+and  r7,r0                   // get the subtile X
+mov  r9,r3
+ldr  r0,=#{main_font_width}
+ldr  r1,[sp,#0x48]
+lsl  r1,r1,#0x10
+lsr  r1,r1,#0x10
+ldr  r3,=#0xFF22
+ldrb r0,[r0,r1]              // get the letter's width
+add  r0,r0,#7
+lsr  r0,r0,#3                // get the number of tiles to print
+cmp  r3,r1                   // is this the E symbol?
+bne  +
+mov  r0,#1                   // the E symbol is only 1 tile wide
++
+cmp  r0,#2
+blt  +
+mov  r0,#2                   // limit the number of tiles
++
+mov  r10,r0
+
+mov  r4,#0xFF
+lsr  r4,r7                   // get the valid left-tile positions
+lsl  r4,r4,#0x18
+lsr  r5,r4,#8
+orr  r4,r5
+lsr  r5,r4,#0x10
+orr  r4,r5
+neg  r5,r4                   // get the inverted version
+sub  r5,#1
+str  r4,[sp,#0]              // save our masks
+str  r5,[sp,#4]
+
+lsl  r5,r2,#0x1C
+lsr  r5,r5,#0x1C             // get the colour
+lsl  r5,r5,#0x10
+lsr  r5,r5,#0x6
+ldr  r0,=#0x8CDF9F8          // get the 1bpp > 4bpp conversion table
+add  r5,r5,r0
+
+-
+
+ldr  r2,[sp,#0x1C]           // load the current glyph
+ldr  r2,[r2,#0]              // load the first 4 rows
+mov  r3,r2
+lsr  r2,r7                   // shift them by curr_x
+mov  r0,#8
+sub  r0,r7,r0
+neg  r0,r0
+lsl  r3,r0
+ldr  r4,[sp,#0]
+and  r2,r4                   // left side
+ldr  r4,[sp,#4]
+and  r3,r4                   // right side
+
+lsl  r0,r6,#2
+mov  r4,r9
+add  r4,r4,r0                // get the current position
+
+// ONE - LEFT
+lsl  r0,r2,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// ONE - RIGHT
+lsl  r0,r3,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// TWO - LEFT
+lsl  r0,r2,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// TWO - RIGHT
+lsl  r0,r3,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// THREE - LEFT
+lsl  r0,r2,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// THREE - RIGHT
+lsl  r0,r3,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// FOUR - LEFT
+lsr  r0,r2,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// FOUR - RIGHT
+lsr  r0,r3,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+
+
+ldr  r2,[sp,#0x1C]           // load the current glyph
+ldr  r2,[r2,#4]              // load the second 4 rows
+mov  r3,r2
+lsr  r2,r7                   // shift them by curr_x
+mov  r0,#8
+sub  r0,r7,r0
+neg  r0,r0
+lsl  r3,r0
+ldr  r4,[sp,#0]
+and  r2,r4                   // left side
+ldr  r4,[sp,#4]
+and  r3,r4                   // right side
+
+
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// FIVE - LEFT
+lsl  r0,r2,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// FIVE - RIGHT
+lsl  r0,r3,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// SIX - LEFT
+lsl  r0,r2,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// SIX - RIGHT
+lsl  r0,r3,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// SEVEN - LEFT
+lsl  r0,r2,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// SEVEN - RIGHT
+lsl  r0,r3,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// EIGHT - LEFT
+lsr  r0,r2,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// EIGHT - RIGHT
+lsr  r0,r3,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+
+
+ldr  r2,[sp,#0x1C]           // load the current glyph
+ldr  r2,[r2,#0x10]           // load the third 4 rows
+mov  r3,r2
+lsr  r2,r7                   // shift them by curr_x
+mov  r0,#8
+sub  r0,r7,r0
+neg  r0,r0
+lsl  r3,r0
+ldr  r4,[sp,#0]
+and  r2,r4                   // left side
+ldr  r4,[sp,#4]
+and  r3,r4                   // right side
+
+
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// NINE - LEFT
+lsl  r0,r2,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// NINE - RIGHT
+lsl  r0,r3,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// TEN - LEFT
+lsl  r0,r2,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// TEN - RIGHT
+lsl  r0,r3,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+add  r6,#1
+mov  r1,#7
+and  r1,r6
+lsl  r1,r1,#2                // get the subtile part
+lsr  r0,r6,#3                // get the Y part
+lsl  r0,r0,#0xA
+mov  r4,r9                   // add it all together
+add  r4,r4,r0
+add  r4,r4,r1
+
+// ELEVEN - LEFT
+lsl  r0,r2,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r4,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r4,#0]              // and now store it back
+
+// ELEVEN - RIGHT
+lsl  r0,r3,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r5,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x20]           // now store it
+
+mov  r0,r10
+sub  r0,#1
+cmp  r0,#0
+ble  +
+mov  r10,r0                  // increase the counter
+ldr  r0,[sp,#0x1C]
+add  r0,#8                   // increase the glyph's address
+str  r0,[sp,#0x1C]
+sub  r6,#0xA                 // get r6 back to its initial value
+mov  r3,r9
+add  r3,#0x20                // go one tile to the right
+mov  r9,r3
+b    -
++
+
+add  sp,#8
+pop  {pc}                    // return
+
 
 //=========================================================================================== 
 // this centers various text that appears in the sound player and also does the custom
