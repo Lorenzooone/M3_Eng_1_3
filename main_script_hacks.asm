@@ -858,6 +858,27 @@ ldr  r4,[sp,#0]
 add  sp,#8
 pop  {pc}
 
+//============================================================================================
+// This section of code stores the letter from the font's data to the stack.
+// Main font version. Returns if there is data to print or not.
+// r0 is the letter. r1 is the stack pointer
+//============================================================================================
+
+.fast_prepare_main_font:
+ldr  r2,=#{main_font}     // we already know we're loading main font
+lsl  r0,r0,#5
+add  r0,r2,r0             // get the address
+mov  r5,r0
+mov  r1,sp
+mov  r2,#8
+swi  #0xB                 // CpuSet for 0x10 bytes
+mov  r0,r5
+add  r0,#0x10
+add  r1,sp,#0x18
+mov  r2,#8
+swi  #0xB                 // CpuSet for 0x10 bytes
+bx   lr
+
 //===========================================================================================
 // These hacks give proper text positioning to scrolling/notebook text
 //===========================================================================================

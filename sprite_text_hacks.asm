@@ -36,6 +36,7 @@ mov  r5,r0
 mov  r6,r0
 add  r6,#0x20
 mov  r4,r1
+mov  r1,r3
 
 lsl  r2,r2,#0x10
 lsr  r2,r2,#0x6
@@ -57,9 +58,9 @@ str  r6,[sp,#0]          //The tile to the right of the current one
 
 add  r3,#7               //If this isn't a multiple of 8, it will go over a multiple of 8 now
 lsr  r6,r3,#3            //Get total tiles number
-cmp  r6,#2
+cmp  r6,r1
 ble  +
-mov  r6,#2               //Prevent bad stuff
+mov  r6,r1               //Prevent bad stuff
 +
 
 mov  r3,#0
@@ -306,11 +307,53 @@ mov  r0,#0
 strb r0,[r1,#0x0]        // code we clobbered
 pop  {pc}
 
+
+//============================================================================================
+// This section of code stores the letter from the font's data to the stack.
+// Small font version. Returns if there is data to print or not.
+// r0 is the letter. r1 is the stack pointer
+//============================================================================================
+
+.fast_prepare_small_font:
+mov  r4,r0
+ldr  r2,=#{small_font}+2  // we already know we're loading small font
+lsl  r3,r0,#2
+add  r0,r0,r3
+lsl  r0,r0,#1             // multiply by 0xA
+add  r0,r2,r0             // get the address
+mov  r1,sp
+mov  r2,#4
+swi  #0xB                 // CpuSet for 8 bytes
+ldr  r0,=#{small_font_usage}
+add  r0,r0,r4
+ldrb r0,[r0,#0]           // Load tile usage for the letter
+bx   lr
+
+
+//============================================================================================
+// This section of code stores the letter from the font's data to the stack.
+// Main font version. Returns if there is data to print or not.
+// r0 is the letter. r1 is the stack pointer
+//============================================================================================
+
+.fast_prepare_main_font:
+mov  r4,r0
+ldr  r2,=#{main_font}     // we already know we're loading main font
+lsl  r0,r0,#5
+add  r0,r2,r0             // get the address
+mov  r1,sp
+mov  r2,#0x10
+swi  #0xB                 // CpuSet for 0x20 bytes
+ldr  r0,=#{main_font_usage}
+add  r0,r0,r4
+ldrb r4,[r0,#0]           // Load tile usage for the letter
+bx   lr
+
+
 //============================================================================================
 // This section of code stores the current letter to be printed into our RAM block.
 // Call from 8049466.
 //============================================================================================
-
 
 .store_letter:
 push {r0,lr}

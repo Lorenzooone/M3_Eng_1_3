@@ -16,15 +16,19 @@ org $80018A9; db $C3
 //                                          FONT FILES
 //============================================================================================
  
-// Insert new 16x16 font + cast roll pre-welded font
+// Insert new 16x16 font + cast roll pre-welded font - MUST BE 4 BYTES ALIGNED
 //org $8CE39F8; fill $8192,$0
 define main_font $8CE39F8 
-org {main_font}; incbin font_mainfont.bin
-org $8CE59F8; incbin font_castroll.bin
+org {main_font}; incbin font_mainfont_rearranged.bin
+org $8CE59F8; incbin font_castroll_rearranged.bin
 
 // Insert new 8x8 font
 define small_font $8D0B010 
 org {small_font}; incbin font_smallfont.bin
+
+// Insert E symbol's 1bpp version - MUST BE 4 BYTES ALIGNED
+define e_symbol_1bpp $9FD40E0
+org {e_symbol_1bpp}; incbin font_equip_rearranged.bin
 
 // Insert new font width table
 define main_font_width $8D1CE78
@@ -33,6 +37,14 @@ org {main_font_width}; incbin font_mainwidths.bin
 // insert 8x8 font width table
 define small_font_width $8D1CF78
 org {small_font_width}; incbin font_smallwidths.bin
+
+// Insert new font usage table
+define main_font_usage $9FD4100
+org {main_font_usage}; incbin font_mainfont_used.bin
+
+// insert 8x8 font usage table
+define small_font_usage $9FD4200
+org {small_font_usage}; incbin font_smallfont_used.bin
 
 //============================================================================================
 //                                       CAST ROLL HACKS
@@ -95,10 +107,38 @@ org $80496A4; bl sprite_text_weld.get_icon_coord; nop
 org $80496C2; bl sprite_text_weld.get_icon_coord; nop
 org $80496D6; db 1
 org $803EA6C; bl sprite_text_weld.fix_sprite_total
-org $80497B2; bl text_weld   // these are used by the sprite text routine to fill the glyph structs
+
+// these are used by the 16x16 sprite text routine
+org $804974A
+  mov  r6,r5
+  add  r6,#0x85
+  mov  r1,sp
+  bl   sprite_text_weld.fast_prepare_main_font
+  cmp  r4,#0                 // skip printing if the tiles are empty
+  beq  $80497C6
+  cmp  r4,#2                 // partially skip printing if the first tile is empty
+  beq  $80497B6
+  b    $80497A4
+org $80497A6
+  ldrb r2,[r6,#0]
+  lsr  r2,r2,#4
+  mov  r1,sp
+  mov  r3,#2
+  bl   text_weld
+  cmp  r4,#2                 // do we want to print the bottom tiles?
+  blt  $80497C6
+org $80497BE; add r1,sp,#0x10
 org $80497C2; bl text_weld
-org $804981A; bl text_weld   // these are used by the 8x8 sprite text routine
-org $804982A; nop; nop
+
+// these are used by the 8x8 sprite text routine
+org $80497DA
+  mov  r1,sp
+  bl   sprite_text_weld.fast_prepare_small_font
+  cmp  r0,#0                 // skip printing if the tile is empty
+  beq  $804982E
+  b    $804980C
+org $8049818; mov r3,#1; bl text_weld; b $804982E
+
 org $803E170; bl sprite_text_weld.set_fadeout_flag
 org $803E24C; bl sprite_text_weld.clear_table
 
@@ -110,65 +150,10 @@ org $803E24C; bl sprite_text_weld.clear_table
 org $8049916; mov r0,#0x20
 org $804991E; b $8049944
 
-// makes main menu box titles and item descriptions print all 16 rows instead of 10
-org $804974E
-  mov  r4,r0                 // r4 now has the font address/glyph base
-  mov  r3,#0                 // get the loop started
-
-  -
-  mov  r0,sp                 // r0 is base of glyph1
-  add  r2,r0,r3              // get glyph1[count * 2]
-  lsl  r0,r3,#1
-  add  r0,r0,r4
-  ldrb r1,[r0,#0x0]
-  strb r1,[r2,#0x0]          // store that value at r2
-  ldrb r1,[r0,#0x1]          // get glyph1[count * 2 + 1] (what about r4?)
-  strb r1,[r2,#0x8]          // store in glyph2[
-
-  add  r2,sp,#0x18           // we can't use r5 in this code, so I did this instead
-  add  r2,r2,r3
-
-  ldrb r1,[r0,#0x10]
-  strb r1,[r2,#0x00]
-  ldrb r1,[r0,#0x11]
-  strb r1,[r2,#0x08]
-
-  add  r3,r3,#1              // loop back if <= 7
-  cmp  r3,#7
-  bls  -
-
-  mov  r4,r2                 // copy r2 into r4, so things will work after this hack
-  sub  r4,#7                 // gotta subtract the count to make it match what
-                             // the original program expects
-  b $80497A4                 // and skip over old unneeded code
-
 // makes items print all rows
-org $8048FFE
-  mov  r4,r0                 // r4 now has the font address/glyph base
-  mov  r3,#0                 // get the loop started
+org $8048FFA
+  bl   main_script_hacks.fast_prepare_main_font
   add  r5,sp,#0x18
-
-  -
-  mov  r0,sp                 // r0 is base of glyph1
-  add  r2,r0,r3              // get glyph1[count * 2]
-  lsl  r0,r3,#0x01
-  add  r0,r0,r4
-  ldrb r1,[r0,#0]
-  strb r1,[r2,#0]            // store that value at r2
-
-  ldrb r1,[r0,#0x01]         // get glyph1[count * 2 + 1] (what about r4?)
-  strb r1,[r2,#0x08]         // store in glyph2[
-
-  add  r2,r5,r3
-  ldrb r1,[r0,#0x10]
-  strb r1,[r2,#0x00]
-  ldrb r1,[r0,#0x11]
-  strb r1,[r2,#0x08]
-
-  add  r3,r3,#1              // loop back if need be
-  cmp  r3,#7
-  bls  -
-
   b    $8049074
 
 // applies a VWF to item names and other non-sprite text in the main menus
@@ -786,17 +771,11 @@ org $8005622; mov r0,#0x7F
 org $8005638; add r0,#0xC
 
 // modifies Create10x10GlyphForCharacter for main dialog font
-org $8008C96
-  ldrb r0,[r1,#0x1]
-  strb r0,[r2,#0x8]
-  add  r2,r7,r3
-  ldrb r0,[r1,#0x10]
-  strb r0,[r2,#0x0]
-  ldrb r0,[r1,#0x11]
-  strb r0,[r2,#0x8]
-  nop
-  add  r3,r3,#1
-org $8008CAC; b $8008CC0
+org $8008C7A
+  mov  r1,sp
+  bl   main_script_hacks.fast_prepare_main_font
+  add  r7,sp,#0x18
+  b    $8008CC0
 
 // modifies the width calculation routines
 org $8009DEA
@@ -1002,18 +981,37 @@ org $8022F6C
   pop  {pc}
 
 // Modifies the routine that loads the 16x16 font data for outside menu box labels
-org $80092D6
-  ldrb r0,[r1,#0x1]
-  strb r0,[r2,#0x8]
-  add  r2,r5,r3
-  ldrb r0,[r1,#0x10]
-  strb r0,[r2,#0]
-  ldrb r0,[r1,#0x11]
-  strb r0,[r2,#0x8]
-  nop
-  add  r3,r3,#1
-org $80092EC
+org $80092BA
+  mov  r4,r6
+  add  r4,#0x85
+  mov  r1,sp
+  bl   outside_hacks.fast_prepare_main_castroll_font
+  cmp  r5,#0                 // skip printing if the tiles are empty
+  beq  $8009322
+  cmp  r5,#2                 // partially skip printing if the first tile is empty
+  beq  $8009312
   b    $8009300
+  
+org $8009302
+  ldrb r2,[r4,#0]
+  lsr  r2,r2,#4
+  mov  r1,sp
+  mov  r3,#2
+  bl   $8001EA4
+  cmp  r5,#2                 // skip printing if the bottom tiles are empty
+  blt  $8009322
+
+org $800931A; add r1,sp,#0x10
+
+// Speed up the routine that loads the 8x8 font data for outside
+org $8009336
+  mov  r1,sp
+  bl   sprite_text_weld.fast_prepare_small_font
+  cmp  r0,#0                 // skip printing if the tile is empty
+  beq  $800938A
+  b    $8009368
+
+org $8009374; mov r3,#1; bl $8001EA4; b $800938A
 
 // moves gray name box text up one pixel
 org $8023576; db $71
@@ -1049,7 +1047,10 @@ org $8088E80; bl battle_hacks.get_glyph_address; b $8088E90
 
 // loads 11 rows of the 16x16 font instead of 10, affects sound player and battle text
 // It's important that only 11 rows be loaded instead of the full 16
-org $808949C; mov r0,#0xB; nop
+org $808948C; bl battle_hacks.fast_printing; b $80894AC
+
+// loads a different address for the e symbol's 1bpp version
+org $8088EC4; dd {e_symbol_1bpp}
 
 // this hack lets the game clear out 11 rows of a font letter when erasing stuff
 org $8089156; mov r0,#0xB; nop

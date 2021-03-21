@@ -313,6 +313,32 @@ bl   $8001ACC
 
 pop  {pc}
 
+//============================================================================================
+// This section of code stores the letter from the font's data to the stack.
+// Main/Castroll font version. Returns if there is data to print or not.
+// r0 is the letter. r1 is the stack pointer
+//============================================================================================
+
+.fast_prepare_main_castroll_font:
+mov  r5,r0
+ldr  r2,=#{current_font_overworld}
+ldr  r2,[r2,#0]           // get which font we're loading (main or castroll)
+lsl  r0,r0,#5
+add  r0,r2,r0             // get the address
+mov  r1,sp
+mov  r2,#0x10
+swi  #0xB                 // CpuSet for 0x20 bytes
+cmp  r5,#0xFF
+ble  +
+mov  r5,#3                // set tile usage to max
+b    .fast_prepare_main_font_end
++
+ldr  r0,=#{main_font_usage}
+add  r0,r0,r5
+ldrb r5,[r0,#0]           // Load tile usage for the letter
+.fast_prepare_main_font_end:
+bx   lr
+
 //===========================================================================================
 // This hack is used in order to make it so maps aren't loaded too fast by spamming R
 //===========================================================================================
