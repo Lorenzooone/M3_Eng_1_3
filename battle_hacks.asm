@@ -125,8 +125,7 @@ lsr  r5,r4,#8
 orr  r4,r5
 lsr  r5,r4,#0x10
 orr  r4,r5
-neg  r5,r4                   // get the inverted version
-sub  r5,#1
+mvn  r5,r4                   // get the inverted version
 str  r4,[sp,#0]              // save our masks
 str  r5,[sp,#4]
 

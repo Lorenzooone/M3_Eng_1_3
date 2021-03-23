@@ -1,7 +1,26 @@
 //============================================================================================
 define current_font_menu $20225C4
-define sprite_text_weld_stack_size $B0
+define sprite_text_weld_stack_size $F8
+define wbuf_stk $50          // writing buffer, 0x2014320
+define letter_stk $54        // letters data address, ldr[sp,#8] + 0x76D9
+define numstr_stk $58        // num strings address, ldr[sp,#8] + 0x6C44
+define ctrl_stk $5C          // control code base value, 0xFEFF
+define coord_stk $60         // x_coord address, 0x20225C8
+define cfm_stk $64           // current_font_menu
+define mfont_stk $68         // main_font address
+define mfontw_stk $6C        // main_font_width address
+define sfontw_stk $70        // small_font_width address
+define ocbuf_stk $74         // oam coords buffer, 0x2014240
+define olbuf_stk $78         // oam length buffer, 0x2014260
+define ohbuf_stk $7C         // oam hash buffer, 0x2014270
+define oabuf_stk $80         // oam address buffer, 0x20142B0
+define oslbuf_stk $84        // oam strlen buffer, 0x20142F0
+define dbuf_stk $88          // data buffer, 0x2014300
+define hprime_stk $8C        // hash's prime value, 0x1000193
+define hoffset_stk $90       // hash's offset value, 0x811C9DC5
+define empty_stk $94         // empty_tile+2 address
 define oam_tiles_stack_buffer {sprite_text_weld_stack_size}-$60
+
 //============================================================================================
 // This hack does text "welding" within the game's glyph buffer structs. This particular
 // routine affects sprite text.
@@ -85,8 +104,7 @@ lsr  r6,r3,#8
 orr  r3,r6
 lsr  r6,r3,#0x10
 orr  r3,r6
-neg  r6,r3               //Get the inverted version
-sub  r6,#1
+mvn  r6,r3               //Get the inverted version
 ldr  r2,[r4,#0]          //Load the first 4 rows
 mov  r1,r2
 lsr  r2,r7               //Shift them by curr_x
@@ -296,16 +314,112 @@ sprite_text_weld:
 push {lr}
 ldr  r3,=#0x2014320
 mov  r0,#1
-strb r0,[r3,#0x7]        // new_tile_flag = TRUE
+strb r0,[r3,#0x7]         // new_tile_flag = TRUE
 mov  r0,#0
-strh r0,[r3,#0x4]        // curr_tile_num = 0, curr_x = 0
-strb r0,[r3,#0xA]        // new_line_flag = FALSE
-strb r0,[r3,#0xB]        // redraw_flag = FALSE
-strb r0,[r3,#0xC]        // table_loc = 0
+strh r0,[r3,#0x4]         // curr_tile_num = 0, curr_x = 0
+strb r0,[r3,#0xA]         // new_line_flag = FALSE
+strb r0,[r3,#0xB]         // redraw_flag = FALSE
+strb r0,[r3,#0xC]         // table_loc = 0
 
 mov  r0,#0
-strb r0,[r1,#0x0]        // code we clobbered
+strb r0,[r1,#0x0]         // code we clobbered
 pop  {pc}
+
+
+//============================================================================================
+// This routine changes the loaded tiles accordingly to fix when the first line that's printed
+// starts with a BREAK or a STATUSICON
+//============================================================================================
+.empty_tile:
+  dw $00EB
+
+.replace_BREAK_first_line:
+ldr  r0,[sp,#0]
+ldr  r1,[sp,#{empty_stk}]
+sub  r1,#2
+str  r0,[sp,#0x44]        // the engine cannot properly process the first line starting with
+str  r1,[sp,#0]           // a BREAK or a STATUSICON, so we add an empty letter before it
+ldrh r0,[r6,#0xE]
+add  r0,#1
+strh r0,[r6,#0xE]         // the string we need to print is now 1 letter longer
+bx   lr
+
+.restore_old_first_line:
+ldr  r0,[sp,#0]
+ldr  r1,[sp,#{empty_stk}]
+cmp  r0,r1
+bne  +
+ldr  r0,[sp,#0x44]
+str  r0,[sp,#0]
++
+bx   lr
+
+
+//============================================================================================
+// This section of code is for caching certain addresses and values we'll use multiple
+// times in the stack
+//============================================================================================
+
+.init_stack:
+
+str  r3,[sp,#{wbuf_stk}]  // save these value to stack in order to avoid needless jumps
+
+str  r1,[sp,#{letter_stk}]
+
+ldr  r2,[sp,#0x8]
+ldr  r0,=#0x6C44
+add  r0,r2,r0
+str  r0,[sp,#{numstr_stk}]
+
+ldr  r0,=#0xFEFF
+str  r0,[sp,#{ctrl_stk}]
+
+ldr  r0,=#0x20225C8
+str  r0,[sp,#{coord_stk}]
+
+ldr  r0,=#{current_font_menu}
+str  r0,[sp,#{cfm_stk}]
+
+ldr  r0,=#{main_font}
+str  r0,[sp,#{mfont_stk}]
+
+ldr  r0,=#{main_font_width}
+str  r0,[sp,#{mfontw_stk}]
+
+ldr  r0,=#{small_font_width}
+str  r0,[sp,#{sfontw_stk}]
+
+ldr  r0,=#0x2014240
+str  r0,[sp,#{ocbuf_stk}]
+
+add  r0,#0x20
+str  r0,[sp,#{olbuf_stk}]
+
+add  r0,#0x10
+str  r0,[sp,#{ohbuf_stk}]
+
+add  r1,sp,#0x24          
+
+add  r0,#0x40
+str  r0,[sp,#{oabuf_stk}]
+
+add  r0,#0x40
+str  r0,[sp,#{oslbuf_stk}]
+
+mov  r0,#0x20
+sub  r0,r3,r0
+str  r0,[sp,#{dbuf_stk}]
+
+ldr  r0,=#0x1000193
+str  r0,[sp,#{hprime_stk}]
+
+ldr  r0,=#0x811C9DC5
+str  r0,[sp,#{hoffset_stk}]
+
+ldr  r0,=#.empty_tile+2
+str  r0,[sp,#{empty_stk}]
+
+bx   lr
 
 
 //============================================================================================
@@ -356,8 +470,9 @@ bx   lr
 //============================================================================================
 
 .store_letter:
-push {r0,lr}
-ldr  r1,=#0x2014320      // r1 has RAM block address
+push {r7,lr}
+mov  r7,r2
+ldr  r1,[r7,#{wbuf_stk}] // r1 has RAM block address
 
 lsl  r0,r0,#0x18
 lsr  r0,r0,#0x18
@@ -372,16 +487,16 @@ lsr  r3,r3,#0x18
 // It can be either 8CE39F8 (main) or 8D0B010 (small)
 // From that we want to get the widths pointer, which is 8D1CE78 (main) or 8D1CF78 (small)
 // I'm assuming we only ever use this for main and small fonts...
-ldr  r2,=#{current_font_menu}
+ldr  r2,[r7,#{cfm_stk}]
 ldr  r4,[r2,#0]
-ldr  r2,=#{main_font}
+ldr  r2,[r7,#{mfont_stk}]
 cmp  r2,r4
 bne  +
 // We're using main font
-ldr  r2,=#{main_font_width}
+ldr  r2,[r7,#{mfontw_stk}]
 b    .store_letter_next
 +
-ldr  r2,=#{small_font_width}
+ldr  r2,[r7,#{sfontw_stk}]
 
 
 
@@ -393,7 +508,7 @@ pop  {r2-r4}
 ldrb r1,[r6,#0x10]       // code we clobbered
 mov  r0,#0x80
 lsl  r1,r1,#0x1C
-pop  {r0,pc}
+pop  {r7,pc}
 
 //============================================================================================
 // This section of code signals the game to start from a new sprite after certain control
@@ -417,7 +532,7 @@ b    .cc_check_end
 //--------------------------------------------------------------------------------------------
 
 .break_found:
-ldr  r1,=#0x2014320
+ldr  r1,[r7,#{wbuf_stk}]
 ldrb r0,[r1,#0x7]        // load new_tile_flag
 cmp  r0,#0               // if this == TRUE, then we need to move the tile, allocate the sprite
 beq  +                   // and all that stuff ourselves
@@ -425,21 +540,21 @@ beq  +                   // and all that stuff ourselves
 bl   .sprite_snip
 bl   .update_x_coord
 bl   .custom_create_sprite
-b    .cc_set_stuff
+//b    .cc_set_stuff
 
 //--------------------------------------------------------------------------------------------
 
 +
-ldr  r1,=#0x2014320
-ldrb r0,[r1,#0xB]        // load redraw_flag
-cmp  r0,#0               // if this == FALSE, skip the obj update
-beq  .cc_set_stuff
+//ldr  r1,[r7,#{wbuf_stk}]
+//ldrb r0,[r1,#0xB]        // load redraw_flag
+//cmp  r0,#0               // if this == FALSE, skip the obj update
+//beq  .cc_set_stuff
 //bl   .update_obj_tile
 
 //--------------------------------------------------------------------------------------------
 
 .cc_set_stuff:
-ldr  r1,=#0x2014320
+ldr  r1,[r7,#{wbuf_stk}]
 mov  r0,#0
 strb r0,[r1,#0x5]        // curr_x = 0
 mov  r0,#1
@@ -458,7 +573,7 @@ pop  {pc}
 .icon_found:
 mov  r0,#1
 str  r0,[r7,#0x48]       // set "has_icon" to true
-ldr  r1,=#0x2014320
+ldr  r1,[r7,#{wbuf_stk}]
 ldrb r0,[r1,#0x5]
 cmp  r0,#3
 bgt  +
@@ -466,7 +581,7 @@ bgt  +
 bl   .sprite_snip
 
 +
-ldr  r1,=#0x2014320
+ldr  r1,[r7,#{wbuf_stk}]
 ldrb r0,[r1,#0x7]        // load new_tile_flag
 cmp  r0,#0               // if this == TRUE, we 
 beq  +
@@ -474,7 +589,7 @@ beq  +
 bl   .update_x_coord
 
 +
-ldr  r1,=#0x2014320
+ldr  r1,[r7,#{wbuf_stk}]
 ldrb r0,[r1,#0x7]        // load new_tile_flag
 cmp  r0,#0               // if this == TRUE, we need to mess with this sprite and the next one
 beq  .icon_end
@@ -482,7 +597,7 @@ beq  .icon_end
 bl   .custom_create_sprite
 
 .icon_end:
-ldr  r1,=#0x2014320
+ldr  r1,[r7,#{wbuf_stk}]
 mov  r0,#1
 strb r0,[r1,#0x7]        // new_tile_flag = TRUE
 
@@ -516,41 +631,38 @@ b    .cc_check_end
 
 .create_sprite:
 push {lr}
-add  r7,sp,#4            // we'll need this value for the subroutine calls later
+add  r7,sp,#4             // we'll need this value for the subroutine calls later
 
-ldr  r0,=#0x2014320
-ldrb r0,[r0,#0x7]        // load new_tile_flag
+ldr  r2,[r7,#{wbuf_stk}]
+ldrb r0,[r2,#0x7]         // load new_tile_flag
 cmp  r0,#0
-beq  .create_sprite_end  // if FALSE, don't need to move to next tile or create a new sprite
+beq  .create_sprite_end   // if FALSE, don't need to move to next tile or create a new sprite
 
 //--------------------------------------------------------------------------------------------
 
-ldr  r0,=#0x2014320      // load new_line_flag
-ldrb r0,[r0,#0xA]        
-cmp  r0,#0               // if new_line_flag == FALSE, we want to add the sprite width
-bne  +                   // so jump over the adding code if it's TRUE and we ARE on a new line
+ldrb r0,[r2,#0xA]        
+cmp  r0,#0                // if new_line_flag == FALSE, we want to add the sprite width
+bne  +                    // so jump over the adding code if it's TRUE and we ARE on a new line
 
-ldr  r0,[r7,#0x14]       // load r0 with the current letter # we're on
-cmp  r0,#0               // if it's 0, we don't want to add the sprite width
+ldr  r0,[r7,#0x14]        // load r0 with the current letter # we're on
+cmp  r0,#0                // if it's 0, we don't want to add the sprite width
 beq  +
 
-ldr  r0,=#0x20225C8      // this code adds to the sprite's x coordinate.
-ldrb r0,[r0,#0]          // it'll almost always be 16 pixels
+ldr  r0,[r7,#{coord_stk}] // this code adds to the sprite's x coordinate.
+ldrb r0,[r0,#0]           // it'll almost always be 16 pixels
 ldrh r1,[r7,#0x4]
 add  r1,r1,r0
 strh r1,[r7,#0x4]
 
 //--------------------------------------------------------------------------------------------
 +
-ldr  r0,[r7,#0x8]        // now to see what tile # we're on
-ldr  r2,=#0x76D9
-add  r0,r0,r2
+ldr  r0,[r7,#{letter_stk}]// now to see what tile # we're on
 ldrb r0,[r0,#0]
-cmp  r0,#0               // r0 now has the tile # we're on
-beq  +                   // if it's 0, we don't need to move to the next tile
+cmp  r0,#0                // r0 now has the tile # we're on
+beq  +                    // if it's 0, we don't need to move to the next tile
 
 //bl   .update_obj_tile
-bl   .move_to_next_tile  // move to the next tile over
+bl   .move_to_next_tile   // move to the next tile over
 
 +
 bl   .custom_create_sprite
@@ -558,41 +670,40 @@ bl   .custom_create_sprite
 //--------------------------------------------------------------------------------------------
 
 .clear_glyph_check:
-ldr  r2,=#0x2014320      // load new_line_flag
-ldrb r0,[r2,#0xA]        // if we're doing a newline, we need to clear out the glyph
+ldr  r2,[r7,#{wbuf_stk}]
+ldrb r0,[r2,#0xA]         // if we're doing a newline, we need to clear out the glyph
 cmp  r0,#0
 bne  +
 
-ldrb r0,[r2,#0x5]        // load curr_x
-cmp  r0,#0               // if curr_x == 0, we need to clear out the current tile
+ldrb r0,[r2,#0x5]         // load curr_x
+cmp  r0,#0                // if curr_x == 0, we need to clear out the current tile
 beq  +
 
-ldr  r0,[r7,#0x14]       // load r0 with the current letter # we're on
-cmp  r0,#0               // if it's 0, we want to clear the current glyph
+ldr  r0,[r7,#0x14]        // load r0 with the current letter # we're on
+cmp  r0,#0                // if it's 0, we want to clear the current glyph
 bne  .create_sprite_end
 
 +
-ldrb r0,[r2,#0xB]        // load redraw_flag
-cmp  r0,#0               // if redraw_flag == FALSE, don't clear out the glyph
+ldrb r0,[r2,#0xB]         // load redraw_flag
+cmp  r0,#0                // if redraw_flag == FALSE, don't clear out the glyph
 beq  +
 
-add  r0,r5,#4            // give r0 the address of the current glyph data
-bl   .clear_glyph        // call our function to clear out the current glyph
+add  r0,r5,#4             // give r0 the address of the current glyph data
+bl   .clear_glyph         // call our function to clear out the current glyph
 
 +
 mov  r0,#0
-strb r0,[r2,#0x5]        // curr_x = 0
+strb r0,[r2,#0x5]         // curr_x = 0
 
 //--------------------------------------------------------------------------------------------
 
 .create_sprite_end:
-ldr  r2,=#0x2014320
 mov  r0,#0
-strb r0,[r2,#0x7]        // new_tile_flag = FALSE
-strb r0,[r2,#0xA]        // new_line_flag = FALSE
+strb r0,[r2,#0x7]         // new_tile_flag = FALSE
+strb r0,[r2,#0xA]         // new_line_flag = FALSE
 
 //ldr r0,=#.mr_aftercreatesprite
-//ldr  r0,=#0x80493E6      // jump to the correct place back in the main code
+//ldr  r0,=#0x80493E6       // jump to the correct place back in the main code
 //mov  pc,r0
 //bx   lr
 pop    {pc}
@@ -606,7 +717,8 @@ pop    {pc}
 .add_width:
 push {r0-r3,lr}
 
-ldr  r0,=#0x2014320      // load r0 with the custom RAM block's address
+// load r0 with the custom RAM block's address
+ldr  r0,[sp,#{wbuf_stk}+0x14]
 ldrb r2,[r0,#0x5]        // load curr_x
 ldrb r3,[r0,#0x6]        // load curr_width
 add  r2,r2,r3            // curr_x += curr_width
@@ -637,14 +749,14 @@ pop  {r0-r3,pc}
 push {r0-r3,r7,lr}
 add  r7,sp,#0x18
 
-ldr  r3,=#0x2014320      // load r3 with the custom RAM block's address
-ldrb r0,[r3,#0xB]        // r0 = redraw_flag
-cmp  r0,#0
-beq  +
+//ldr  r3,[r7,#{wbuf_stk}] // load r3 with the custom RAM block's address
+//ldrb r0,[r3,#0xB]        // r0 = redraw_flag
+//cmp  r0,#0
+//beq  +
 //bl   .update_obj_tile
 
-+
-ldr  r3,=#0x2014320      // load r3 with the custom RAM block's address
+//+
+ldr  r3,[r7,#{wbuf_stk}] // load r3 with the custom RAM block's address
 ldrb r0,[r3,#0x7]        // r0 = new_tile_flag
 cmp  r0,#0               // if we didn't just move to a new tile, no problem, skip ahead
 beq  +
@@ -658,7 +770,7 @@ bl   .update_x_coord
 bl   .custom_create_sprite
 
 +
-ldr  r3,=#0x2014320      // load r3 with the custom RAM block's address
+ldr  r3,[r7,#{wbuf_stk}] // load r3 with the custom RAM block's address
 mov  r1,#1
 strb r1,[r3,#0x7]        // new_tile_flag = TRUE
 pop  {r0-r3,r7,pc}
@@ -672,9 +784,9 @@ pop  {r0-r3,r7,pc}
 .clear_glyph:
 push {r0-r3,lr}
 mov  r1,r0               // give r0 to r1, since r1 needs to contain the target address
-ldr  r0,=#0x2014320
-mov  r2,#0
-str  r2,[r0,#0]          // store 0x00000000 in our RAM block
+mov  r0,#0
+str  r0,[r2,#0]          // store 0x00000000 in our RAM block
+mov  r0,r2
 mov  r2,#0x40            // give r2 the number of halfwords to clear
 mov  r3,#1
 lsl  r3,r3,#24
@@ -733,9 +845,9 @@ orr  r1,r0
 // It can be either 8CE39F8 (main) or 8D0B010 (small)
 // From that we want to use different sizes for the sprites
 // I'm assuming we only ever use this for main and small fonts...
-ldr  r0,=#{current_font_menu}
+ldr  r0,[r2,#{cfm_stk}]
 ldr  r7,[r0,#0]
-ldr  r0,=#{main_font}
+ldr  r0,[r2,#{mfont_stk}]
 cmp  r0,r7
 bne  +
 mov  r0,#0x80
@@ -756,15 +868,15 @@ lsr  r0,r0,#0x1E
 lsl  r0,r0,#0x0A
 ldr  r1,[r2,#0x18]
 orr  r0,r1
-ldr  r7,=#0xFFFFE000
-mov  r1,r7
+mov  r1,#0xE0
+lsl  r1,r1,#8
 orr  r0,r1
 ldr  r1,[r2,#0x1C]
 strh r0,[r1,#0x4]
 add  r1,#8
 str  r1,[r2,#0x1C]
 
-ldr  r7,=#0x2014320       // increment the total # of sprites used
+ldr  r7,[r2,#{wbuf_stk}]               // increment the total # of sprites used
 ldrb r0,[r7,#0x4]
 add  r0,#1
 strb r0,[r7,#0x4]
@@ -793,7 +905,7 @@ pop  {pc}
 .update_x_coord:
 push {lr}
 
-ldr  r0,=#0x20225C8      // this code adds to the sprite's x coordinate.
+ldr  r0,[r7,#{coord_stk}]// this code adds to the sprite's x coordinate.
 ldrb r0,[r0,#0]          // it'll almost always be 16 pixels
 ldrh r1,[r7,#0x4]
 add  r1,r1,r0
@@ -824,8 +936,10 @@ pop  {r0-r1,pc}
 //============================================================================================
 
 .get_sprite_total:
-push {r2,r4,r5}
-ldr  r5,=#0x2014320      // r1 has RAM block address
+push {r2,r4-r5}
+
+// r5 has RAM block address
+ldr  r5,[sp,#{wbuf_stk}+0xC]
 
 ldr  r0,[sp,#0xC]
 ldrh r0,[r0,#0x0]
@@ -836,25 +950,24 @@ strh r0,[r5,#0x8]        // store r0 (current letter value) in RAM block
 // It can be either 8CE39F8 (main) or 8D0B010 (small)
 // From that we want to get the widths pointer, which is 8D1CE78 (main) or 8D1CF78 (small)
 // I'm assuming we only ever use this for main and small fonts...
-ldr  r2,=#{current_font_menu}
+ldr  r2,[sp,#{cfm_stk}+0xC]
 ldr  r4,[r2,#0]
-ldr  r2,=#{main_font}
+ldr  r2,[sp,#{mfont_stk}+0xC]
 cmp  r2,r4
 bne  +
 // We're using main font
-ldr  r2,=#{main_font_width}
+ldr  r2,[sp,#{mfontw_stk}+0xC]
 b    .get_sprite_total_next
 +
-ldr  r2,=#{small_font_width}
+ldr  r2,[sp,#{sfontw_stk}+0xC]
 
 
 .get_sprite_total_next:
 ldrb r2,[r2,r0]          // get the current letter's width
 strb r2,[r5,#0x6]        // store the current letter's width in the RAM block
-pop  {r2,r4,r5}
 
-ldr  r0,=#0x2014320
-ldrb r0,[r0,#0x4]
+ldrb r0,[r5,#0x4]
+pop  {r2,r4-r5}
 bx   lr
 
 //============================================================================================
@@ -921,7 +1034,7 @@ add  r7,sp,#0x24         // make r7 be the pretend sp
 
 //-------------------------------------------------------------------------------------------
 
-ldr  r6,=#0x2014300      // if fadeout_flag = TRUE, then don't bother with these checks
+ldr  r6,[sp,#{dbuf_stk}+0x24] // if fadeout_flag = TRUE, then don't bother with these checks
 mov  r1,#0x2D
 ldrb r0,[r6,r1]
 cmp  r0,#0
@@ -930,10 +1043,9 @@ add  r6,#0x20
 b    .inc_table_loc
 +
 
-ldr  r0,[sp,#0x18]       // at [[sp,#0x18],#0x0] is the address of the current string
-ldr  r0,[r0,#0x0]        // r0 now has the current string's address
-ldr  r1,[sp,#0x18]       // at [[sp,#0x18],#0xE] is the string length
-ldrh r1,[r1,#0xE]        // r1 now has the string length
+ldr  r1,[sp,#0x18]       // at [[sp,#0x18],#0x0] is the address of the current string
+ldr  r0,[r1,#0x0]        // r0 now has the current string's address
+ldrh r1,[r1,#0xE]        // at [[sp,#0x18],#0xE] is the string length
 bl   .get_hash           // get the hash value for the current string, return value in r0
 str  r0,[r6,#0x0]        // store our hash temporarily for easy access
 
@@ -945,7 +1057,7 @@ bne  .update_tables
 //-------------------------------------------------------------------------------------------
 
 .address_check:
-ldr  r5,=#0x20142B0      // r5 = base address of address table
+ldr  r5,[sp,#{oabuf_stk}+0x24]// r5 = base address of address table
 ldrb r0,[r6,#0xC]
 lsl  r0,r0,#2            // r0 = table_loc * 4
 mov  r2,r0
@@ -969,7 +1081,9 @@ b    .update_tables
 //-------------------------------------------------------------------------------------------
 
 .length_check:
-ldr  r5,=#0x20142F0      // r5 = base address of string length table
+
+// r5 = base address of string length table
+ldr  r5,[sp,#{oslbuf_stk}+0x24]
 ldrb r0,[r6,#0xC]        // load table_loc
 ldrb r0,[r5,r0]          // r0 = last_str_len
 
@@ -988,7 +1102,7 @@ b    .update_tables
 //-------------------------------------------------------------------------------------------
 
 .hash_check:
-ldr  r5,=#0x2014270      // r5 = base address of hash table
+ldr  r5,[sp,#{ohbuf_stk}+0x24]// r5 = base address of hash table
 ldrb r0,[r6,#0xC]
 lsl  r0,r0,#2            // r0 = table_loc * 4
 ldr  r0,[r5,r0]          // r0 = last hash
@@ -1010,7 +1124,8 @@ bl   .clear_glyphs
 .update_tables:
 ldrb r0,[r6,#0xC]        // load table_loc
 
-ldr  r5,=#0x20142F0      // r5 = base address of string length table
+// r5 = base address of string length table
+ldr  r5,[sp,#{oslbuf_stk}+0x24]
 ldr  r4,[sp,#0x18]       // at [[sp,#0x18],#0xE] is the string length
 ldrh r4,[r4,#0xE]        // r4 now has the string length
 strb r4,[r5,r0]          // store the current string length in the proper table spot
@@ -1046,28 +1161,16 @@ pop  {pc}
 
 
 //============================================================================================
-// This is the code that tells the game if it needs to redraw text or not.
-// Called from 8049402.
-//============================================================================================
-
-.efficiency_branch:
-push {lr}
-ldr  r2,=#0x2014320
-ldrb r2,[r2,#0xB]         // load redraw_flag
-pop  {pc}
-
-
-//============================================================================================
 // This is the code that tells the game if it needs to re-prepare the OAM entries or not
 //============================================================================================
 
 .recycle_branch:
 push {lr}
-ldr  r0,=#0x2014320
+ldr  r0,[sp,#{wbuf_stk}+4]
 ldrb r2,[r0,#0xB]         // load redraw_flag
 cmp  r2,#0
 bne  .recycle_branch_unsuccessful
-ldr  r2,=#0x2014240
+ldr  r2,[sp,#{ocbuf_stk}+4]
 ldrb r0,[r0,#0xC]         // current entry + 1
 sub  r0,#1
 lsl  r0,r0,#1
@@ -1100,8 +1203,8 @@ pop  {pc}
 .recycle_old_oam:
 push {r4-r7,lr}
 mov  r4,r0
-ldr  r5,=#0x2014320
-ldr  r7,=#0x2014260
+ldr  r5,[r4,#{wbuf_stk}]
+ldr  r7,[r4,#{olbuf_stk}]
 ldrb r0,[r5,#0xC]         // current entry + 1
 sub  r0,#1
 add  r7,r7,r0             // get its previous length
@@ -1111,16 +1214,15 @@ lsr  r3,r3,#0x19         // ignore "has_icon" in length
 cmp  r3,#0
 beq  .recycle_old_oam_success
 ldr  r0,[r4,#0x18]
-ldr  r2,[r4,#0x8]         // now to see if this is the first letter or not
-ldr  r1,=#0x76D9
-add  r6,r2,r1
+ldr  r6,[r4,#{letter_stk}]// now to see if this is the first letter or not
 ldrb r2,[r6,#0]
 cmp  r2,#0                // r2 now has the letter # we're on
 beq  +
 add  r0,#4
 +
 lsr  r0,r0,#2
-ldr  r2,=#0x7000000
+mov  r2,#7
+lsl  r2,r2,#0x18
 mov  r1,#{oam_tiles_stack_buffer}
 add  r1,r1,r4             // get to the tiles buffer
 add  r0,r1,r0             // get to the tiles entry in the buffer
@@ -1221,8 +1323,8 @@ pop  {pc}
 .save_entry_info:
 push {r0-r5,lr}
 mov  r5,r0                // stack pointer
-ldr  r1,=#0x2014320
-ldr  r2,=#0x2014240
+ldr  r1,[r5,#{wbuf_stk}]
+ldr  r2,[r5,#{ocbuf_stk}]
 ldrb r4,[r1,#0xC]         // current entry + 1
 sub  r4,#1
 lsl  r3,r4,#1
@@ -1255,14 +1357,12 @@ pop  {r0-r5,pc}
 
 .reset_data_redrawing:
 push {lr}
-ldr  r1,=#0x2014320
+ldr  r1,[r0,#{wbuf_stk}]
 ldrb r2,[r1,#0xB]         // load redraw_flag
 cmp  r2,#0
 bne  .reset_data_redrawing_end
 strb r2,[r1,#4]           // we're not printing entries, put this back to 0!
-ldr  r1,[r0,#0x8]
-ldr  r3,=#0x76D9
-add  r3,r1,r3
+ldr  r3,[r0,#{letter_stk}]
 ldrb r2,[r3,#0]           // is this 0?
 cmp  r2,#0
 beq  +
@@ -1279,55 +1379,11 @@ str  r2,[r0,#0xC]
 +
 mov  r2,#0x98             // reset this to the first entry
 lsl  r2,r2,#0x6
+ldr  r1,[r0,#8]
 add  r5,r1,r2
 
 .reset_data_redrawing_end:
 pop  {pc}
-
-
-//============================================================================================
-// This is the code that prepares the tiles data used in order to avoid re-preparing OAM entries
-// when it's not needed. r0 is the stack pointer
-//============================================================================================
-
-.save_entry_tile:
-push {r0-r5,lr}
-mov  r5,r0                // stack pointer
-ldr  r1,=#0x2014320
-ldr  r2,=#0x2014220
-ldrb r4,[r1,#0xC]         // current entry + 1
-sub  r4,#1
-lsl  r4,r4,#1
-add  r4,r4,r2
-ldr  r3,[r5,#0x18]       // load current tile
-
-ldr  r0,[r5,#0x8]        // now to see what tile # we're on
-ldr  r2,=#0x76D9
-add  r2,r0,r2
-ldrb r0,[r2,#0]
-cmp  r0,#0               // r0 now has the tile # we're on
-beq  +                   // if it's 0, we don't need to move to the next tile
-add  r3,#4               // if it's 1, we'll need to move 1 tile later on, prepare for it
-b    .save_entry_tile_store
-+
-mov  r1,#0
-ldrh r0,[r6,#0xE]
-cmp  r1,r0
-bcc  +
-b    .save_entry_tile_store
-+
-
-ldr  r1,[r5,#0]
-ldrh r1,[r1,#0x0]         // if the first letter is a special code, we'll move one tile
-ldr  r0,=#0xFEFF
-cmp  r1,r0
-bls  +
-add  r3,#4
-+
-.save_entry_tile_store:
-strh r3,[r4,#0]          // store this info
-
-pop  {r0-r5,pc}
 
 
 //============================================================================================
@@ -1336,7 +1392,7 @@ pop  {r0-r5,pc}
 
 .save_current_sprite_total:
 push {r1,lr}
-ldr  r1,=#0x2014320
+ldr  r1,[r0,#{wbuf_stk}]
 ldrb r1,[r1,#4]           // current sprite total
 str  r1,[r0,#0x40]        // save to stack
 pop  {r1,pc}
@@ -1347,11 +1403,11 @@ pop  {r1,pc}
 //============================================================================================
 
 .clear_glyphs:
-push {r0-r7,lr}
+push {r0-r5,lr}
 mov  r1,r0
-ldr  r0,=#0x2014320
 mov  r2,#0
-str  r2,[r0,#0]          // store 0x00000000 in our RAM block
+str  r2,[r6,#0]          // store 0x00000000 in our RAM block
+mov  r0,r6
 
 ldr  r5,=#0x201F994
 sub  r5,r5,r1
@@ -1362,7 +1418,7 @@ lsl  r3,r3,#24
 orr  r2,r3               // set the 24th bit of r2 so it'll know to fill instead of copy
 swi  #0x0B               // clear the next glyph out
 
-pop  {r0-r7,pc}
+pop  {r0-r5,pc}
 
 
 //============================================================================================
@@ -1439,8 +1495,8 @@ bx   r0
 push {r2-r7,lr}
 // r0 = source address
 // r1 = length
-ldr  r2,=#0x1000193        // FNV_prime
-ldr  r3,=#0x811C9DC5       // offset_basis/hash
+ldr  r2,[sp,#{hprime_stk}+0x24+0x1C] // FNV_prime
+ldr  r3,[sp,#{hoffset_stk}+0x24+0x1C]// offset_basis/hash
 mov  r4,#0                 // counter
 cmp  r1,#0
 bne  +
@@ -1650,13 +1706,11 @@ pop  {r4-r5,r7,pc}
 //============================================================================================
 
 .handle_changing_tile_special_checks:
-ldr  r2,=#0x2014320
+ldr  r2,[r4,#{wbuf_stk}]
 ldrb r2,[r2,#0x7]         // load new_tile_flag
 cmp  r2,#0
 beq  +                    // if FALSE, don't need to move to next tile or create a new sprite
-ldr  r2,[r4,#0x8]         // now to see what tile # we're on
-ldr  r5,=#0x76D9
-add  r2,r2,r5
+ldr  r2,[r4,#{letter_stk}]// now to see what tile # we're on
 ldrb r2,[r2,#0]
 cmp  r2,#0                // r2 now has the tile # we're on
 beq  +                    // if it's 0, we don't need to move to the next tile
@@ -1709,7 +1763,8 @@ pop  {r0}
 mov  r2,#{oam_tiles_stack_buffer}
 mov  r0,r5
 add  r2,r0,r2
-ldr  r3,=#0x7000000       // load the oam
+mov  r3,#7
+lsl  r3,r3,#0x18          // load the oam
 mov  r4,#0
 mov  r5,#2
 
@@ -1738,33 +1793,6 @@ bx   lr
 
 
 //============================================================================================
-// This routine changes the loaded tiles accordingly to fix when the first line that's printed
-// starts with a BREAK or a STATUSICON
-//============================================================================================
-.empty_tile:
-  dw $00EB
-
-.replace_BREAK_first_line:
-ldr  r0,[sp,#0]
-ldr  r1,=#.empty_tile
-str  r0,[sp,#0x44]        // the engine cannot properly process the first line starting with
-str  r1,[sp,#0]           // a BREAK or a STATUSICON, so we add an empty letter before it
-ldrh r0,[r6,#0xE]
-add  r0,#1
-strh r0,[r6,#0xE]         // the string we need to print is now 1 letter longer
-bx   lr
-
-.restore_old_first_line:
-ldr  r0,[sp,#0]
-ldr  r1,=#.empty_tile+2
-cmp  r0,r1
-bne  +
-ldr  r0,[sp,#0x44]
-str  r0,[sp,#0]
-+
-bx   lr
-
-//============================================================================================
 // This routine is called right after all sprite strings have been processed. It clears out
 // any unused portions of the "last time" tables to prevent any weirdness later.
 // Called from 804957E.
@@ -1776,6 +1804,7 @@ push {r0-r7,lr}
 ldr  r5,[sp,#0x34]      // r6 = total # of strings we just processed
 mov  r1,#1
 neg  r1,r1              // r1 = FFFFFFFF
+ldr  r3,=#0x2014240     // r4 = base address of the positions table
 
 -
 cmp  r5,#16
@@ -1783,11 +1812,11 @@ bge  +
 
 lsl  r2,r5,#2           // r2 = counter * 4 (used for convenience's sake)
 lsl  r0,r5,#1           // r0 = counter * 2 (used for convenience's sake)
-ldr  r4,=#0x2014240     // r4 = base address of the positions table
-strh  r1,[r4,r0]        // store FFFF at positions table entry
+mov  r4,r3
+strh r1,[r4,r0]         // store FFFF at positions table entry
 
 add  r4,#0x20
-strb  r1,[r4,r5]        // store FF at oam length table entry
+strb r1,[r4,r5]         // store FF at oam length table entry
 
 add  r4,#0x10
 str  r1,[r4,r2]         // store FFFFFFFF at hash table entry
@@ -1846,12 +1875,13 @@ mov  r7,r10
 mov  r6,r9
 mov  r5,r8
 push {r5-r7}
-add  sp,#-{sprite_text_weld_stack_size}   // currently -0xB0
+add  sp,#-{sprite_text_weld_stack_size}   // currently -0xF8
 str  r2,[sp,#0x2C]                        //We'll use this later - Save which menu this is
 str  r0,[sp,#0x8]
 ldr  r2,=#0x76D9
 add  r1,r0,r2
 bl   sprite_text_weld.init                // init
+bl   .init_stack
 mov  r0,sp
 bl   .special_checks_setup
 
@@ -1867,8 +1897,7 @@ add  r1,r1,r0
 str  r1,[sp,#0x1C]
 str  r1,[sp,#0x20]
 ldr  r1,[sp,#0x8]
-ldr  r2,=#0x6C44
-add  r0,r1,r2
+ldr  r0,[sp,#{numstr_stk}]
 ldr  r0,[r0,#0]
 ldr  r6,[r0,#0x4]
 mov  r3,#0x98
@@ -1900,18 +1929,20 @@ bl   $8049C70
 
 +
 ldrh r0,[r6,#0x8]
-ldr  r3,=#0x1FF
-mov  r1,r3
+mov  r3,#2
+lsl  r3,r3,#8
+sub  r1,r3,#1                             // ldr r1,=#0x1FF
 and  r1,r0
-ldr  r2,=#0xFFFF0000
-ldr  r0,[sp,#0x4]
+mov  r0,sp
+ldrh r0,[r0,#0x6]
+lsl  r0,r0,#0x10                          // and 0xFFFF0000
 and  r0,r2
 orr  r0,r1
 str  r0,[sp,#0x4]
 ldrb r2,[r6,#0xA]
 lsl  r2,r2,#0x10
-ldr  r1,=#0xFFFF
-and  r0,r1
+lsl  r0,r0,#0x10                          // and 0xFFFF
+lsr  r0,r0,#0x10
 orr  r0,r2
 str  r0,[sp,#0x4]
 ldr  r0,[r6,#0]
@@ -1941,7 +1972,6 @@ beq  +
 b    .after_eos
 +
 mov  r0,sp
-//bl   .save_entry_tile
 ldrh r0,[r6,#0xE]
 cmp  r7,r0
 bcc  +
@@ -1951,27 +1981,26 @@ b    .after_eos
 
 ldr  r3,[sp,#0]                           // get the string
 ldrh r1,[r3,#0x0]                         // first letter
-ldr  r0,=#0xFEFF                          // if it's a BREAK and we just recycled the previous OAM, we need to account for a special case
+ldr  r0,[sp,#{ctrl_stk}]                  // if it's a BREAK and we just recycled the previous OAM, we need to account for a special case
 cmp  r1,r0
-bls  +
-ldr  r0,[sp,#0x8]
-ldr  r2,=#0x76D9
-add  r1,r0,r2
-ldrb r0,[r1,#0]
+bls  .mr_createsprite
+ldr  r3,[sp,#{letter_stk}]
+ldrb r0,[r3,#0]
 cmp  r0,#0
 bne  +
 bl   .replace_BREAK_first_line
-+
+b    .mr_createsprite
 
 //-------------------------------------------------------------------------------------------
 
 .mr_innerloop:
 ldr  r3,[sp,#0]                           // start of big inner loop, does all letters in curr line
 ldrh r1,[r3,#0x0]                         // code we clobbered
-ldr  r0,=#0xFEFF
+ldr  r0,[sp,#{ctrl_stk}]
 
 cmp  r1,r0
 bls  .mr_createsprite
++
 bl   sprite_text_weld.cc_check
 
 //orr  r0,r1
@@ -2005,7 +2034,8 @@ mov  r10,r2
 mov  r2,#0x8A
 add  r2,r2,r5             // original code
 mov  r9,r2
-bl   sprite_text_weld.efficiency_branch
+ldr  r2,[sp,#{wbuf_stk}]
+ldrb r2,[r2,#0xB]         // load redraw_flag
 cmp  r2,#0
 bne  +
 b    .mr_incrementstuff
@@ -2017,13 +2047,14 @@ str  r3,[sp,#0x28]                      // took out some code after this line
 
 ldr  r0,[sp,#0]                         // this stuff sets up the glyph header/footer info
 ldr  r1,[r0,#0]
-ldr  r2,=#0x0FFF
-and  r1,r2
+lsl  r1,r1,#0x14
+lsr  r1,r1,#0x14                        // and 0xFFF
 ldr  r2,[r4,#0]
-ldr  r0,=#0xFFFFF000
-and  r0,r2
+lsr  r2,r2,#0xC
+lsl  r0,r2,#0xC                         // and 0xFFFFF000
 orr  r0,r1
 str  r0,[r4,#0]
+mov  r2,sp
 push {lr}
 bl   sprite_text_weld.store_letter
 pop  {r2}
@@ -2042,11 +2073,11 @@ mov  r1,r2
 and  r0,r1
 strb r0,[r4,#0x3]
 ldr  r1,[sp,#0x18]
-ldr  r0,=#0x3FF
-and  r1,r0
+lsl  r1,r1,#0x16
+lsr  r1,r1,#0x16                        // and 0x3FF
 ldrh r2,[r4,#0x2]
-ldr  r0,=#0xFFFFFC00
-and  r0,r2
+lsr  r2,r2,#0xA
+lsl  r0,r2,#0xA                         // and 0xFFFFFC00
 orr  r0,r1
 strh r0,[r4,#0x2]
 ldr  r1,[sp,#0xC]
@@ -2058,13 +2089,11 @@ and  r0,r1
 strb r0,[r4,#0x3]
 ldrh r1,[r4,#0]
 lsl  r1,r1,#0x14
-lsr  r1,r1,#0x14
-ldr  r2,=#0xFFF
-and  r1,r2
+lsr  r1,r1,#0x14                        // and 0xFFF
 ldr  r3,[sp,#0x28]
 ldrh r2,[r3,#0]
-ldr  r0,=#0xFFFFF000
-and  r0,r2
+lsr  r2,r2,#0xC
+lsl  r0,r2,#0xC                         // and 0xFFFFF000
 orr  r0,r1
 strh r0,[r3,#0]
 ldrb r1,[r7,#0]
@@ -2078,16 +2107,13 @@ orr  r0,r1
 strb r0,[r3,#0]
 ldrh r1,[r4,#0x2]
 lsl  r1,r1,#0x16
-lsr  r1,r1,#0x16
-ldr  r7,=#0x3FF
-and  r1,r7
-mov  r0,r9
-ldrh r2,[r0,#0]
-ldr  r0,=#0xFFFFFC00
-and  r0,r2
+lsr  r1,r1,#0x16                        // and 0x3FF
+mov  r2,r9
+ldrh r0,[r2,#0]
+lsr  r0,r0,#0xA
+lsl  r0,r0,#0xA                         // and 0xFFFFFC00
 orr  r0,r1
-mov  r1,r9
-strh r0,[r1,#0]
+strh r0,[r2,#0]
 ldrb r1,[r6,#0x10]
 lsr  r1,r1,#0x7
 lsl  r1,r1,#0x2
@@ -2106,9 +2132,7 @@ bl   $80496F8                           // eventually calls routine to draw font
 //-------------------------------------------------------------------------------------------
 
 .mr_incrementstuff:
-ldr  r7,[sp,#0x8]
-ldr  r0,=#0x76D9
-add  r1,r7,r0
+ldr  r1,[sp,#{letter_stk}]
 ldrb r0,[r1,#0]
 add  r0,#1
 strb r0,[r1,#0]
@@ -2152,9 +2176,7 @@ lsl  r0,r0,#0x10
 lsr  r0,r0,#0x10
 str  r0,[sp,#0x10]
 add  r6,#0x14
-ldr  r2,[sp,#0x8]
-ldr  r3,=#0x6C44
-add  r0,r2,r3
+ldr  r0,[sp,#{numstr_stk}]
 ldr  r0,[r0,#0]
 ldr  r7,[sp,#0x10]
 ldrb r0,[r0,#0x9]
@@ -2177,7 +2199,7 @@ add  r1,r1,r0
 ldrh r0,[r2,#0]
 strh r1,[r2,#0]
 
-add  sp,#{sprite_text_weld_stack_size}    // currently 0xB0
+add  sp,#{sprite_text_weld_stack_size}    // currently 0xF8
 pop  {r3-r5}
 mov  r8,r3
 mov  r9,r4
