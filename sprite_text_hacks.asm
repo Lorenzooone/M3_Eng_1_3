@@ -1500,21 +1500,18 @@ ldr  r3,[sp,#{hoffset_stk}+0x24+0x1C]// offset_basis/hash
 mov  r4,#0                 // counter
 cmp  r1,#0
 bne  +
-mov  r1,#1
-ldrh r5,[r0,#0]
+mov  r5,#0
 b    .get_hash_element
 +
 -
 ldrh r5,[r0,#0]
 add  r0,#2
-cmp  r5,#0xFF              // ignore control codes?
-bgt  -
+add  r4,#1
 .get_hash_element:
 eor  r3,r5                 // hash ^= data
 mul  r3,r2                 // hash *= FNV_prime
-add  r4,#1
 cmp  r4,r1
-bne  -
+blt  -
 // r0 = resulting hash
 mov  r0,r3
 pop  {r2-r7,pc}            // restore registers and leave
