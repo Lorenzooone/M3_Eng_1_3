@@ -50,17 +50,15 @@ define oam_tiles_stack_buffer {sprite_text_weld_stack_size}-$60
 
 text_weld:
 push {r4-r7,lr}          // This is an efficient version of the printing routine
-add  sp,#-4
 mov  r5,r0
 mov  r6,r0
 add  r6,#0x20
 mov  r4,r1
 mov  r1,r3
 
-lsl  r2,r2,#0x10
-lsr  r2,r2,#0x6
-ldr  r0,=#0x8CDF9F8
-add  r2,r2,r0
+mov  r0,#1
+strb r0,[r5,#8]          // This tile is used
+strb r2,[r5,#9]         // Store the palette
 
 ldr  r7,=#0x2014320
 ldrb r3,[r7,#0x6]        // load the current letter's width
@@ -68,229 +66,100 @@ ldrb r7,[r7,#0x5]        // r7 = curr_x
 
 cmp  r7,#8
 blt  +
-mov  r0,#7
-and  r7,r0
+lsl  r7,r7,#0x1D         // r7 = r7 and 7
+lsr  r7,r7,#0x1D
 add  r5,#0x20
 add  r6,#0x6C
-+
-str  r6,[sp,#0]          //The tile to the right of the current one
-
-add  r3,#7               //If this isn't a multiple of 8, it will go over a multiple of 8 now
-lsr  r6,r3,#3            //Get total tiles number
-cmp  r6,r1
-ble  +
-mov  r6,r1               //Prevent bad stuff
+add  r0,r7,r3
+cmp  r0,#8
+blt  +
+mov  r0,#1
+strb r0,[r6,#8]          // This tile is used
+strb r2,[r6,#9]          // Store the palette
 +
 
-mov  r3,#0
-//cmp  r3,r6               // check to see if r6 < 0, if so just quit the routine now
-//bcs  .routine_end
-
+add  r2,r3,#7            //If this isn't a multiple of 8, it will go over a multiple of 8 now
+lsr  r2,r2,#3            //Get total tiles number
+cmp  r2,r1
+blt  +
+mov  r2,r1               //Prevent bad stuff
++
 
 //---------------------------------------------------------------------------------------------
 
 mov  r0,r8
 push {r0}
-mov  r8,r6
+mov  r8,r2
+mov  r2,#0xFF            //If we had access to the stack, using a precompiled
+lsr  r2,r7               //array would be faster... Probably
+lsl  r0,r2,#8
+orr  r2,r0
+lsl  r0,r2,#0x10
+orr  r2,r0
 
 .loop_start:
-push {r3-r4,r7}
-push {r2}
-
-mov  r3,#0xFF
-lsr  r3,r7               //Get the valid left-tile positions
-lsl  r3,r3,#0x18
-lsr  r6,r3,#8
-orr  r3,r6
-lsr  r6,r3,#0x10
-orr  r3,r6
-mvn  r6,r3               //Get the inverted version
-ldr  r2,[r4,#0]          //Load the first 4 rows
-mov  r1,r2
-lsr  r2,r7               //Shift them by curr_x
+push {r3}
+ldr  r3,[r4,#0]          //Load the first 4 rows
+mov  r1,r3
+lsr  r3,r7               //Shift them by curr_x
 mov  r0,#8
-sub  r0,r7,r0
-neg  r0,r0
+sub  r0,r0,r7
 lsl  r1,r0
-and  r2,r3               //Left side
-and  r1,r6               //Right side
-ldr  r4,[r4,#4]          //Load the other 4 rows
-mov  r0,r4
-lsr  r4,r7               //Shift them by curr_x
-sub  r7,r7,#4
-sub  r7,r7,#4
-neg  r7,r7
-lsl  r0,r7
-and  r4,r3               //r4 = Left side, last 4 rows
-and  r0,r6               //Right side
-mov  r3,r2               //r3 = Left side, first 4 rows
-mov  r6,r1               //r6 = Right side, first 4 rows
-mov  r7,r0               //r7 = Right side, last 4 rows
+and  r3,r2               //Left side
+mvn  r2,r2               //Get the inverted version
+and  r1,r2               //Right side
 
-pop  {r2}
+// TOP FOUR - LEFT
+ldr  r0,[r5,#0]          // load what's in the current row
+orr  r0,r3               // OR them together
+str  r0,[r5,#0]          // and now store it back
 
-// ONE - LEFT
-lsl  r0,r3,#0x18         // Get only one byte
-lsr  r0,r0,#0x18
+// TOP FOUR - RIGHT
+str  r1,[r6,#0]          // and now store it back
 
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0]          // load what's in the current row
-orr  r1,r0               // OR them together
-str  r1,[r5,#0]          // and now store it back
+// Now we do the bottom four!
 
-// TWO - LEFT
-lsl  r0,r3,#0x10         // Get only one byte
-lsr  r0,r0,#0x18
+ldr  r3,[r4,#4]          //Load the last 4 rows
+mov  r1,r3
+lsr  r3,r7               //Shift them by curr_x
+mov  r0,#8
+sub  r0,r0,r7
+lsl  r1,r0
+and  r1,r2               //Right side
+mvn  r2,r2               //Get the inverted version
+and  r3,r2               //Left side
 
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-ldr  r1,[r5,#4]          // load what's in the current row
-orr  r1,r0               // OR them together
-str  r1,[r5,#4]          // and now store it back
+// BOTTOM FOUR - LEFT
+ldr  r0,[r5,#4]          // load what's in the current row
+orr  r0,r3               // OR them together
+str  r0,[r5,#4]          // and now store it back
 
-// THREE - LEFT
-lsl  r0,r3,#0x8          // Get only one byte
-lsr  r0,r0,#0x18
+// BOTTOM FOUR - RIGHT
+str  r1,[r6,#4]          // and now store it back
 
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-ldr  r1,[r5,#8]          // load what's in the current row
-orr  r1,r0               // OR them together
-str  r1,[r5,#8]          // and now store it back
+pop  {r3}
 
-// FOUR - LEFT
-lsr  r0,r3,#0x18         // Get only one byte
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x0C]       // load what's in the current row
-orr  r1,r0               // OR them together
-str  r1,[r5,#0x0C]       // and now store it back
-
-// FIVE - LEFT
-lsl  r0,r4,#0x18         // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x10]       // load what's in the current row
-orr  r1,r0               // OR them together
-str  r1,[r5,#0x10]       // and now store it back
-
-// SIX - LEFT
-lsl  r0,r4,#0x10         // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x14]       // load what's in the current row
-orr  r1,r0               // OR them together
-str  r1,[r5,#0x14]       // and now store it back
-
-// SEVEN - LEFT
-lsl  r0,r4,#0x8          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x18]       // load what's in the current row
-orr  r1,r0               // OR them together
-str  r1,[r5,#0x18]       // and now store it back
-
-// EIGHT - LEFT
-lsr  r0,r4,#0x18         // Get only one byte
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x1C]       // load what's in the current row
-orr  r1,r0               // OR them together
-str  r1,[r5,#0x1C]       // and now store it back
-
-
-
-// Now we do the right side!
-ldr  r4,[sp,#0x10]
-
-
-// ONE - RIGHT
-lsl  r0,r6,#0x18         // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r4,#0x00]       // store it now
-
-// TWO - RIGHT
-lsl  r0,r6,#0x10         // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r4,#0x04]       // store it now
-
-// THREE - RIGHT
-lsl  r0,r6,#0x8          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r4,#0x08]       // store it now
-
-// FOUR - RIGHT
-lsr  r0,r6,#0x18         // Get only one byte
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r4,#0x0C]       // store it now
-
-// FIVE - RIGHT
-lsl  r0,r7,#0x18         // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r4,#0x10]       // store it now
-
-// SIX - RIGHT
-lsl  r0,r7,#0x10         // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r4,#0x14]       // store it now
-
-// SEVEN - RIGHT
-lsl  r0,r7,#0x8          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r4,#0x18]       // store it now
-
-// EIGHT - RIGHT
-lsr  r0,r7,#0x18         // Get only one byte
-
-lsl  r0,r0,#2            // now multiply by four
-ldr  r0,[r2,r0]          // r0 now has the converted 4bpp version
-str  r0,[r4,#0x1C]       // store it now
-
-
-
-pop  {r3-r4,r7}
-
-add  r3,#1               // increment counter
-cmp  r3,r8               // see if we're still under the # of bytes we need to convert
-bge  .routine_end
-ldr  r0,[sp,#4]
-sub  r1,r5,r0
-mov  r5,r0
-add  r0,#0x20
+mov  r0,r8               // increment counter
+cmp  r0,#1               // see if we're still under the # of bytes we need to convert
+ble  .routine_end
+sub  r0,#1
+mov  r8,r0
+mov  r0,r5
+sub  r1,r6,r5
+mov  r5,r6
+add  r6,#0x20
 cmp  r1,#0x20
 bne  +
-add  r0,#0x4C
+add  r6,#0x4C
+sub  r3,#8
+add  r0,r7,r3
+cmp  r0,#8
+blt  +
+ldrb r1,[r0,#9]         // Grab the colour
+mov  r0,#1
+strb r0,[r6,#8]         // This tile is used
+strb r1,[r6,#9]         // Store the palette
 +
-str  r0,[sp,#4]
 add  r4,#8
 b    .loop_start
 
@@ -298,9 +167,7 @@ b    .loop_start
 .routine_end:
 pop  {r0}
 
-mov  r6,r8
 mov  r8,r0
-add  sp,#4
 pop  {r4-r7,pc}
 
 
@@ -470,7 +337,7 @@ bx   lr
 //============================================================================================
 
 .store_letter:
-push {r7,lr}
+push {r4,r7,lr}
 mov  r7,r2
 ldr  r1,[r7,#{wbuf_stk}] // r1 has RAM block address
 
@@ -478,7 +345,6 @@ lsl  r0,r0,#0x18
 lsr  r0,r0,#0x18
 strh r0,[r1,#0x8]        // store r0 (current letter value) in RAM block
 
-push {r2-r4}
 lsl  r3,r0,#0x18
 lsr  r3,r3,#0x18
 
@@ -503,12 +369,11 @@ ldr  r2,[r7,#{sfontw_stk}]
 .store_letter_next:
 ldrb r2,[r2,r3]          // get the current letter's width
 strb r2,[r1,#0x6]        // store the current letter's width in the RAM block
-pop  {r2-r4}
 
 ldrb r1,[r6,#0x10]       // code we clobbered
 mov  r0,#0x80
 lsl  r1,r1,#0x1C
-pop  {r7,pc}
+pop  {r4,r7,pc}
 
 //============================================================================================
 // This section of code signals the game to start from a new sprite after certain control
@@ -715,10 +580,9 @@ pop    {pc}
 //============================================================================================
 
 .add_width:
-push {r0-r3,lr}
 
 // load r0 with the custom RAM block's address
-ldr  r0,[sp,#{wbuf_stk}+0x14]
+ldr  r0,[sp,#{wbuf_stk}]
 ldrb r2,[r0,#0x5]        // load curr_x
 ldrb r3,[r0,#0x6]        // load curr_width
 add  r2,r2,r3            // curr_x += curr_width
@@ -738,7 +602,7 @@ strb r2,[r0,#0x7]        // new_tile_flag = TRUE
 //-------------------------------------------------------------------------------------------
 
 .add_width_end:
-pop  {r0-r3,pc}
+bx   lr
 
 //============================================================================================
 // This section of code is called when a string has just finished being processed. We need
@@ -746,8 +610,8 @@ pop  {r0-r3,pc}
 //============================================================================================
 
 .eos_stuff:
-push {r0-r3,r7,lr}
-add  r7,sp,#0x18
+push {r7,lr}
+add  r7,sp,#0x8
 
 //ldr  r3,[r7,#{wbuf_stk}] // load r3 with the custom RAM block's address
 //ldrb r0,[r3,#0xB]        // r0 = redraw_flag
@@ -773,7 +637,7 @@ bl   .custom_create_sprite
 ldr  r3,[r7,#{wbuf_stk}] // load r3 with the custom RAM block's address
 mov  r1,#1
 strb r1,[r3,#0x7]        // new_tile_flag = TRUE
-pop  {r0-r3,r7,pc}
+pop  {r7,pc}
 
 
 //============================================================================================
@@ -936,12 +800,12 @@ pop  {r0-r1,pc}
 //============================================================================================
 
 .get_sprite_total:
-push {r2,r4-r5}
+push {r4-r5}
 
 // r5 has RAM block address
-ldr  r5,[sp,#{wbuf_stk}+0xC]
+ldr  r5,[sp,#{wbuf_stk}+0x8]
 
-ldr  r0,[sp,#0xC]
+ldr  r0,[sp,#0x8]
 ldrh r0,[r0,#0x0]
 strh r0,[r5,#0x8]        // store r0 (current letter value) in RAM block
 
@@ -950,16 +814,16 @@ strh r0,[r5,#0x8]        // store r0 (current letter value) in RAM block
 // It can be either 8CE39F8 (main) or 8D0B010 (small)
 // From that we want to get the widths pointer, which is 8D1CE78 (main) or 8D1CF78 (small)
 // I'm assuming we only ever use this for main and small fonts...
-ldr  r2,[sp,#{cfm_stk}+0xC]
+ldr  r2,[sp,#{cfm_stk}+0x8]
 ldr  r4,[r2,#0]
-ldr  r2,[sp,#{mfont_stk}+0xC]
+ldr  r2,[sp,#{mfont_stk}+0x8]
 cmp  r2,r4
 bne  +
 // We're using main font
-ldr  r2,[sp,#{mfontw_stk}+0xC]
+ldr  r2,[sp,#{mfontw_stk}+0x8]
 b    .get_sprite_total_next
 +
-ldr  r2,[sp,#{sfontw_stk}+0xC]
+ldr  r2,[sp,#{sfontw_stk}+0x8]
 
 
 .get_sprite_total_next:
@@ -967,7 +831,7 @@ ldrb r2,[r2,r0]          // get the current letter's width
 strb r2,[r5,#0x6]        // store the current letter's width in the RAM block
 
 ldrb r0,[r5,#0x4]
-pop  {r2,r4-r5}
+pop  {r4-r5}
 bx   lr
 
 //============================================================================================
@@ -1790,6 +1654,335 @@ bx   lr
 
 
 //============================================================================================
+// This routine converts the OAM VRAM entries from 1bpp to 4bpp.
+// We want to go VERY FAST.
+//============================================================================================
+.convert_1bpp_4bpp:
+push {r2,r4-r6,lr}
+ldr  r0,[sp,#{wbuf_stk}+0x14]
+ldrb r4,[r0,#4]           // Sprite total
+cmp  r4,#0
+bne  +
+b    .convert_1bpp_4bpp_end
++
+ldr  r6,=#0x8CDF9F8
+ldr  r2,[sp,#8+0x14]
+mov  r1,#0x98
+lsl  r1,r1,#0x6
+add  r5,r2,r1
+add  r5,#4                // Starting tiles
+
+.convert_1bpp_4bpp_loop_start:
+
+ldrb r0,[r5,#8]
+cmp  r0,#0
+bne  +
+b    .convert_1bpp_4bpp_loop_bottom
++
+ldrb r0,[r5,#9]           // Get the colour
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0x6
+add  r3,r6,r0             // Get the conversion table
+ldr  r1,[r5,#0]
+ldr  r2,[r5,#4]           // Load the top left tile
+
+
+
+// FIRST ROW - TOP LEFT TILE
+lsl  r0,r1,#0x18          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0]           // store to the buffer
+
+// SECOND ROW - TOP LEFT TILE
+lsl  r0,r1,#0x10          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#4]           // store to the buffer
+
+// THIRD ROW - TOP LEFT TILE
+lsl  r0,r1,#0x8           // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#8]           // store to the buffer
+
+// FOURTH ROW - TOP LEFT TILE
+lsr  r0,r1,#0x18          // Get only one byte
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0xC]         // store to the buffer
+
+// FIFTH ROW - TOP LEFT TILE
+lsl  r0,r2,#0x18          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x10]        // store to the buffer
+
+// SIXTH ROW - TOP LEFT TILE
+lsl  r0,r2,#0x10          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x14]        // store to the buffer
+
+// SEVENTH ROW - TOP LEFT TILE
+lsl  r0,r2,#0x8           // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x18]        // store to the buffer
+
+// EIGHT ROW - TOP LEFT TILE
+lsr  r0,r2,#0x18          // Get only one byte
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x1C]        // store to the buffer
+
+
+
+ldr  r1,[r5,#0x20]
+ldr  r2,[r5,#0x24]        // Load the top right tile
+
+
+
+// FIRST ROW - TOP RIGHT TILE
+lsl  r0,r1,#0x18          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x20]        // store to the buffer
+
+// SECOND ROW - TOP RIGHT TILE
+lsl  r0,r1,#0x10          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x24]        // store to the buffer
+
+// THIRD ROW - TOP RIGHT TILE
+lsl  r0,r1,#0x8           // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x28]        // store to the buffer
+
+// FOURTH ROW - TOP RIGHT TILE
+lsr  r0,r1,#0x18          // Get only one byte
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x2C]        // store to the buffer
+
+// FIFTH ROW - TOP RIGHT TILE
+lsl  r0,r2,#0x18          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x30]        // store to the buffer
+
+// SIXTH ROW - TOP RIGHT TILE
+lsl  r0,r2,#0x10          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x34]        // store to the buffer
+
+// SEVENTH ROW - TOP RIGHT TILE
+lsl  r0,r2,#0x8           // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x38]        // store to the buffer
+
+// EIGHT ROW - TOP RIGHT TILE
+lsr  r0,r2,#0x18          // Get only one byte
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x3C]        // store to the buffer
+
+
+
+.convert_1bpp_4bpp_loop_bottom:
+
+add  r5,#0x40
+ldrb r0,[r5,#8]
+cmp  r0,#0
+bne  +
+b    .convert_1bpp_4bpp_loop_end
++
+ldrb r0,[r5,#9]           // Get the colour
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0x6
+add  r3,r6,r0             // Get the conversion table
+ldr  r1,[r5,#0]
+ldr  r2,[r5,#4]           // Load the bottom left tile
+
+
+
+// FIRST ROW - BOTTOM LEFT TILE
+lsl  r0,r1,#0x18          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0]           // store to the buffer
+
+// SECOND ROW - BOTTOM LEFT TILE
+lsl  r0,r1,#0x10          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#4]           // store to the buffer
+
+// THIRD ROW - BOTTOM LEFT TILE
+lsl  r0,r1,#0x8           // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#8]           // store to the buffer
+
+// FOURTH ROW - BOTTOM LEFT TILE
+lsr  r0,r1,#0x18          // Get only one byte
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0xC]         // store to the buffer
+
+// FIFTH ROW - BOTTOM LEFT TILE
+lsl  r0,r2,#0x18          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x10]        // store to the buffer
+
+// SIXTH ROW - BOTTOM LEFT TILE
+lsl  r0,r2,#0x10          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x14]        // store to the buffer
+
+// SEVENTH ROW - BOTTOM LEFT TILE
+lsl  r0,r2,#0x8           // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x18]        // store to the buffer
+
+// EIGHT ROW - BOTTOM LEFT TILE
+lsr  r0,r2,#0x18          // Get only one byte
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x1C]        // store to the buffer
+
+
+
+ldr  r1,[r5,#0x20]
+ldr  r2,[r5,#0x24]        // Load the bottom right tile
+
+
+
+// FIRST ROW - BOTTOM RIGHT TILE
+lsl  r0,r1,#0x18          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x20]        // store to the buffer
+
+// SECOND ROW - BOTTOM RIGHT TILE
+lsl  r0,r1,#0x10          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x24]        // store to the buffer
+
+// THIRD ROW - BOTTOM RIGHT TILE
+lsl  r0,r1,#0x8           // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x28]        // store to the buffer
+
+// FOURTH ROW - BOTTOM RIGHT TILE
+lsr  r0,r1,#0x18          // Get only one byte
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x2C]        // store to the buffer
+
+// FIFTH ROW - BOTTOM RIGHT TILE
+lsl  r0,r2,#0x18          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x30]        // store to the buffer
+
+// SIXTH ROW - BOTTOM RIGHT TILE
+lsl  r0,r2,#0x10          // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x34]        // store to the buffer
+
+// SEVENTH ROW - BOTTOM RIGHT TILE
+lsl  r0,r2,#0x8           // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x38]        // store to the buffer
+
+// EIGHT ROW - BOTTOM RIGHT TILE
+lsr  r0,r2,#0x18          // Get only one byte
+
+lsl  r0,r0,#2             // now multiply by four
+ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
+str  r0,[r5,#0x3C]        // store to the buffer
+
+
+
+.convert_1bpp_4bpp_loop_end:
+sub  r4,#1                // One entry is done
+cmp  r4,#0
+ble  .convert_1bpp_4bpp_end
+add  r5,#0x4C
+b    .convert_1bpp_4bpp_loop_start
+
+.convert_1bpp_4bpp_end:
+pop  {r2,r4-r6,pc}
+
+
+//============================================================================================
 // This routine is called right after all sprite strings have been processed. It clears out
 // any unused portions of the "last time" tables to prevent any weirdness later.
 // Called from 804957E.
@@ -2052,10 +2245,7 @@ lsl  r0,r2,#0xC                         // and 0xFFFFF000
 orr  r0,r1
 str  r0,[r4,#0]
 mov  r2,sp
-push {lr}
 bl   sprite_text_weld.store_letter
-pop  {r2}
-mov  lr,r2
 
 lsr  r1,r1,#0x18
 ldrb r2,[r7,#0]
@@ -2187,6 +2377,7 @@ b    .mr_outerloop                      // loop back if not done with all the li
 ldr  r2,=#0x2016028
 bl   sprite_text_weld.clear_unused_table_stuff
 
+bl   .convert_1bpp_4bpp
 ldr  r1,[sp,#0x1C]
 ldr  r3,[sp,#0x20]
 sub  r0,r1,r3
