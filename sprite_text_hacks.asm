@@ -152,8 +152,8 @@ cmp  r1,#0x20
 bne  +
 add  r6,#0x4C
 sub  r3,#8
-add  r0,r7,r3
-cmp  r0,#8
+add  r1,r7,r3
+cmp  r1,#8
 blt  +
 ldrb r1,[r0,#9]         // Grab the colour
 mov  r0,#1
