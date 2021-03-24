@@ -1654,181 +1654,11 @@ bx   lr
 
 
 //============================================================================================
-// This routine converts the OAM VRAM entries from 1bpp to 4bpp.
+// This routine converts the OAM VRAM double tiles from 1bpp to 4bpp.
 // We want to go VERY FAST.
 //============================================================================================
-.convert_1bpp_4bpp:
-push {r2,r4-r6,lr}
-ldr  r0,[sp,#{wbuf_stk}+0x14]
-ldrb r4,[r0,#4]           // Sprite total
-cmp  r4,#0
-bne  +
-b    .convert_1bpp_4bpp_end
-+
-ldr  r6,=#0x8CDF9F8
-ldr  r2,[sp,#8+0x14]
-mov  r1,#0x98
-lsl  r1,r1,#0x6
-add  r5,r2,r1
-add  r5,#4                // Starting tiles
+.convert_1bpp_4bpp_double_tile:
 
-.convert_1bpp_4bpp_loop_start:
-
-ldrb r0,[r5,#8]
-cmp  r0,#0
-bne  +
-b    .convert_1bpp_4bpp_loop_bottom
-+
-ldrb r0,[r5,#9]           // Get the colour
-lsl  r0,r0,#0x10
-lsr  r0,r0,#0x6
-add  r3,r6,r0             // Get the conversion table
-ldr  r1,[r5,#0]
-ldr  r2,[r5,#4]           // Load the top left tile
-
-
-
-// FIRST ROW - TOP LEFT TILE
-lsl  r0,r1,#0x18          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0]           // store to the buffer
-
-// SECOND ROW - TOP LEFT TILE
-lsl  r0,r1,#0x10          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#4]           // store to the buffer
-
-// THIRD ROW - TOP LEFT TILE
-lsl  r0,r1,#0x8           // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#8]           // store to the buffer
-
-// FOURTH ROW - TOP LEFT TILE
-lsr  r0,r1,#0x18          // Get only one byte
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0xC]         // store to the buffer
-
-// FIFTH ROW - TOP LEFT TILE
-lsl  r0,r2,#0x18          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x10]        // store to the buffer
-
-// SIXTH ROW - TOP LEFT TILE
-lsl  r0,r2,#0x10          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x14]        // store to the buffer
-
-// SEVENTH ROW - TOP LEFT TILE
-lsl  r0,r2,#0x8           // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x18]        // store to the buffer
-
-// EIGHT ROW - TOP LEFT TILE
-lsr  r0,r2,#0x18          // Get only one byte
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x1C]        // store to the buffer
-
-
-
-ldr  r1,[r5,#0x20]
-ldr  r2,[r5,#0x24]        // Load the top right tile
-
-
-
-// FIRST ROW - TOP RIGHT TILE
-lsl  r0,r1,#0x18          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x20]        // store to the buffer
-
-// SECOND ROW - TOP RIGHT TILE
-lsl  r0,r1,#0x10          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x24]        // store to the buffer
-
-// THIRD ROW - TOP RIGHT TILE
-lsl  r0,r1,#0x8           // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x28]        // store to the buffer
-
-// FOURTH ROW - TOP RIGHT TILE
-lsr  r0,r1,#0x18          // Get only one byte
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x2C]        // store to the buffer
-
-// FIFTH ROW - TOP RIGHT TILE
-lsl  r0,r2,#0x18          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x30]        // store to the buffer
-
-// SIXTH ROW - TOP RIGHT TILE
-lsl  r0,r2,#0x10          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x34]        // store to the buffer
-
-// SEVENTH ROW - TOP RIGHT TILE
-lsl  r0,r2,#0x8           // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x38]        // store to the buffer
-
-// EIGHT ROW - TOP RIGHT TILE
-lsr  r0,r2,#0x18          // Get only one byte
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x3C]        // store to the buffer
-
-
-
-.convert_1bpp_4bpp_loop_bottom:
-
-add  r5,#0x40
-ldrb r0,[r5,#8]
-cmp  r0,#0
-bne  +
-b    .convert_1bpp_4bpp_loop_end
-+
 ldrb r0,[r5,#9]           // Get the colour
 lsl  r0,r0,#0x10
 lsr  r0,r0,#0x6
@@ -1838,7 +1668,7 @@ ldr  r2,[r5,#4]           // Load the bottom left tile
 
 
 
-// FIRST ROW - BOTTOM LEFT TILE
+// FIRST ROW - LEFT TILE
 lsl  r0,r1,#0x18          // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1846,7 +1676,7 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0]           // store to the buffer
 
-// SECOND ROW - BOTTOM LEFT TILE
+// SECOND ROW - LEFT TILE
 lsl  r0,r1,#0x10          // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1854,7 +1684,7 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#4]           // store to the buffer
 
-// THIRD ROW - BOTTOM LEFT TILE
+// THIRD ROW - LEFT TILE
 lsl  r0,r1,#0x8           // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1862,14 +1692,14 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#8]           // store to the buffer
 
-// FOURTH ROW - BOTTOM LEFT TILE
+// FOURTH ROW - LEFT TILE
 lsr  r0,r1,#0x18          // Get only one byte
 
 lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0xC]         // store to the buffer
 
-// FIFTH ROW - BOTTOM LEFT TILE
+// FIFTH ROW - LEFT TILE
 lsl  r0,r2,#0x18          // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1877,7 +1707,7 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x10]        // store to the buffer
 
-// SIXTH ROW - BOTTOM LEFT TILE
+// SIXTH ROW - LEFT TILE
 lsl  r0,r2,#0x10          // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1885,7 +1715,7 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x14]        // store to the buffer
 
-// SEVENTH ROW - BOTTOM LEFT TILE
+// SEVENTH ROW - LEFT TILE
 lsl  r0,r2,#0x8           // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1893,7 +1723,7 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x18]        // store to the buffer
 
-// EIGHT ROW - BOTTOM LEFT TILE
+// EIGHT ROW - LEFT TILE
 lsr  r0,r2,#0x18          // Get only one byte
 
 lsl  r0,r0,#2             // now multiply by four
@@ -1907,7 +1737,7 @@ ldr  r2,[r5,#0x24]        // Load the bottom right tile
 
 
 
-// FIRST ROW - BOTTOM RIGHT TILE
+// FIRST ROW - RIGHT TILE
 lsl  r0,r1,#0x18          // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1915,7 +1745,7 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x20]        // store to the buffer
 
-// SECOND ROW - BOTTOM RIGHT TILE
+// SECOND ROW - RIGHT TILE
 lsl  r0,r1,#0x10          // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1923,7 +1753,7 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x24]        // store to the buffer
 
-// THIRD ROW - BOTTOM RIGHT TILE
+// THIRD ROW - RIGHT TILE
 lsl  r0,r1,#0x8           // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1931,14 +1761,14 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x28]        // store to the buffer
 
-// FOURTH ROW - BOTTOM RIGHT TILE
+// FOURTH ROW - RIGHT TILE
 lsr  r0,r1,#0x18          // Get only one byte
 
 lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x2C]        // store to the buffer
 
-// FIFTH ROW - BOTTOM RIGHT TILE
+// FIFTH ROW - RIGHT TILE
 lsl  r0,r2,#0x18          // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1946,7 +1776,7 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x30]        // store to the buffer
 
-// SIXTH ROW - BOTTOM RIGHT TILE
+// SIXTH ROW - RIGHT TILE
 lsl  r0,r2,#0x10          // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1954,7 +1784,7 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x34]        // store to the buffer
 
-// SEVENTH ROW - BOTTOM RIGHT TILE
+// SEVENTH ROW - RIGHT TILE
 lsl  r0,r2,#0x8           // Get only one byte
 lsr  r0,r0,#0x18
 
@@ -1962,14 +1792,50 @@ lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x38]        // store to the buffer
 
-// EIGHT ROW - BOTTOM RIGHT TILE
+// EIGHT ROW - RIGHT TILE
 lsr  r0,r2,#0x18          // Get only one byte
 
 lsl  r0,r0,#2             // now multiply by four
 ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
 str  r0,[r5,#0x3C]        // store to the buffer
 
+bx   lr
 
+
+//============================================================================================
+// This routine converts the OAM VRAM entries from 1bpp to 4bpp.
+// We want to go VERY FAST.
+//============================================================================================
+.convert_1bpp_4bpp:
+push {r2,r4-r6,lr}
+ldr  r0,[sp,#{wbuf_stk}+0x14]
+ldrb r4,[r0,#4]           // Sprite total
+cmp  r4,#0
+beq  .convert_1bpp_4bpp_end
+
+ldr  r6,=#0x8CDF9F8
+ldr  r2,[sp,#8+0x14]
+mov  r1,#0x98
+lsl  r1,r1,#0x6
+add  r5,r2,r1
+add  r5,#4                // Starting tiles
+
+.convert_1bpp_4bpp_loop_start:
+
+ldrb r0,[r5,#8]
+cmp  r0,#0
+beq  +
+bl   .convert_1bpp_4bpp_double_tile
++
+
+.convert_1bpp_4bpp_loop_bottom:
+
+add  r5,#0x40
+ldrb r0,[r5,#8]
+cmp  r0,#0
+beq  +
+bl   .convert_1bpp_4bpp_double_tile
++
 
 .convert_1bpp_4bpp_loop_end:
 sub  r4,#1                // One entry is done
