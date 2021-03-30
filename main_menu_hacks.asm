@@ -846,7 +846,7 @@ ldrb r0,[r0,#0]           // Load tile usage for the letter
 bx   lr
 
 //=============================================================================================
-// This hack is called in order to change how everything is printed in VRAM. Based on 0x80487D4
+// This hack is called in order to change how everything is printed in VRAM. Based on 0x8048CE4
 //=============================================================================================
 .print_vram:
 push {r4-r7,lr}
@@ -1050,7 +1050,6 @@ mov  r8,r3
 mov  r9,r4
 mov  r10,r5
 pop  {r4-r7,pc}
-
 
 //=============================================================================================
 // This hack fixes the string used when you try to sell an item at a shop.

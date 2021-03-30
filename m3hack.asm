@@ -719,9 +719,6 @@ org $804C9D2; db $10
 org $80488C2; bl main_menu_hacks.write_item_text
 org $803E9FC; bl main_menu_hacks.clear_data
 org $80489CE; bl main_menu_hacks.write_item_eos
-//org $8048D2C; bl main_menu_hacks.check_for_eos
-//org $8048DC6; bl main_menu_hacks.get_ram_address2
-//org $8048EBA; bl main_menu_hacks.clear_swap_flag
 org $80492B2; bl main_menu_hacks.check_special_bit
 org $804889C; bl main_menu_hacks.store_total_strings
 org $8048932; nop; nop; nop
