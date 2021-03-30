@@ -45,8 +45,7 @@ push {lr}
 ldr  r0,=#0x201A288
 ldrb r0,[r0,#0]
 cmp  r0,#6
-beq  +
-//
+beq  .write_item_eos_memoes
 
 ldr  r1,=#0x2013070
 mov  r2,#0x58
@@ -64,8 +63,15 @@ add  r1,r1,r6
 mov  r0,#1
 neg  r0,r0
 str  r0,[r1,#0]
+b    .write_item_eos_end
 
-+
+.write_item_eos_memoes:
+ldr  r0,[sp,#8]
+mov  r1,#1
+neg  r1,r1
+str  r1,[r0,#0]
+
+.write_item_eos_end:
 mov  r1,r10                  // clobbered code
 lsl  r0,r1,#0x10
 pop  {pc}
@@ -102,82 +108,277 @@ pop  {r2-r3,pc}
 
 //=============================================================================================
 
-.check_for_eos:
-push {r5,lr}
+.find_str:
+push {lr}
 
-// custom jeff code
-ldr  r5,=#0x201A288
-ldrb r5,[r5,#0]
-cmp  r5,#6
-beq  +
-//
+ldr  r2,[sp,#4+0x2C]
+ldrb r1,[r2,#0x4]            // swap_address_set
+mov  r0,#2
+
+cmp  r1,#1
+beq  .find_str_end
+
+mov  r3,#0xAA
+lsl  r3,r3,#3
+add  r3,r4,r3                // last possible address
+
+-
+ldr  r0,[r6,#0x0]            // load the real next value
+lsl  r0,r0,#0x14
+cmp  r0,#0
+bne  .find_str_found
+add  r6,#4
+cmp  r6,r3
+bcs  .find_str_not_found
+b    -
+
+.find_str_found:
+ldr  r1,[sp,#4+0x20]
+cmp  r1,#6
+beq  +                       // if this is the memo menu, we don't swap around, still save we're mid-printing
+
+str  r6,[r2,#0]              // save swap_address
+ldr  r6,[r6,#0]              // new address
+
++
 
 mov  r1,#1
-neg  r1,r1                   // r1 = FFFFFFFF
-ldr  r0,[r6,#0x0]            // load the value
-cmp  r0,r1                   // if they're not equal, we're not at end of string, so leave
-bne  +
+strb r1,[r2,#4]              // swap_address_set = true
 
-ldr  r6,=#0x2013060
-mov  r1,#0
-strb r1,[r6,#0x4]            // swap_address = false
 
-ldr  r6,[r6,#0x0]            // load the real address that pointed to this string
-add  r6,#4                   // move it to the next spot
+mov  r0,#1
+.find_str_end:
+pop  {pc}
 
-+
-ldr  r0,[r6,#0x0]            // load the real next value
-lsl  r0,r0,#0x14             // clobbered code
-pop  {r5,pc}
+.find_str_not_found:
+mov  r0,#0                   // not found any string, signal this and reset everything
+sub  r2,#0x20
+str  r0,[r2,#0]              // set these to 0, we're done printing
+b    .find_str_end
 
 //=============================================================================================
 
-.get_ram_address2:
+.exit_str:
 push {lr}
 
-// custom jeff code
-ldr  r0,=#0x201A288
-ldrb r0,[r0,#0]
-cmp  r0,#6
+ldr  r2,[sp,#4+0x2C]
+ldr  r1,[sp,#4+0x20]
+cmp  r1,#6
 beq  +
-//
 
-ldr  r1,=#0x2013060          // temporary address storage
-ldrb r0,[r6,#0x4]            // load address_swap
-cmp  r0,#0
+ldrb r1,[r2,#0x4]            // swap_address_set
+
+cmp  r1,#1
 bne  +
 
-str  r6,[r1,#0x0]            // store the address in temporary storage
-ldr  r6,[r6,#0x0]            // switch the read address to our custom address
-
-mov  r0,#0x1
-strb r0,[r1,#0x4]            // address_swap = TRUE
+ldr  r6,[r2,#0]              // load swap_address if not in the memos menu and it's set
 
 +
-ldr  r0,[r6,#0x0]            // original code
-lsl  r0,r0,#0x10
+mov  r1,#0
+strb r1,[r2,#4]              // swap_address_set = false
+
 pop  {pc}
 
 //=============================================================================================
 
-.clear_swap_flag:
-push {lr}
-
-// custom jeff code
-ldr  r3,=#0x201A288
-ldrb r3,[r3,#0]
-cmp  r3,#6
+// Allocates the tiles buffer for the given input in the stack
+.alloc_tiles_buffer:
+push {r0-r6,lr}
+ldr  r4,[sp,#0x20+4]         // current buffer address
+ldr  r5,[sp,#0x20+0x10]      // curr_X
+ldr  r6,[sp,#0x20+0xC]       // Y
+ldr  r0,[sp,#0x20+0x18]      // Special arrangement loading?
+cmp  r0,#0
 beq  +
-//
+lsr  r0,r5,#3
+bl   .new_get_address
+b    .alloc_tiles_buffer_got_vram_addr
++
+lsr  r0,r5,#3
+asr  r1,r6,#3
+bl   $80498B0                // VRAM address
+.alloc_tiles_buffer_got_vram_addr:
+str  r0,[r4,#0]
+lsr  r0,r5,#3
+asr  r1,r6,#3
+bl   $80498C4                // Arrangement address
+str  r0,[r4,#4]
+ldr  r1,=#0x6008000
+ldr  r2,[r4,#0]
+sub  r2,r2,r1                // Get how many tiles this is from the start of VRAM
+mov  r1,#0x40
+add  r1,r0,r1                // Position of bottom arrangements
+lsr  r2,r2,#5                // Top arrangements
+mov  r3,#0x20
+add  r3,r2,r3                // Bottom arrangements
+strh r2,[r0,#0]              // Set the buffer arrangements
+strh r3,[r1,#0]
+add  r2,#1
+add  r3,#1
+strh r2,[r0,#2]              // Set the buffer arrangements
+strh r3,[r1,#2]
+add  r2,#1
+add  r3,#1
+strh r2,[r0,#4]              // Set the buffer arrangements
+strh r3,[r1,#4]
+
+// Time to prepare the actual buffers
+ldr  r0,[sp,#0x20+0x14]      // Is this the first?
+cmp  r0,#0
+beq  +
+
+ldr  r0,[r4,#0]
+mov  r1,#8
+add  r1,r4,r1
+mov  r2,#0x10
+swi  #0xB                    // Copy the top part of the buffer from VRAM
+ldr  r0,[r4,#0]
+mov  r1,#4
+lsl  r1,r1,#8
+add  r0,r0,r1
+mov  r1,#0x68
+add  r1,r4,r1
+mov  r2,#0x10
+swi  #0xB                    // Copy the bottom part of the buffer from VRAM
 
 mov  r0,#0
-ldr  r3,=#0x2013060
-strb r0,[r3,#0x4]            // swap_address = false for future callings
+push {r0}
+mov  r0,sp
+mov  r1,#0x28
+add  r1,r4,r1
+mov  r3,#1
+lsl  r3,r3,#0x18
+mov  r2,#0x20
+orr  r2,r3
+swi  #0xB                    // Set the other 2 top tiles of the buffer
+mov  r0,sp
+mov  r1,#0x88
+add  r1,r4,r1
+mov  r3,#1
+lsl  r3,r3,#0x18
+mov  r2,#0x20
+orr  r2,r3
+swi  #0xB                    // Set the other 2 bottom tiles of the buffer
+pop  {r0}
+
+b    .alloc_tiles_buffer_end
++
+
+mov  r0,#0
+push {r0}
+mov  r0,sp
+mov  r1,#8
+add  r1,r4,r1
+mov  r3,#1
+lsl  r3,r3,#0x18
+mov  r2,#0x30
+orr  r2,r3
+swi  #0xB                    // Set the 3 top tiles of the buffer
+mov  r0,sp
+mov  r1,#0x68
+add  r1,r4,r1
+mov  r3,#1
+lsl  r3,r3,#0x18
+mov  r2,#0x30
+orr  r2,r3
+swi  #0xB                    // Set the 3 bottom tiles of the buffer
+pop  {r0}
+
+.alloc_tiles_buffer_end:
+ldr  r0,[sp,#0x20+0]         // max_buffers
+sub  r0,#1
+str  r0,[sp,#0x20+0]
+ldr  r0,[sp,#0x20+4]
+mov  r1,#0xCC
+add  r0,r0,r1
+str  r0,[sp,#0x20+4]
+
+mov  r0,#0
+str  r0,[sp,#0x20+0x14]      // Set this as not the first
+pop  {r0-r6,pc}
+
+//=============================================================================================
+
+// Initializes the specified number of tiles in the buffer.
+// It takes in r0 the max amount of buffers to allocate, in r1 the current buffer address,
+// X in r2 and Y in r3
+.alloc_tiles_buffers:
+push {r4-r7,lr}
+add  sp,#-0x28
+str  r0,[sp,#0]              // max buffers
+str  r1,[sp,#4]              // buffer address
+str  r2,[sp,#8]              // X
+str  r3,[sp,#0xC]            // Y
+str  r2,[sp,#0x10]           // curr_X
+ldr  r1,[sp,#0x3C+0x1C]
+str  r1,[sp,#0x14]           // save whether to reload the first tile or not
+ldr  r1,[sp,#0x3C+0x34]
+str  r1,[sp,#0x18]           // save extra data for special vram printing
+cmp  r1,#0
+beq  +
+ldr  r1,[sp,#0x3C+0x38]      // WARNING! THESE ARE ALMOST AT THE INSTRUCTION'S RANGE LIMIT!
+str  r1,[sp,#0x1C]           // save first base address
+ldr  r1,[sp,#0x3C+0x3C]
+str  r1,[sp,#0x20]           // save second base address
+ldr  r1,[sp,#0x3C+0x40]
+str  r1,[sp,#0x24]           // save switch value
++
+
+mov  r1,#7
+and  r2,r1
+sub  r4,r6,#4                // save str to r4
+mov  r5,#0                   // tile_was_printed
+mov  r3,#1
+neg  r3,r3                   // EOS
+ldr  r7,[sp,#0x3C+0x30]
+
+-
+add  r4,#4
+ldr  r0,[r4,#0x0]            // load the real next value
+cmp  r0,r3                   // go to the end if it's EOS
+beq  .alloc_tiles_buffers_end
+lsl  r0,r0,#0x14
+lsr  r0,r0,#0x14             // load the actual value
+add  r0,r7,r0
+ldrb r0,[r0,#0]              // get the character's length
+add  r2,r2,r0                // increase the length
+cmp  r5,#0
+bne  +
+
+mov  r5,#1                   // set tile_was_printed
+bl   .alloc_tiles_buffer     // alloc the buffer
+ldr  r0,[sp,#0]
+cmp  r0,#0
+ble  .alloc_tiles_buffers_end
 
 +
-ldr  r3,=#0x25F4             // clobbered code
-add  r0,r4,r3
-pop  {pc}
+cmp  r2,#0x18
+blt  -
+ldr  r0,[sp,#0x10]
+
+.alloc_tiles_buffers_subtract_width:
+sub  r2,#0x18
+add  r0,#0x18
+cmp  r2,#0
+beq  +
+str  r0,[sp,#0x10]
+bl   .alloc_tiles_buffer
+ldr  r1,[sp,#0]
+cmp  r1,#0
+ble  .alloc_tiles_buffers_end
+cmp  r2,#0x18
+bge  .alloc_tiles_buffers_subtract_width
+b    -
+
++
+str  r0,[sp,#0x10]
+mov  r5,#0                   // unset tile_was_printed
+b    -
+
+.alloc_tiles_buffers_end:
+ldr  r0,[sp,#0]              // free buffers
+add  sp,#0x28
+pop  {r4-r7,pc}
 
 //=============================================================================================
 
@@ -200,12 +401,12 @@ pop  {r2,pc}
 
 //=============================================================================================
 
-.store_total_letters:
+.store_total_strings:
 // custom jeff code
 ldr  r2,=#0x2013040
-ldrh r0,[r2,#0]              // load the current letter total
-add  r0,#1
-strh r0,[r2,#0]              // increment and store the letter total back
+strb r0,[r2,#2]              // store the strings total
+add  r3,sp,#0xC
+mov  r8,r3
 bx   lr
 
 //=============================================================================================
@@ -216,70 +417,45 @@ bx   lr
 // 2013043  byte      current pass #
 // this routine initializes most of this stuff
 
-.write_group_lengths:
-push {r2-r4,lr}
+.reset_processed_strings:
+push {lr}
 
 // custom jeff code
 ldr  r4,=#0x2013040          // custom area of RAM for this is here
 mov  r2,#0
-strh r2,[r4,#2]              // total # of passes = 0, current pass = 0
-str  r2,[r4,#0x10]           // now clear out the pass info on the next line
-str  r2,[r4,#0x14]           // now clear out the pass info on the next line
-str  r2,[r4,#0x18]           // now clear out the pass info on the next line
-str  r2,[r4,#0x1C]           // now clear out the pass info on the next line
-
-ldrh r0,[r4,#0]              // load the total # of letters
-mov  r1,#40                  // total # of glyph buffers the game allows
-swi  #6                      // total letters / 40, r0 = result, r1 = remainder
-
-mov  r3,r0                   // r3 will be our total # of passes
-mov  r0,#40                  // each normal pass will have 40 letters
-mov  r2,#0                   // start our loop at 0
-add  r4,#0x10                // move r4 to the pass info line
-
--
-cmp  r2,r3
-bge  +
-strb r0,[r4,r2]              // store normal pass length
-add  r2,#1
-b    -                       // loop back, this is like a small for loop
-
-+
-cmp  r1,#0                   // check that remainder
-beq  +                       // if remainder == 0, don't need to add an extra pass
-
-add  r3,#1
-strb r1,[r4,r2]              // add the extra final pass length
-
-+
-sub  r4,#0x10
-strb r3,[r4,#2]              // store the total # of passes
-ldrh r0,[r4,#0]              // load the total # of letters
-lsr  r1,r0,#4                // original code, divides total # of letters by 16
-pop  {r2-r4,pc}
+strb r2,[r4,#3]              // total # of strings processed = 0
+pop  {pc}
 
 //=============================================================================================
 
-.load_curr_group_length1:
+.load_remaining_strings:
 // custom jeff code
-ldr  r0,=#0x2013040
-ldrb r1,[r0,#3]              // get the current pass #
-add  r0,#0x10
-ldrb r1,[r0,r1]              // load the current length of the current group
+ldr  r0,[sp,#0x28]
+ldrb r1,[r0,#2]              // get the strings #
+ldrb r0,[r0,#3]              // get the currently processed strings
+sub  r1,r1,r0
 bx   lr
 
 //=============================================================================================
 
-.load_curr_group_length2:
+.load_remaining_strings_external:
 // custom jeff code
-ldr  r0,=#0x2013040          // address of our group length array is this + 10
-ldrb r1,[r0,#3]              // load the current pass #
-mov  r3,r1
-//add  r3,r1,#1
-//strb r3,[r0,#3]              // increment the pass #
+ldr  r0,=#0x2013040
+ldrb r1,[r0,#2]              // get the strings #
+ldrb r0,[r0,#3]              // get the currently processed strings
+sub  r1,r1,r0
+bx   lr
 
-add  r0,#0x10                // move to the array now
-ldrb r0,[r0,r1]              // load the proper group length, this is still tricky business though
+//=============================================================================================
+
+.decrement_remaining_strings:
+// custom jeff code
+ldr  r0,[sp,#0x28]
+ldrb r1,[r0,#2]              // get the strings #
+ldrb r2,[r0,#3]              // get the currently processed strings
+add  r2,#1
+strb r2,[r0,#3]              // increase them by 1
+sub  r1,r1,r2
 bx   lr
 
 //=============================================================================================
@@ -287,28 +463,593 @@ bx   lr
 .group_add_check:
 push {r2-r3}
 // custom jeff code
-mov  r3,#0                   // this will be r0's final default result
+mov  r0,#0                   // this will be the final default result
 
 ldr  r2,=#0x2013040          // address of start of counter area
-ldrb r1,[r2,#3]              // load the pass #
-add  r1,#1                   // increment the pass #
-ldrb r0,[r2,#2]              // load the total # of passes
+ldrb r1,[r2,#3]              // load the current string #
+ldrb r3,[r2,#2]              // load the total # of strings
 
-cmp  r1,r0                   // is curr_pass > total_passes?, if so, set r0 to 4 to signal the end
-ble  +                       // if it's <= total_passes, skip this extra stuff
+cmp  r1,r3                   // is curr_str >= total_str?, if so, set r0 to 4 to signal the end
+blt  +                       // if it's <= total_str, skip this extra stuff
 
-mov  r3,#4                   // this will be r0 at the end, it signals the code that items are done
-mov  r1,#0                   // set the pass # back to 0
-strh r1,[r2,#0]              // set the total length back to 0 so the game won't freak out
+mov  r0,#4                   // this will be r0 at the end, it signals the code that items are done
+mov  r1,#0                   // set the strings # back to 0
+strh r1,[r2,#2]              // set the total length back to 0 so the game won't freak out
 
 +
-strb r1,[r2,#3]              // store the new pass #
-mov  r0,r3                   // give r0 its proper value that the game expects
 
 mov  r1,#7                   // clobbered code
 pop  {r2-r3}
 bx   lr
 
+
+//=============================================================================================
+
+//Writes a Glyph stored in r0 to the buffer in r1. r2 is the X and r3 is the letter's number
+.write_Glyph:
+push {r4-r7,lr}              // This is an efficient version of the printing routine
+add  sp,#-4
+mov  r5,r1
+mov  r6,r1
+add  r6,#0x20
+mov  r4,r0
+mov  r7,r2
+
+lsl  r2,r3,#0x10
+lsr  r2,r2,#0x1C
+lsl  r2,r2,#0xA
+ldr  r0,=#0x8CDF9F8
+add  r2,r2,r0
+
+ldr  r3,[sp,#0x38]           // The current letter's width
+
+cmp  r7,#8
+blt  +
+mov  r5,r6
+add  r6,#0x20
+cmp  r7,#0x10
+blt  +
+sub  r7,#0x10
+mov  r5,r6
+mov  r0,#0x8C
+add  r6,r6,r0
++
+str  r6,[sp,#0]              //The tile to the right of the current one
+
+add  r3,#7                   //If this isn't a multiple of 8, it will go over a multiple of 8 now
+lsr  r6,r3,#3                //Get total tiles number
+cmp  r6,#2
+ble  +
+mov  r6,#2                   //Prevent bad stuff
++
+
+mov  r3,#0
+
+
+//---------------------------------------------------------------------------------------------
+
+mov  r0,r8
+push {r0}
+mov  r8,r6
+
+.loop_start:
+push {r3-r4,r7}
+push {r2}
+lsl  r7,r7,#0x1D
+lsr  r7,r7,#0x1D
+
+mov  r3,#0xFF
+lsr  r3,r7                   //Get the valid left-tile positions
+lsl  r3,r3,#0x18
+lsr  r6,r3,#8
+orr  r3,r6
+lsr  r6,r3,#0x10
+orr  r3,r6
+mvn  r6,r3                   //Get the inverted version
+ldr  r2,[r4,#0]              //Load the first 4 rows
+mov  r1,r2
+lsr  r2,r7                   //Shift them by curr_x
+mov  r0,#8
+sub  r0,r7,r0
+neg  r0,r0
+lsl  r1,r0
+and  r2,r3                   //Left side
+and  r1,r6                   //Right side
+ldr  r4,[r4,#4]              //Load the other 4 rows
+mov  r0,r4
+lsr  r4,r7                   //Shift them by curr_x
+sub  r7,r7,#4
+sub  r7,r7,#4
+neg  r7,r7
+lsl  r0,r7
+and  r4,r3                   //r4 = Left side, last 4 rows
+and  r0,r6                   //Right side
+mov  r3,r2                   //r3 = Left side, first 4 rows
+mov  r6,r1                   //r6 = Right side, first 4 rows
+mov  r7,r0                   //r7 = Right side, last 4 rows
+
+pop  {r2}
+
+// ONE - LEFT
+lsl  r0,r3,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r5,#0]              // and now store it back
+
+// TWO - LEFT
+lsl  r0,r3,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r5,#4]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r5,#4]              // and now store it back
+
+// THREE - LEFT
+lsl  r0,r3,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r5,#8]              // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r5,#8]              // and now store it back
+
+// FOUR - LEFT
+lsr  r0,r3,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0x0C]           // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r5,#0x0C]           // and now store it back
+
+// FIVE - LEFT
+lsl  r0,r4,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0x10]           // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r5,#0x10]           // and now store it back
+
+// SIX - LEFT
+lsl  r0,r4,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0x14]           // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r5,#0x14]           // and now store it back
+
+// SEVEN - LEFT
+lsl  r0,r4,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0x18]           // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r5,#0x18]           // and now store it back
+
+// EIGHT - LEFT
+lsr  r0,r4,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+ldr  r1,[r5,#0x1C]           // load what's in the current row
+orr  r1,r0                   // OR them together
+str  r1,[r5,#0x1C]           // and now store it back
+
+
+
+// Now we do the right side!
+ldr  r4,[sp,#0x10]
+
+
+// ONE - RIGHT
+lsl  r0,r6,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x00]           // store it now
+
+// TWO - RIGHT
+lsl  r0,r6,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x04]           // store it now
+
+// THREE - RIGHT
+lsl  r0,r6,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x08]           // store it now
+
+// FOUR - RIGHT
+lsr  r0,r6,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x0C]           // store it now
+
+// FIVE - RIGHT
+lsl  r0,r7,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x10]           // store it now
+
+// SIX - RIGHT
+lsl  r0,r7,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x14]           // store it now
+
+// SEVEN - RIGHT
+lsl  r0,r7,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x18]           // store it now
+
+// EIGHT - RIGHT
+lsr  r0,r7,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
+str  r0,[r4,#0x1C]           // store it now
+
+
+
+pop  {r3-r4,r7}
+
+add  r3,#1                   // increment counter
+cmp  r3,r8                   // see if we're still under the # of bytes we need to convert
+bge  .routine_end
+ldr  r0,[sp,#4]
+mov  r5,r0
+add  r7,#8
+add  r0,#0x20                // check if we must cross over the next "triple tile" buffer
+cmp  r7,#0x10
+blt  +
+add  r0,#0x6C
+sub  r7,#0x10
++
+str  r0,[sp,#4]
+add  r4,#8
+b    .loop_start
+
+//---------------------------------------------------------------------------------------------
+.routine_end:
+pop  {r0}
+
+mov  r8,r0
+add  sp,#4
+pop  {r4-r7,pc}
+
+//=============================================================================================
+
+//Prints a letter in one of the buffers. r0 is the letter, r1 is the buffer, r2 is the X
+.print_letter:
+push {r4-r7,lr}
+add  sp,#-0x24
+mov  r7,r0
+
+lsl  r3,r7,#0x14             // load the current letter's width
+lsr  r3,r3,#0x14
+ldr  r0,[sp,#0x38+0x30]
+add  r0,r0,r3
+ldrb r3,[r0,#0]              // r3 = letter's width
+str  r3,[sp,#0x20]           // the current letter's width
+
+mov  r4,r2
+mov  r6,r1
+bl   .fast_prepare_main_font // load the letter in the stack
+mov  r5,r0
+cmp  r5,#0                   // is there something to print at all?
+beq  .print_letter_end
+sub  r5,#1
+cmp  r5,#1                   // is there something to print at the top?
+beq  +
+
+mov  r0,sp
+mov  r1,r6
+add  r1,#8
+mov  r2,r4
+mov  r3,r7
+bl   .write_Glyph
+
++
+cmp  r5,#0                   // is there something to print at the bottom?
+beq  .print_letter_end
+
+add  r0,sp,#0x10
+mov  r1,r6
+add  r1,#0x68
+mov  r2,r4
+mov  r3,r7
+bl   .write_Glyph
+
+.print_letter_end:
+ldr  r0,[sp,#0x20]
+add  sp,#0x24
+pop  {r4-r7,pc}
+
+//=============================================================================================
+
+//Checks wheter the next letter will overflow the allocated number of buffers
+//r0 current letter, r1 number of still not fully used buffers, r2 curr_X in the current "Three tile"
+.check_if_overflow:
+push {r4,lr}
+mov  r4,r1
+lsl  r3,r0,#0x14             // load the current letter's width
+lsr  r3,r3,#0x14
+ldr  r0,[sp,#8+0x30]
+add  r0,r0,r3
+ldrb r3,[r0,#0]              // r3 = letter's width
+add  r0,r2,r3
+add  r0,#0x17                // Check for crossing the line
+mov  r1,#0x18
+swi  #6                      // Divide by 0x18
+sub  r2,r4,r0                // Free buffers after this
+mov  r0,#0
+cmp  r2,#0                   // Are there any free buffers left?
+bge  +
+mov  r0,#1                   // Signal overflow
+
++
+pop  {r4,pc}
+
+//============================================================================================
+// This section of code stores the letter from the font's data to the stack.
+// Main font version. Returns if there is data to print or not.
+// r0 is the letter. r1 is the stack pointer
+//============================================================================================
+
+.fast_prepare_main_font:
+ldr  r2,=#{main_font}     // we already know we're loading main font
+lsl  r0,r7,#0x14
+lsr  r0,r0,#0x14
+lsl  r0,r0,#5
+add  r0,r2,r0             // get the address
+mov  r5,r0
+mov  r1,sp
+mov  r2,#8
+swi  #0xB                 // CpuSet for 0x10 bytes
+mov  r0,r5
+add  r0,#0x10
+add  r1,sp,#0x10
+mov  r2,#8
+swi  #0xB                 // CpuSet for 0x10 bytes
+ldr  r0,=#{main_font_usage}
+lsl  r1,r7,#0x14
+lsr  r1,r1,#0x14
+add  r0,r0,r1
+ldrb r0,[r0,#0]           // Load tile usage for the letter
+bx   lr
+
+//=============================================================================================
+// This hack is called in order to change how everything is printed in VRAM. Based on 0x80487D4
+//=============================================================================================
+.print_vram:
+push {r4-r7,lr}
+mov  r7,r10                            // Base code
+mov  r6,r9
+mov  r5,r8
+push {r5-r7}
+add  sp,#-0x44
+mov  r4,r0
+mov  r0,#40                            // 40 buffers max
+str  r0,[sp,#0x10]
+str  r1,[sp,#0x34]                     // Save type of arrangements loading to r1
+cmp  r1,#0
+beq  +
+mov  r0,#0x74                          // Change this value if the sp add changes from -0x44 (or the pushes change)!!!
+mov  r1,sp                             // This is where the data we want is now
+add  r0,r1,r0
+ldr  r1,[r0,#0]
+str  r1,[sp,#0x38]
+ldr  r1,[r0,#4]
+str  r1,[sp,#0x3C]
+ldr  r1,[r0,#8]
+str  r1,[sp,#0x40]
++
+ldr  r1,=#0x25F4
+add  r0,r4,r1
+str  r0,[sp,#0x24]                     // Cache a bunch of values to the stack
+ldr  r6,[r0,#0]
+ldr  r0,=#0x201A288
+ldrb r0,[r0,#0]
+str  r0,[sp,#0x20]                     // Which menu this is
+ldr  r0,=#{main_font_width}
+str  r0,[sp,#0x30]                     // main_font_width
+mov  r2,#0xAA
+lsl  r2,r2,#3
+add  r2,r2,r4
+mov  r9,r2
+ldr  r0,=#0x2013040
+str  r0,[sp,#0x28]                     // Start of the printing data
+add  r0,#0x20
+str  r0,[sp,#0x2C]                     // Replacement data
+bl   .load_remaining_strings           // Load the remaining number of strings
+str  r1,[sp,#0xC]
+mov  r2,sp
+mov  r0,#1
+strh r0,[r2,#0]
+cmp  r1,#0
+bne  +
+b    .print_vram_end
++
+add  r1,sp,#4
+mov  r10,r1
+add  r2,sp,#8
+mov  r8,r2
+mov  r3,#0xC3
+lsl  r3,r3,#3
+add  r7,r4,r3
+
+.print_vram_start_of_str_loop:
+bl   .find_str                         // Search for the next string
+cmp  r0,#0
+bne  +
+b    .print_vram_end
++
+
+sub  r0,#1
+str  r0,[sp,#0x1C]                     // Save whether to restore the old tiles or not
+cmp  r0,#0
+bne  .print_vram_get_old_coords
+
+// COORD STUFF
+mov  r0,r4
+mov  r1,r6
+ldr  r2,[sp,#0x20]
+cmp  r2,#6                             // Skip if memo menu
+beq  +
+ldr  r1,[sp,#0x2C]                     // Load the address this was saved to
+ldr  r1,[r1,#0]              
++
+add  r2,sp,#4
+bl   $8049280                          // Get the string's coords
+
+b    .print_vram_got_coords
+
+.print_vram_get_old_coords:
+ldr  r1,[sp,#0x24]
+add  r1,#8
+ldrh r0,[r1,#0]                        //Load and save old X
+mov  r3,r10
+strh r0,[r3,#0]
+lsr  r2,r0,#3
+lsl  r2,r2,#3
+cmp  r2,r0                             // If it starts at 0 pixels in a new tile, then it doesn't need to restore the old tiles
+bne  +
+mov  r0,#0
+str  r0,[sp,#0x1C]                     // Don't restore the old tiles
++
+ldrh r0,[r1,#2]                        // Load and save old Y
+strh r0,[r3,#2]
+
+.print_vram_got_coords:
+add  r5,sp,#4
+mov  r2,#0
+ldsh r2,[r5,r2]
+lsr  r1,r2,#3
+lsl  r1,r1,#3
+str  r1,[sp,#8]
+mov  r3,#2
+ldsh r3,[r5,r3]
+mov  r1,r9
+ldr  r0,[sp,#0x10]
+bl   .alloc_tiles_buffers              // Allocate the buffers for the string
+ldr  r1,[sp,#0x10]
+str  r0,[sp,#0x10]                     // New amount of free buffers
+sub  r0,r1,r0
+str  r0,[sp,#0x14]                     // Amount of buffers used by the string
+mov  r0,#0
+str  r0,[sp,#0x18]                     // Currently fully used buffers
+str  r0,[sp,#0x1C]                     // Do not restore the old tiles
+
+-
+mov  r0,#1
+neg  r0,r0
+ldr  r1,[r6,#0]
+cmp  r0,r1
+beq  .print_vram_eos
+
+ldr  r1,[sp,#0x14]
+ldr  r0,[sp,#0x18]
+sub  r1,r1,r0                          // Get the currently not fully used buffers
+ldrh r2,[r5,#0]
+ldr  r0,[sp,#8]
+sub  r2,r2,r0                          // Get the "Three tile" X coord
+ldr  r0,[r6,#0]                        // Get the current letter
+bl   .check_if_overflow
+cmp  r0,#0
+bne  .print_vram_out_of_loop
+
+mov  r1,r9
+ldr  r0,[sp,#0x18]
+mov  r2,#0xCC
+mul  r0,r2
+add  r1,r1,r0                          // Get the current buffer
+ldrh r2,[r5,#0]
+ldr  r0,[sp,#8]
+sub  r2,r2,r0                          // Get the "Three tile" X coord
+ldr  r0,[r6,#0]                        // Load the letter
+bl   .print_letter                     // Returns in r0 the current letter's width
+ldrh r2,[r5,#0]
+add  r2,r2,r0
+strh r2,[r5,#0]
+ldr  r0,[sp,#8]
+sub  r2,r2,r0                          // Get the "Three tile" X coord
+cmp  r2,#0x18
+blt  +
+add  r0,#0x18
+str  r0,[sp,#8]
+ldr  r0,[sp,#0x18]
+add  r0,#1                             // Increase the number of fully used buffers
+str  r0,[sp,#0x18]
++
+.print_vram_end_of_str_loop:
+add  r6,#4
+b    -
+
+.print_vram_eos:
+bl   .exit_str
+add  r6,#4
+mov  r1,r9
+ldr  r0,[sp,#0x14]
+mov  r2,#0xCC
+mul  r0,r2
+add  r1,r1,r0                          // Get the next buffer
+mov  r9,r1
+bl   .decrement_remaining_strings
+ldr  r0,[sp,#0x10]
+cmp  r0,#0                             // Have we printed all that we could?
+beq  .print_vram_out_of_loop
+cmp  r1,#0                             // Have we printed all the strings?
+bgt  .print_vram_start_of_str_loop
+
+.print_vram_out_of_loop:
+ldr  r0,[sp,#0x24]                     // clobbered code
+str  r6,[r0,#0]
+mov  r1,r10
+ldrh r2,[r1,#0]                        // Save current coords
+strh r2,[r0,#8]
+ldrh r2,[r1,#2]
+strh r2,[r0,#0xA]
+
+.print_vram_end:
+ldr  r0,=#0x76D7
+add  r2,r4,r0
+ldr  r0,[sp,#0x10]
+mov  r1,#40                            // Get how many buffers were used
+sub  r1,r1,r0
+strb r1,[r2,#0]                        // Save the number so the game can use them
+add  sp,#0x44
+pop  {r3-r5}
+mov  r8,r3
+mov  r9,r4
+mov  r10,r5
+pop  {r4-r7,pc}
 
 
 //=============================================================================================
@@ -1965,100 +2706,6 @@ bl   $8091938  // New code!
 pop  {r4,pc}
 
 //=============================================================================================
-// This hack changes how left/right scrolling in menus works - Based off of 0x8046D90, which is basic menu printing
-// Same code as above except for the points in which it's present the comment DIFFERENT!!!
-//=============================================================================================
-
-.new_print_menu_left_right_offset_table:
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_battle_memo_left_right_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-  dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1; dd .new_default_scroll_print+1
-
-.new_print_menu_left_right:
-push {r4,lr}
-ldr  r3,=#0x2016028                    // Base code
-ldr  r0,=#0x44F2
-add  r2,r3,r0
-ldrb r1,[r2,#0]
-lsl  r0,r1,#0x1C
-cmp  r0,#0
-bge  +
-b    .end_new_print_menu_left_right
-+
-mov  r0,#8
-orr  r0,r1
-strb r0,[r2,#0]
-ldr  r1,=#0x4260
-add  r0,r3,r1                          //Get the type of menu this is
-ldrb r0,[r0,#0]
-cmp  r0,#0x10
-bhi  +
-ldr  r2,=#.new_print_menu_addition_value_table
-lsl  r0,r0,#1
-ldsh r2,[r2,r0]
-ldr  r0,=#0x2016078
-add  r1,r0,r2
-mov  r2,#1
-mov  r3,#0
-
-bl   .new_clear_menu_left_right        //DIFFERENT!!!
-
-+
-bl   $8049D5C                          //Back to base code
-ldr  r3,=#0x2016028
-ldr  r1,=#0x41C6
-add  r0,r3,r1
-ldrb r1,[r0,#0]
-mov  r0,#1
-and  r0,r1
-cmp  r0,#0
-beq  +
-ldr  r2,=#0x41BC
-add  r1,r3,r2
-ldrh r0,[r1,#0]
-cmp  r0,#3
-bhi  .end_new_print_menu_left_right
-ldr  r0,=#0x9B8FD74
-ldrh r1,[r1,#0]
-lsl  r1,r1,#2
-add  r1,r1,r0
-ldr  r4,=#0x3060
-add  r0,r3,r4
-ldr  r1,[r1,#0]
-bl   $8091938
-b    .end_new_print_menu_left_right
-+
-ldr  r0,=#0x4260
-add  r2,r3,r0
-ldrb r0,[r2,#0]
-cmp  r0,#0x12
-bhi  .end_new_print_menu_left_right
-lsl  r0,r0,#5
-mov  r4,#0xB8
-lsl  r4,r4,#6
-add  r1,r3,r4
-add  r0,r0,r1
-ldr  r1,=#0x201A288
-ldrb r1,[r1,#0]
-lsl  r1,r1,#2                          //DIFFERENT!!!
-ldr  r2,=#.new_print_menu_left_right_offset_table
-add  r1,r2,r1
-ldrh r2,[r1,#2]
-lsl  r2,r2,#0x10
-ldrh r1,[r1,#0]
-add  r1,r1,r2
-
-bl   $8091938  // New code!
-
-.end_new_print_menu_left_right:
-pop  {r4,pc}
-
-//=============================================================================================
 // This hack changes how a removal in menus works - Based off of 0x8046D90, which is basic menu printing
 // Same code as above except for the points in which it's present the comment DIFFERENT!!!
 //=============================================================================================
@@ -2280,90 +2927,6 @@ add  sp,#0xC
 pop  {r3}
 mov  r8,r3
 pop  {r4-r7,pc}
-
-//=============================================================================================
-// This hack changes how menu clearing works, based off of 0x80012BC
-// Same as above, except where it's commented DIFFERENT!!!
-//=============================================================================================
-
-.new_swap_arrangement_left_right_routine_table:
-  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
-  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_battle_memo_left_right+1
-  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
-  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
-  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
-  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
-  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
-  dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1; dd .new_clear_inventory+1
-
-.new_clear_menu_left_right:
-push {r4-r7,lr}
-mov  r7,r8                             //base code
-push {r7}
-add  sp,#-0xC
-mov  r8,r0
-mov  r5,r1
-lsl  r2,r2,#0x10
-lsr  r7,r2,#0x10
-mov  r0,sp
-strh r3,[r0,#0]
-cmp  r5,#0
-bne  +
-b    .new_clear_menu_next_spot
-+
-mov  r1,#0
-ldsh r0,[r5,r1]
-cmp  r0,#0
-bge  +
-add  r0,#7
-+
-lsl  r0,r0,#0xD
-lsr  r0,r0,#0x10
-ldr  r2,=#0xFFFF0000
-ldr  r1,[sp,#4]
-and  r1,r2
-orr  r1,r0
-str  r1,[sp,#4]
-mov  r1,#2
-ldsh r0,[r5,r1]
-cmp  r0,#0
-bge  +
-add  r0,#7
-+
-asr  r0,r0,#3
-add  r4,sp,#4
-strh r0,[r4,#2]
-ldrh r0,[r5,#4]
-lsr  r0,r0,#3
-strh r0,[r4,#4]
-ldrh r0,[r5,#6]
-lsr  r0,r0,#3
-strh r0,[r4,#6]
-ldrh r2,[r4,#0]
-ldrh r3,[r4,#2]
-mov  r0,r8
-mov  r1,r7
-bl   $8001378
-mov  r5,r0
-mov  r6,#0
-ldrh r0,[r4,#6]
-cmp  r6,r0
-bcs  +
-
-//New code!
-ldr  r0,=#0x201A288
-ldrb r0,[r0,#0]
-lsl  r0,r0,#2                          //DIFFERENT!!!
-ldr  r1,=#.new_swap_arrangement_left_right_routine_table
-add  r1,r1,r0
-ldrh r0,[r1,#0]
-ldrh r1,[r1,#2]
-lsl  r1,r1,#0x10
-add  r1,r1,r0
-bl   $8091938
-+
-
-b    .new_clear_menu_general
 
 //=============================================================================================
 // This hack changes how menu clearing works, based off of 0x80012BC
@@ -2672,78 +3235,6 @@ sub  r5,#0x40
 pop  {pc}
 
 //=============================================================================================
-// Swaps the arrangements' place for the battle memories
-// Left/Right scrolling edition
-//=============================================================================================
-.new_clear_battle_memo_left_right:
-push {lr}
-add  r5,#0x40
-bl   .get_direction_left_right
-cmp  r0,#0
-bne  .new_clear_battle_memo_left_right_descending
-//Swap arrangements' place - if we're ascending
-mov  r1,r5
-ldr  r2,[sp,#0x38]
-mov  r0,#8
-sub  r0,r0,r2
-lsl  r0,r0,#7
-add  r4,r1,r0                          // Get to bottom
--
-mov  r1,r4
-ldr  r2,[sp,#0x38]
-sub  r2,r2,#1
-lsl  r2,r2,#0x7
-add  r1,r1,r2
-mov  r0,#0x80
-sub  r4,r4,r0
-mov  r0,r4
-mov  r2,#0x20                          // Put the arrangements X below
-swi  #0xC
-cmp  r4,r5
-bgt  -
-mov  r0,#0
-push {r0}
-mov  r0,sp
-ldr  r1,[sp,#0x3C]
-lsl  r1,r1,#5
-ldr  r2,=#0x01000000                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
-orr  r2,r1
-mov  r1,r5
-swi  #0xC
-pop  {r0}
-b    .new_clear_battle_memo_left_right_end
-
-//Swap arrangements' place - if we're descending
-.new_clear_battle_memo_left_right_descending:
-mov  r1,r5
-ldr  r0,[sp,#0x38]
-mov  r2,#0x1                          // Put the arrangements X above
-lsl  r2,r2,#8
-lsl  r0,r0,#5
-sub  r2,r2,r0
-lsl  r0,r0,#2
-add  r0,r0,r1
-swi  #0xC
-mov  r0,#0
-push {r0}
-ldr  r2,[sp,#0x3C]
-mov  r0,#8
-sub  r0,r0,r2
-lsl  r1,r0,#7
-ldr  r0,[sp,#0x3C]
-lsl  r0,r0,#5
-ldr  r2,=#0x01000000                   // (0x80 bytes of arrangements, 24th bit is 1 to fill instead of copying)
-orr  r2,r0
-add  r1,r1,r5
-mov  r0,sp
-swi  #0xC
-pop  {r0}
-
-.new_clear_battle_memo_left_right_end:
-sub  r5,#0x40
-pop  {pc}
-
-//=============================================================================================
 // Swaps the arrangements' place for the memoes
 //=============================================================================================
 .new_clear_memoes:
@@ -2922,32 +3413,6 @@ bcc  -
 .new_battle_memo_scroll_print_end:
 add  sp,#4
 pop  {r4-r7,pc}
-
-//=============================================================================================
-// This hack changes what the battle memo scrolling will print, based off of 0x80476C0
-// Same as above, except where it's been commented DIFFERENT!!!
-//=============================================================================================
-.new_battle_memo_left_right_scroll_print:
-push {r4-r7,lr}
-add  sp,#-4                            //base code
-mov  r2,r0
-ldr  r1,=#0x2016028
-
-ldr  r0,[sp,#0x28]                     //DIFFERENT!!!
-mov  r6,r0                             //DIFFERENT!!!
-bl   .get_direction_left_right         //DIFFERENT!!!
-cmp  r0,#0
-bne  .new_battle_memo_left_right_scroll_print_descending
-ldrh r0,[r2,#8]
-b    +
-.new_battle_memo_left_right_scroll_print_descending:
-ldrh r0,[r2,#8]
-mov  r2,#8
-sub  r2,r2,r6
-add  r0,r0,r2
-+
-
-b    .new_battle_memo_scroll_print_general
 
 //=============================================================================================
 // This hack changes what the skill scrolling will print, based off of 0x80473EC
@@ -4063,28 +4528,6 @@ mov  r0,r2
 pop  {r1-r2,pc}
 
 //=============================================================================================
-// This hack gets the scrolling direction for any given menu.
-// Left/Right edition
-//=============================================================================================
-.get_direction_left_right:
-push {r1-r2,lr}
-ldr  r1,=#0x201A288
-ldrb r1,[r1,#0]                        //Get menu type
-lsl  r1,r1,#5
-ldr  r2,=#0x2016028
-ldr  r0,=#0x2DFA
-add  r0,r2,r0                          //Get menu info array in RAM
-add  r1,r0,r1
-mov  r2,#1
-ldrh r0,[r1,#0xE]
-cmp  r0,#0
-bne +
-mov  r2,#0                             //Going up if it's 0! Otherwise, going down!
-+
-mov  r0,r2
-pop  {r1-r2,pc}
-
-//=============================================================================================
 // This hack gets the index of the top item for any given menu
 //=============================================================================================
 .get_top_index:
@@ -4283,6 +4726,8 @@ bx   lr
 //=============================================================================================
 .new_print_vram_container:
 push {r4,r5,lr}
+add  sp,#-4
+str  r0,[sp,#0]
 ldr  r4,=#0x201AEF8                    //We avoid printing OAM entries...
 ldr  r0,=#0x76DC                       //Base code
 add  r5,r4,r0
@@ -4298,7 +4743,7 @@ bl   $80489F8
 mov  r0,r4
 bl   $8048C5C
 +
-bl   .load_curr_group_length1          //Hmmm...
+bl   .load_remaining_strings_external
 ldr  r3,=#0x76D6
 add  r0,r4,r3
 mov  r2,#0
@@ -4311,12 +4756,10 @@ cmp  r1,#0
 beq  +
 
 mov  r0,r4
-bl   .new_print_vram                   //New code!
+ldr  r1,[sp,#0]
+bl   .print_vram                   //New code!
 
-mov  r0,r4                             //Base code
-bl   $8048EF8
 +
-.new_print_vram_container_general:
 ldr  r1,=#0x6C28
 add  r0,r4,r1
 ldr  r0,[r0,#0]
@@ -4339,499 +4782,8 @@ bne  +
 .new_print_vram_container_inner:
 strh r1,[r2,#0]
 +
+add  sp,#4
 pop  {r4,r5,pc}
-
-//=============================================================================================
-// This hack is called in order to change where everything is printed in VRAM. Based on 0x80487D4
-//=============================================================================================
-.new_print_vram:
-push {r4-r7,lr}
-mov  r7,r10                            //Base code
-mov  r6,r9
-mov  r5,r8
-push {r5-r7}
-add  sp,#-0x10
-mov  r4,r0
-ldr  r0,=#0x76D7
-add  r1,r4,r0
-mov  r0,#0
-strb r0,[r1,#0]
-ldr  r1,=#0x25F4
-add  r0,r4,r1
-ldr  r6,[r0,#0]
-mov  r2,#0xAA
-lsl  r2,r2,#3
-add  r2,r2,r4
-mov  r9,r2
-ldr  r3,=#0x76D6
-bl   .load_curr_group_length2
-str  r0,[sp,#0xC]
-mov  r1,sp
-mov  r0,#1
-strh r0,[r1,#0]
-ldr  r0,[sp,#0xC]
-cmp  r0,#0
-bne  +
-b    .new_print_vram_out_of_loop
-+
-add  r1,sp,#4
-mov  r10,r1
-add  r2,sp,#8
-mov  r8,r2
-mov  r3,#0xC3
-lsl  r3,r3,#3
-add  r7,r4,r3
-.new_print_vram_start_of_loop:
-bl   .check_for_eos
-cmp  r0,#0
-bne  +
-b    .new_print_vram_end_of_loop
-+
-ldr  r1,=#0x25F8
-add  r0,r4,r1
-ldr  r1,[r0,#0]
-add  r0,r1,#4
-cmp  r6,r0
-bne  .new_print_vram_keep_going
-ldr  r0,[r1,#4]
-lsl  r0,r0,#0xC
-cmp  r0,#0
-bge  +
-.new_print_vram_keep_going:
-mov  r0,r4
-mov  r1,r6
-add  r2,sp,#4
-bl   $8049280
-add  r5,sp,#4
-b    .new_print_vram_keep_going_2
-+
-mov  r0,sp
-ldrh r0,[r0,#0]
-add  r5,sp,#4
-cmp  r0,#0
-beq  .new_print_vram_keep_going_2
-ldr  r2,=#0x25FC
-add  r0,r4,r2
-ldrh r0,[r0,#0]
-mov  r3,r10
-strh r0,[r3,#0]
-ldr  r1,=#0x25FE
-add  r0,r4,r1
-ldrh r0,[r0,#0]
-strh r0,[r3,#2]
-
-.new_print_vram_keep_going_2:
-mov  r2,#0
-ldsh r1,[r5,r2]
-cmp  r1,#0
-bge  +
-add  r1,#7
-+
-lsl  r1,r1,#0xD
-lsr  r1,r1,#0x10
-ldr  r2,=#0xFFFF0000
-ldr  r0,[sp,#8]
-and  r0,r2
-orr  r0,r1
-str  r0,[sp,#8]
-mov  r0,r5
-mov  r3,#2
-ldsh r0,[r0,r3]
-cmp  r0,#0
-bge  +
-add  r0,#7
-+
-asr  r0,r0,#3
-mov  r1,r8
-strh r0,[r1,#2]
-bl   .get_ram_address2
-lsr  r0,r0,#0x1C
-lsl  r0,r0,#3
-ldrb r1,[r7,#0]
-mov  r3,#0x79
-neg  r3,r3
-mov  r2,r3
-and  r1,r2
-orr  r1,r0
-strb r1,[r7,#0]
-mov  r3,r8
-ldrh r0,[r3,#0]
-ldrh r1,[r3,#2]
-
-bl   .new_get_address                  //New code!
-
-mov  r2,r9
-str  r0,[r2,#0]
-
-//We change the target arrangement to match our expectations
-ldr  r3,=#0x6008000
-sub  r2,r0,r3
-lsl  r2,r2,#2
-ldr  r0,[r7,#0]
-ldr  r1,=#0xFFFE007F
-and  r0,r1
-orr  r0,r2
-str  r0,[r7,#0]                        //Store target arrangement
-
-mov  r3,r8                             //Base code
-ldrh r0,[r3,#0]
-ldrh r1,[r3,#2]
-bl   $80498C4                          //Gets where to put the arrangements - This we keep as is
-mov  r1,r9
-str  r0,[r1,#4]
-ldrh r0,[r5,#0]
-mov  r2,#7
-and  r2,r0
-ldrb r0,[r7,#0]
-mov  r3,#8
-neg  r3,r3
-mov  r1,r3
-and  r0,r1
-orr  r0,r2
-strb r0,[r7,#0]
-ldr  r1,[r6,#0]
-lsl  r1,r1,#0x14
-lsr  r1,r1,#0x14
-mov  r0,r9
-bl   $8048F74
-ldr  r0,[r7,#0]
-lsl  r0,r0,#0xF
-lsr  r0,r0,#0x16
-ldr  r2,=#0x25F0
-add  r1,r4,r2
-strh r0,[r1,#0]
-mov  r0,r9
-add  r0,#8
-ldr  r3,=#0x2530
-add  r1,r4,r3
-mov  r2,#0x60
-bl   $8001B18
-mov  r0,r9
-add  r0,#0x68
-ldr  r2,=#0x2590
-add  r1,r4,r2
-mov  r2,#0x60
-bl   $8001B18
-ldr  r3,=#0x76D7
-add  r1,r4,r3
-ldrb r0,[r1,#0]
-add  r0,#1
-strb r0,[r1,#0]
-ldr  r0,[sp,#0xC]
-sub  r0,#1
-lsl  r0,r0,#0x10
-lsr  r0,r0,#0x10
-str  r0,[sp,#0xC]
-add  r7,#0xCC
-mov  r0,#0xCC
-add  r9,r0
-ldr  r0,[r6,#0]
-lsl  r0,r0,#0x14
-lsr  r0,r0,#0x14
-bl   $8049954
-mov  r1,r10
-ldrh r1,[r1,#0]
-add  r0,r0,r1
-mov  r2,r10
-strh r0,[r2,#0]
-ldr  r3,=#0x25F8
-add  r1,r4,r3
-str  r6,[r1,#0]
-add  r2,r3,#4
-add  r1,r4,r2
-strh r0,[r1,#0]
-ldrh r1,[r5,#2]
-add  r3,#6
-add  r0,r4,r3
-strh r1,[r0,#0]
-.new_print_vram_end_of_loop:
-add  r6,#4
-mov  r1,#0xAA
-lsl  r1,r1,#3
-add  r0,r4,r1
-cmp  r6,r0
-bcs  .new_print_vram_out_of_loop
-mov  r1,sp
-mov  r0,#0
-strh r0,[r1,#0]
-ldr  r2,[sp,#0xC]
-cmp  r2,#0
-beq  .new_print_vram_out_of_loop
-b    .new_print_vram_start_of_loop
-
-.new_print_vram_out_of_loop:
-bl   .clear_swap_flag
-str  r6,[r0,#0]
-add  sp,#0x10
-pop  {r3-r5}
-mov  r8,r3
-mov  r9,r4
-mov  r10,r5
-pop  {r4-r7,pc}
-
-//=============================================================================================
-// This hack is called in order to change where everything is printed in VRAM. Based on 0x80487D4
-// Same as new_print_vram_container, except where it's present the comment DIFFERENT!!!
-//=============================================================================================
-.new_print_vram_container_left_right:
-push {r4,r5,lr}
-ldr  r4,=#0x201AEF8                    //We avoid printing OAM entries...
-ldr  r0,=#0x76DC                       //Base code
-add  r5,r4,r0
-ldrb r1,[r5,#0]
-mov  r0,#8
-and  r0,r1
-cmp  r0,#0
-beq  +
-mov  r0,r4
-bl   $8048878
-mov  r0,r4
-bl   $80489F8
-mov  r0,r4
-bl   $8048C5C
-+
-bl   .load_curr_group_length1          //Hmmm...
-ldr  r3,=#0x76D6
-add  r0,r4,r3
-mov  r2,#0
-strb r1,[r0,#0]
-add  r3,#1
-add  r0,r4,r3
-strb r2,[r0,#0]
-lsl  r1,r1,#0x18
-cmp  r1,#0
-beq  +
-
-mov  r0,r4
-bl   .new_print_vram_left_right        //DIFFERENT!!!
-
-mov  r0,r4                             //Base code
-bl   $8048EF8
-+
-
-b    .new_print_vram_container_general //Go back to the other routine!
-
-//=============================================================================================
-// This hack is called in order to change where everything is printed in VRAM. Based on 0x80487D4
-// Same as new_print_vram, except where it's present the comment DIFFERENT!!!
-//=============================================================================================
-.new_print_vram_left_right:
-push {r4-r7,lr}
-mov  r7,r10                            //Base code
-mov  r6,r9
-mov  r5,r8
-push {r5-r7}
-add  sp,#-0x10
-mov  r4,r0
-ldr  r0,=#0x76D7
-add  r1,r4,r0
-mov  r0,#0
-strb r0,[r1,#0]
-ldr  r1,=#0x25F4
-add  r0,r4,r1
-ldr  r6,[r0,#0]
-mov  r2,#0xAA
-lsl  r2,r2,#3
-add  r2,r2,r4
-mov  r9,r2
-ldr  r3,=#0x76D6
-bl   .load_curr_group_length2
-str  r0,[sp,#0xC]
-mov  r1,sp
-mov  r0,#1
-strh r0,[r1,#0]
-ldr  r0,[sp,#0xC]
-cmp  r0,#0
-bne  +
-b    .new_print_vram_out_of_loop_left_right
-+
-add  r1,sp,#4
-mov  r10,r1
-add  r2,sp,#8
-mov  r8,r2
-mov  r3,#0xC3
-lsl  r3,r3,#3
-add  r7,r4,r3
-.new_print_vram_start_of_loop_left_right:
-bl   .check_for_eos
-cmp  r0,#0
-bne  +
-b    .new_print_vram_end_of_loop_left_right
-+
-ldr  r1,=#0x25F8
-add  r0,r4,r1
-ldr  r1,[r0,#0]
-add  r0,r1,#4
-cmp  r6,r0
-bne  .new_print_vram_keep_going_left_right
-ldr  r0,[r1,#4]
-lsl  r0,r0,#0xC
-cmp  r0,#0
-bge  +
-.new_print_vram_keep_going_left_right:
-mov  r0,r4
-mov  r1,r6
-add  r2,sp,#4
-bl   $8049280
-add  r5,sp,#4
-b    .new_print_vram_keep_going_2_left_right
-+
-mov  r0,sp
-ldrh r0,[r0,#0]
-add  r5,sp,#4
-cmp  r0,#0
-beq  .new_print_vram_keep_going_2_left_right
-ldr  r2,=#0x25FC
-add  r0,r4,r2
-ldrh r0,[r0,#0]
-mov  r3,r10
-strh r0,[r3,#0]
-ldr  r1,=#0x25FE
-add  r0,r4,r1
-ldrh r0,[r0,#0]
-strh r0,[r3,#2]
-
-.new_print_vram_keep_going_2_left_right:
-mov  r2,#0
-ldsh r1,[r5,r2]
-cmp  r1,#0
-bge  +
-add  r1,#7
-+
-lsl  r1,r1,#0xD
-lsr  r1,r1,#0x10
-ldr  r2,=#0xFFFF0000
-ldr  r0,[sp,#8]
-and  r0,r2
-orr  r0,r1
-str  r0,[sp,#8]
-mov  r0,r5
-mov  r3,#2
-ldsh r0,[r0,r3]
-cmp  r0,#0
-bge  +
-add  r0,#7
-+
-asr  r0,r0,#3
-mov  r1,r8
-strh r0,[r1,#2]
-bl   .get_ram_address2
-lsr  r0,r0,#0x1C
-lsl  r0,r0,#3
-ldrb r1,[r7,#0]
-mov  r3,#0x79
-neg  r3,r3
-mov  r2,r3
-and  r1,r2
-orr  r1,r0
-strb r1,[r7,#0]
-mov  r3,r8
-ldrh r0,[r3,#0]
-ldrh r1,[r3,#2]
-
-bl   .new_get_address_left_right       //DIFFERENT!!!
-
-mov  r2,r9
-str  r0,[r2,#0]
-
-//We change the target arrangement to match our expectations
-ldr  r3,=#0x6008000
-sub  r2,r0,r3
-lsl  r2,r2,#2
-ldr  r0,[r7,#0]
-ldr  r1,=#0xFFFE007F
-and  r0,r1
-orr  r0,r2
-str  r0,[r7,#0]                        //Store target arrangement
-
-mov  r3,r8                             //Base code
-ldrh r0,[r3,#0]
-ldrh r1,[r3,#2]
-bl   $80498C4                          //Gets where to put the arrangements - This we keep as is
-mov  r1,r9
-str  r0,[r1,#4]
-ldrh r0,[r5,#0]
-mov  r2,#7
-and  r2,r0
-ldrb r0,[r7,#0]
-mov  r3,#8
-neg  r3,r3
-mov  r1,r3
-and  r0,r1
-orr  r0,r2
-strb r0,[r7,#0]
-ldr  r1,[r6,#0]
-lsl  r1,r1,#0x14
-lsr  r1,r1,#0x14
-mov  r0,r9
-bl   $8048F74
-ldr  r0,[r7,#0]
-lsl  r0,r0,#0xF
-lsr  r0,r0,#0x16
-ldr  r2,=#0x25F0
-add  r1,r4,r2
-strh r0,[r1,#0]
-mov  r0,r9
-add  r0,#8
-ldr  r3,=#0x2530
-add  r1,r4,r3
-mov  r2,#0x60
-bl   $8001B18
-mov  r0,r9
-add  r0,#0x68
-ldr  r2,=#0x2590
-add  r1,r4,r2
-mov  r2,#0x60
-bl   $8001B18
-ldr  r3,=#0x76D7
-add  r1,r4,r3
-ldrb r0,[r1,#0]
-add  r0,#1
-strb r0,[r1,#0]
-ldr  r0,[sp,#0xC]
-sub  r0,#1
-lsl  r0,r0,#0x10
-lsr  r0,r0,#0x10
-str  r0,[sp,#0xC]
-add  r7,#0xCC
-mov  r0,#0xCC
-add  r9,r0
-ldr  r0,[r6,#0]
-lsl  r0,r0,#0x14
-lsr  r0,r0,#0x14
-bl   $8049954
-mov  r1,r10
-ldrh r1,[r1,#0]
-add  r0,r0,r1
-mov  r2,r10
-strh r0,[r2,#0]
-ldr  r3,=#0x25F8
-add  r1,r4,r3
-str  r6,[r1,#0]
-add  r2,r3,#4
-add  r1,r4,r2
-strh r0,[r1,#0]
-ldrh r1,[r5,#2]
-add  r3,#6
-add  r0,r4,r3
-strh r1,[r0,#0]
-.new_print_vram_end_of_loop_left_right:
-add  r6,#4
-mov  r1,#0xAA
-lsl  r1,r1,#3
-add  r0,r4,r1
-cmp  r6,r0
-bcs  .new_print_vram_out_of_loop_left_right
-mov  r1,sp
-mov  r0,#0
-strh r0,[r1,#0]
-ldr  r2,[sp,#0xC]
-cmp  r2,#0
-beq  .new_print_vram_out_of_loop_left_right
-b    .new_print_vram_start_of_loop_left_right
-
-.new_print_vram_out_of_loop_left_right:
-b    .new_print_vram_out_of_loop
 
 //=============================================================================================
 // This hack moves the graphics for the Equip menu and the Status menu.
@@ -4948,36 +4900,14 @@ pop  {r1-r3,pc}
 // It uses the values found by new_get_empty_tiles
 //=============================================================================================
 .new_get_address:
-ldr  r1,[sp,#0x44]
+ldr  r1,[sp,#0x20+0x24]
 cmp  r0,r1                             //If we're after a certain threshold (which depends on the menu), use the second address
 blt  +
-ldr  r1,[sp,#0x3C]
+ldr  r1,[sp,#0x20+0x1C]
 b    .new_get_address_keep_going
 +
-ldr  r1,[sp,#0x40]
+ldr  r1,[sp,#0x20+0x20]
 .new_get_address_keep_going:
-lsl  r0,r0,#0x10
-lsr  r0,r0,#0xB
-add  r0,r0,r1
-bx   lr
-
-//=============================================================================================
-// This hack changes the target vram address to whatever we want it to be.
-// It uses the values found by new_get_empty_tiles.
-// Left/Right edition
-//=============================================================================================
-.new_get_address_left_right:
-push {r0}
-mov  r0,#2
-and  r0,r1
-cmp  r0,#0                             //If we're after a certain threshold, use the second address
-beq  +
-ldr  r1,[sp,#0x40]
-b    .new_get_address_left_right_keep_going
-+
-ldr  r1,[sp,#0x44]
-.new_get_address_left_right_keep_going:
-pop  {r0}
 lsl  r0,r0,#0x10
 lsr  r0,r0,#0xB
 add  r0,r0,r1
@@ -5191,6 +5121,7 @@ ldr  r4,=#0x201AEF8
 mov  r0,r4
 bl   $803E908
 -
+mov  r0,#1
 bl   .new_print_vram_container
 mov  r0,r4
 bl   $803E908
@@ -5210,8 +5141,6 @@ pop  {pc}
 .move_and_print:
 push {lr}
 bl   .new_print_menu_up_down
-bl   .new_move_graphics_arrangements
-bl   .negate_printing                  //Don't print this frame
 pop  {pc}
 
 //=============================================================================================
@@ -5231,6 +5160,7 @@ ldr  r4,=#0x201AEF8
 mov  r0,r4
 bl   $803E908
 -
+mov  r0,#1
 bl   .new_print_vram_container
 mov  r0,r4
 bl   $803E908
@@ -5259,39 +5189,8 @@ ldr  r4,=#0x201AEF8
 mov  r0,r4
 bl   $803E908
 -
+mov  r0,#1
 bl   .new_print_vram_container
-mov  r0,r4
-bl   $803E908
-ldr  r0,=#0x2013040                    //Check for two names with a total of 41+ letters on the same line.
-ldrb r1,[r0,#2]                        //Max item name size is 21, so it's possible, but unlikely.
-ldrb r2,[r0,#3]                        //At maximum 2 letters must be printed, so it's fast.
-cmp  r1,r2                             //Can happen with (pickled veggie plate or jar of yummy pickles or saggittarius bracelet
-bne  -                                 //or mole cricket brother) + bag of big city fries on the same line.
-add  sp,#0xC
-pop  {pc}
-
-//=============================================================================================
-// This hack combines all the hacks above.
-// It moves the arrangements around instead of re-printing everything.
-// It only prints what needs to be printed.
-// Special case for left/right scrolling in battle memoes menu.
-//=============================================================================================
-.left_right_scrolling_print:
-push {lr}
-add  sp,#-0xC
-bl   .new_get_empty_tiles
-lsl  r2,r2,#5
-add  r1,r1,r2
-ldr  r2,[sp,#0x20]
-str  r2,[sp,#8]
-str  r0,[sp,#4]
-str  r1,[sp,#0]
-bl   .new_print_menu_left_right
-ldr  r4,=#0x201AEF8
-mov  r0,r4
-bl   $803E908
--
-bl   .new_print_vram_container_left_right
 mov  r0,r4
 bl   $803E908
 ldr  r0,=#0x2013040                    //Check for two names with a total of 41+ letters on the same line.
@@ -6186,60 +6085,16 @@ bne  +
 push {r0-r2}
 bl   .main
 bl   main_menu_hacks.up_down_scrolling_print
+ldr  r1,=#0xC5AD             //Signal printing
+add  r1,r1,r6
+ldrb r0,[r1,#0]
+mov  r2,#1
+orr  r0,r2
+strb r0,[r1,#0]
 pop  {r0-r2}
+mov  r0,#1
 +
 add  sp,#4
-pop  {pc}
-
-//=============================================================================================
-// This hack calls the main one to clear the writing stack.
-// If the battle memo's top index changed by <= 2, it moves the rest of the text and only prints
-// the stuff that is needed.
-// If 3 or more lines have to be printed, it reprints the entire menu as the Japanese version does
-//=============================================================================================
-.up_and_down_battle_memoes_left_right:
-push {lr}
-add  sp,#-8
-ldr  r0,[sp,#0xC]
-str  r0,[sp,#0]
-bl   main_menu_hacks.get_top_index
-str  r0,[sp,#4]              //Store the current top position for later
-mov  r0,r5
-bl   $8053620
-lsl  r0,r0,#0x10
-lsr  r0,r0,#0x10
-cmp  r0,#2
-bne  +
-push {r0-r2}
-
-ldr  r0,[sp,#0x10]           //A bunch of extra checks for things we can cover
-mov  r1,r0
-bl   main_menu_hacks.get_top_index
-sub  r0,r1,r0                //Get the absolute of the subtraction
-asr  r1,r0,#0x1F
-eor  r0,r1
-sub  r0,r0,r1
-cmp  r0,#2
-bgt  .up_and_down_battle_memoes_left_right_normal
-
-str  r0,[sp,#0x10]
-bl   main_menu_hacks.check_if_printed
-cmp  r1,#0                   //Do this only if we have all the arrangements printed
-bne  .up_and_down_battle_memoes_left_right_normal
-
-bl   .main
-bl   main_menu_hacks.left_right_scrolling_print
-b    .up_and_down_battle_memoes_left_right_end
-
-.up_and_down_battle_memoes_left_right_normal:
-
-bl   .main
-bl   $8046D90                //Normal stuff the game expects from us
-
-.up_and_down_battle_memoes_left_right_end:
-pop  {r0-r2}
-+
-add  sp,#8
 pop  {pc}
 
 //=============================================================================================

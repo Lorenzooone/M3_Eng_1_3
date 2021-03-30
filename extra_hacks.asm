@@ -439,21 +439,22 @@ lsl  r1,r1,#2
 cmp  r2,#0xF
 bne  +
 cmp  r0,#0xA
-bne  +
+bne  .memo_printfix_withdraw_positionfix_end
 add  r1,#4                         //Cover being in the withdraw menu - moves the right column 4 pixels to the right
+b    .memo_printfix_withdraw_positionfix_end
 +
 cmp  r2,#0x10
 bne  +
 cmp  r0,#0xB
-bne  +
+bne  .memo_printfix_withdraw_positionfix_end
 add  r1,#4                         //Cover being in the delete all saves menu - moves "No" 4 pixels to the right
+b    .memo_printfix_withdraw_positionfix_end
 +
 cmp  r2,#0x1
-bne  +
+bne  .memo_printfix_withdraw_positionfix_end
 cmp  r0,#0xB
-bne  +
+bne  .memo_printfix_withdraw_positionfix_end
 add  r1,#2                         //Cover being in the equipment menu - moves Equipment type's text 2 pixels to the right
-+
 b    .memo_printfix_withdraw_positionfix_end
 
 .memo_printfix_withdraw_positionfix_memo:
@@ -503,26 +504,31 @@ pop  {pc}
 // ---------------------------------------------------------------------------------------
 
 .memo_printfix_storage:
-push {r3,lr}
+push {r3-r4,lr}
 ldr  r0,=#0x201A288
 ldrb r0,[r0,#0]
 cmp  r0,#6
 bne  +                       //Do this only for the memo menu
 
-ldr  r0,[r4,#0]
-sub  r0,r6,r0                //Letters are now stored sequentially, not by line
-lsr  r2,r0,#1
-add  r2,#2
-strh r2,[r5,#0]
 ldr  r0,=#0x201AEF8
 ldrb r1,[r0,#3]
-add  r1,#0x10
+add  r1,#0x11
 strb r1,[r0,#3]              //Store, as info, the Y we're currently at
-mov  r3,#0x2
-add  r3,r3,r2
-lsl  r3,r3,#2
+ldr  r3,[r4,#0]
+sub  r3,r6,r3                //Letters are now stored sequentially, not by line
+lsl  r4,r1,#0x1C
+lsr  r4,r4,#0x1C
+lsr  r2,r3,#1
+add  r2,r2,r4
+add  r2,#1
+strh r2,[r5,#0]
+
+
+lsl  r3,r2,#2
 add  r0,r0,r3
-sub  r0,#4
+add  r0,#4
+lsr  r1,r1,#4
+lsl  r1,r1,#4
 add  r1,#0x30
 strb r1,[r0,#3]              //Store, as info, the Y this line should be at when printed
 b    .memo_printfix_storage_end
@@ -535,7 +541,41 @@ add  r0,#1
 strh r0,[r5,#2]
 
 .memo_printfix_storage_end:
-pop  {r3,pc}
+pop  {r3-r4,pc}
+
+// ---------------------------------------------------------------------------------------
+// Makes each line in the memo screen use 0xFFFFFFFF as its delimiter
+// ---------------------------------------------------------------------------------------
+
+.memo_eos:
+push {lr}
+ldr  r1,=#0x201A288
+ldrb r1,[r1,#0]
+cmp  r1,#6
+bne  .memo_eos_default
+mov  r1,#0xFF
+lsl  r1,r1,#8
+add  r1,#1
+cmp  r1,r3
+bne  .memo_eos_default
+
+ldr  r1,=#0x2013040
+ldrb r0,[r1,#2]
+add  r0,#1                   //Increment number of strings
+strb r0,[r1,#2]
+
+mov  r1,#1
+neg  r1,r1
+str  r1,[r2,#0]              //Store an EOS
+b    .memo_eos_end
+
+.memo_eos_default:
+mov  r1,#1
+orr  r0,r1
+strb r0,[r2,#2]
+
+.memo_eos_end:
+pop  {pc}
 
 // ---------------------------------------------------------------------------------------
 // Improves buffer size for the memo menus

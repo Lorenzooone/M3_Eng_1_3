@@ -150,6 +150,10 @@ org $803E24C; bl sprite_text_weld.clear_table
 org $8049916; mov r0,#0x20
 org $804991E; b $8049944
 
+// change the way menus print to make it faster
+org $8048CE4; push {lr}; mov r1,#0; bl main_menu_hacks.print_vram; pop {pc}
+org $8048828; nop; nop
+
 // makes items print all rows
 org $8048FFA
   bl   main_script_hacks.fast_prepare_main_font
@@ -488,9 +492,7 @@ org $804F704; bl refreshes.inner_equip_a
 
 //Battle Memoes
 org $804D1CC; bl refreshes.b; nop; bl main_menu_hacks.delete_vram_battle_memory_to_inv
-org $804D2D6; bl refreshes.up_and_down_battle_memoes_left_right; nop; nop
 org $804D2F6; bl refreshes.up_and_down_battle_memoes; nop; nop
-org $804D306; nop; nop
 
 //PSI
 org $804CD22; bl refreshes.psi_prevent_input_a_select
@@ -717,14 +719,14 @@ org $804C9D2; db $10
 org $80488C2; bl main_menu_hacks.write_item_text
 org $803E9FC; bl main_menu_hacks.clear_data
 org $80489CE; bl main_menu_hacks.write_item_eos
-org $8048D2C; bl main_menu_hacks.check_for_eos
-org $8048DC6; bl main_menu_hacks.get_ram_address2
-org $8048EBA; bl main_menu_hacks.clear_swap_flag
+//org $8048D2C; bl main_menu_hacks.check_for_eos
+//org $8048DC6; bl main_menu_hacks.get_ram_address2
+//org $8048EBA; bl main_menu_hacks.clear_swap_flag
 org $80492B2; bl main_menu_hacks.check_special_bit
-org $8048932; bl main_menu_hacks.store_total_letters; nop
-org $8048C78; bl main_menu_hacks.write_group_lengths
-org $80487FE; bl main_menu_hacks.load_curr_group_length1; nop; nop; nop; nop; nop
-org $8048D0A; bl main_menu_hacks.load_curr_group_length2
+org $804889C; bl main_menu_hacks.store_total_strings
+org $8048932; nop; nop; nop
+org $8048C78; bl main_menu_hacks.reset_processed_strings; b $8048CD4
+org $80487FE; bl main_menu_hacks.load_remaining_strings_external; nop; nop; nop; nop; nop
 org $803E996; bl main_menu_hacks.group_add_check
 
 // these changes make the game load all 22 letters of items names in various menus
@@ -1888,7 +1890,7 @@ org $8048B98; bl extra_hacks.memo_printfix_storage; nop; nop; nop
 org $8049298; bl extra_hacks.memo_printfix_withdraw_positionfix; nop; nop
 org $80492A4; bl extra_hacks.memo_printfix_vertical
 
-//Expand buffer size for a memo page
+// Expand buffer size for a memo page
 org $804807A; bl extra_hacks.memo_expand_buffer_start_routine
 org $80480DA; bl extra_hacks.memo_expand_buffer_middle_routine
 org $80480F0; bl extra_hacks.memo_expand_buffer_end_routine
@@ -1896,6 +1898,10 @@ org $80488BE; bl extra_hacks.memo_expand_writing_buffer
 org $8048C34; bl extra_hacks.memo_expand_writing_buffer
 org $8048100; dw $4284
 org $80476BC; dd $0201A2AC
+
+// Make memo use strings terminated by 0xFFFFFFFF after every BREAK
+org $80488F9; db $49; nop
+org $8048904; bl extra_hacks.memo_eos
 
 // Make the pigmask not set the null memo flag
 //org $9369245; db $00

@@ -58,7 +58,7 @@ mov  r1,r3
 
 mov  r0,#1
 strb r0,[r5,#8]          // This tile is used
-strb r2,[r5,#9]         // Store the palette
+strb r2,[r5,#9]          // Store the palette
 
 ldr  r7,=#0x2014320
 ldrb r3,[r7,#0x6]        // load the current letter's width
@@ -155,10 +155,10 @@ sub  r3,#8
 add  r1,r7,r3
 cmp  r1,#8
 blt  +
-ldrb r1,[r0,#9]         // Grab the colour
+ldrb r1,[r0,#9]          // Grab the colour
 mov  r0,#1
-strb r0,[r6,#8]         // This tile is used
-strb r1,[r6,#9]         // Store the palette
+strb r0,[r6,#8]          // This tile is used
+strb r1,[r6,#9]          // Store the palette
 +
 add  r4,#8
 b    .loop_start
