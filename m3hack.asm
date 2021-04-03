@@ -634,6 +634,9 @@ org $803E79F; db $E0
 //org $804DD34; db $20 // L
 //org $804DD76; db $20 // R
 
+// Allow characters to use more than one "Don't Care" name - From Jumpman
+//org $8050562; nop; nop
+
 // Alter namable characters' name lengths
 org $80C69D4; db $08
 org $80C69E0; db $08
@@ -1866,6 +1869,9 @@ org $80428FC; bl naming_screen_hacks.change_printing_order; b $8042988
 //Re-enable Caroline's Wess line - The Game Logic's pattern
 //suggests this line was mistakenly removed
 org $923F525; db $13
+
+//Fix Wess' house Area song being set to 74, which is Yado Inn's song
+org $919C538; dd $00004001
 
 //============================================================================================
 //                                  MEMO SCREEN STUFF
