@@ -12,6 +12,8 @@ Fixes of translation bugs/issues:
 - Fixed small cursor's issue in the naming screen
 - Fixed issues with the stars in the Battle Memories
 - Fixed "Text Slowdown" when printing text in CPU heavy areas in the overworld
+- Made gray boxes in the overworld more precise
+- Fixed memory OOB writes during Fassad's low voice speech
 
 Fixes of the Japanese version's bugs/issues:
 - Made it so the Thunder Tower's frog can still move when in contact with the party (Fixes softlock)
@@ -40,20 +42,23 @@ Fixes of the Japanese version's bugs/issues:
 - Fixed Caroline's bakery causing inventory issues in Chapters 1 through 3
 - Fixed the Delete All Saves menu's lag
 - Fixed issue with quickly opening and closing maps
+- Fixed the song set for Wess' house right after Wess joins the party in Chapter 2
 
 Improvements:
-- Optimized text printing in menus for a smoother experience
+- Optimized text printing for a smoother experience
 - Reduced the load on the GBA's CPU in certain menus in order to ensure a smoother experience
 - Added NPC in the Debug Room
 --- It allows accessing the other tables of the Debug Room
 --- It allows viewing the Attract Mode sequences
 --- Other useful features
 - Improved Debug Room's Staff roll option
+- Improved some of the Debug Room's warps
 - Made it so all the Memoes can be seen
 - Made it so the mother mouse's text is different if only one mouse is missing
 - Changed "BOM" to "BOOM"
 - Updated some enemies' sprites to match the translation
 - Restored a trade with a ghost in the castle's kitchen
+- Restored one of Caroline's lines for when Wess is in the party
 - Made consuming cheese consistent for Claus
 
 For the other translations:
