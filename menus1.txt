@@ -1,4 +1,6 @@
 // Text here can be any length. This is all the main menu text and the naming screen text.
+// Entries 001D and 0021 are linked and can be viewed by accessing the "Delete all saves" menu.
+// To do so, press L+R+Start+A on top of LOAD.
 
 0000: [END]
 0000-E: [END]

@@ -48,6 +48,10 @@ define oam_tiles_stack_buffer {sprite_text_weld_stack_size}-$60
 //
 //============================================================================================
 
+// THIS CODE AND THE ONE IN write_Glyph_1bpp INSIDE main_menu_hacks ARE BASICALLY THE SAME!
+// THEY'RE SEPARATED IN ORDER TO MAXIMIZE PERFORMANCES, BUT IF A BUG IS IN ONE OF THEM,
+// IT'S PROBABLY IN THE OTHER ONE AS WELL
+
 text_weld:
 push {r4-r7,lr}          // This is an efficient version of the printing routine
 mov  r5,r0
@@ -140,7 +144,7 @@ str  r1,[r6,#4]          // and now store it back
 pop  {r3}
 
 mov  r0,r8               // increment counter
-cmp  r0,#1               // see if we're still under the # of bytes we need to convert
+cmp  r0,#1               // see if we're still under the # of tiles we need to process
 ble  .routine_end
 sub  r0,#1
 mov  r8,r0
@@ -513,11 +517,7 @@ ldr  r0,[r7,#0x14]        // load r0 with the current letter # we're on
 cmp  r0,#0                // if it's 0, we don't want to add the sprite width
 beq  +
 
-ldr  r0,[r7,#{coord_stk}] // this code adds to the sprite's x coordinate.
-ldrb r0,[r0,#0]           // it'll almost always be 16 pixels
-ldrh r1,[r7,#0x4]
-add  r1,r1,r0
-strh r1,[r7,#0x4]
+bl   .update_x_coord
 
 //--------------------------------------------------------------------------------------------
 +
@@ -580,9 +580,9 @@ pop    {pc}
 //============================================================================================
 
 .add_width:
-
+push {lr}
 // load r0 with the custom RAM block's address
-ldr  r0,[sp,#{wbuf_stk}]
+ldr  r0,[sp,#4+{wbuf_stk}]
 ldrb r2,[r0,#0x5]        // load curr_x
 ldrb r3,[r0,#0x6]        // load curr_width
 add  r2,r2,r3            // curr_x += curr_width
@@ -593,6 +593,26 @@ blt  .add_width_end      // else just skip to the end
 
 //-------------------------------------------------------------------------------------------
 
+cmp  r2,#0x20
+blt  +
+push {r7}                // handle exceptionally long letters (> 16 pixels long)
+add  r7,sp,#8
+push {r2}
+bl   .move_to_next_tile
+bl   .update_x_coord     // finish printing them
+bl   .custom_create_sprite
+pop  {r2}
+ldrh r0,[r7,#4]
+lsr  r1,r2,#4
+lsl  r1,r1,#4            // properly place the next double tile's X coordinate
+sub  r1,#0x20
+add  r0,r1,r0
+strh r0,[r7,#4]
+pop  {r7}
++
+
+// load r0 with the custom RAM block's address
+ldr  r0,[sp,#4+{wbuf_stk}]
 lsl  r2,r2,#0x1C         // calculate the new curr_x for the new sprite tile
 lsr  r2,r2,#0x1C
 strb r2,[r0,#0x5]        // store the new curr_x
@@ -602,7 +622,7 @@ strb r2,[r0,#0x7]        // new_tile_flag = TRUE
 //-------------------------------------------------------------------------------------------
 
 .add_width_end:
-bx   lr
+pop  {pc}
 
 //============================================================================================
 // This section of code is called when a string has just finished being processed. We need
@@ -794,12 +814,10 @@ bl   .move_to_next_tile
 pop  {r0-r1,pc}
 
 //============================================================================================
-// This hack is called to get an accurate count of the # of sprites used. It might not take
-// things like status icons into account though, so we might have to deal with that later.
-// Anyway, this is called from 804950A.
+// This hack is called to save a letter's width to the stack
 //============================================================================================
 
-.get_sprite_total:
+.save_letters_width:
 push {r4-r5}
 
 // r5 has RAM block address
@@ -821,16 +839,14 @@ cmp  r2,r4
 bne  +
 // We're using main font
 ldr  r2,[sp,#{mfontw_stk}+0x8]
-b    .get_sprite_total_next
+b    .save_letters_width_next
 +
 ldr  r2,[sp,#{sfontw_stk}+0x8]
 
 
-.get_sprite_total_next:
+.save_letters_width_next:
 ldrb r2,[r2,r0]          // get the current letter's width
 strb r2,[r5,#0x6]        // store the current letter's width in the RAM block
-
-ldrb r0,[r5,#0x4]
 pop  {r4-r5}
 bx   lr
 
@@ -1654,155 +1670,6 @@ bx   lr
 
 
 //============================================================================================
-// This routine converts the OAM VRAM double tiles from 1bpp to 4bpp.
-// We want to go VERY FAST.
-//============================================================================================
-.convert_1bpp_4bpp_double_tile:
-
-ldrb r0,[r5,#9]           // Get the colour
-lsl  r0,r0,#0x10
-lsr  r0,r0,#0x6
-add  r3,r6,r0             // Get the conversion table
-ldr  r1,[r5,#0]
-ldr  r2,[r5,#4]           // Load the bottom left tile
-
-
-
-// FIRST ROW - LEFT TILE
-lsl  r0,r1,#0x18          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0]           // store to the buffer
-
-// SECOND ROW - LEFT TILE
-lsl  r0,r1,#0x10          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#4]           // store to the buffer
-
-// THIRD ROW - LEFT TILE
-lsl  r0,r1,#0x8           // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#8]           // store to the buffer
-
-// FOURTH ROW - LEFT TILE
-lsr  r0,r1,#0x18          // Get only one byte
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0xC]         // store to the buffer
-
-// FIFTH ROW - LEFT TILE
-lsl  r0,r2,#0x18          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x10]        // store to the buffer
-
-// SIXTH ROW - LEFT TILE
-lsl  r0,r2,#0x10          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x14]        // store to the buffer
-
-// SEVENTH ROW - LEFT TILE
-lsl  r0,r2,#0x8           // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x18]        // store to the buffer
-
-// EIGHT ROW - LEFT TILE
-lsr  r0,r2,#0x18          // Get only one byte
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x1C]        // store to the buffer
-
-
-
-ldr  r1,[r5,#0x20]
-ldr  r2,[r5,#0x24]        // Load the bottom right tile
-
-
-
-// FIRST ROW - RIGHT TILE
-lsl  r0,r1,#0x18          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x20]        // store to the buffer
-
-// SECOND ROW - RIGHT TILE
-lsl  r0,r1,#0x10          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x24]        // store to the buffer
-
-// THIRD ROW - RIGHT TILE
-lsl  r0,r1,#0x8           // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x28]        // store to the buffer
-
-// FOURTH ROW - RIGHT TILE
-lsr  r0,r1,#0x18          // Get only one byte
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x2C]        // store to the buffer
-
-// FIFTH ROW - RIGHT TILE
-lsl  r0,r2,#0x18          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x30]        // store to the buffer
-
-// SIXTH ROW - RIGHT TILE
-lsl  r0,r2,#0x10          // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x34]        // store to the buffer
-
-// SEVENTH ROW - RIGHT TILE
-lsl  r0,r2,#0x8           // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x38]        // store to the buffer
-
-// EIGHT ROW - RIGHT TILE
-lsr  r0,r2,#0x18          // Get only one byte
-
-lsl  r0,r0,#2             // now multiply by four
-ldr  r0,[r3,r0]           // r0 now has the converted 4bpp version
-str  r0,[r5,#0x3C]        // store to the buffer
-
-bx   lr
-
-
-//============================================================================================
 // This routine converts the OAM VRAM entries from 1bpp to 4bpp.
 // We want to go VERY FAST.
 //============================================================================================
@@ -1825,7 +1692,8 @@ add  r5,#4                // Starting tiles
 ldrb r0,[r5,#8]
 cmp  r0,#0
 beq  +
-bl   .convert_1bpp_4bpp_double_tile
+mov  r0,#2
+bl   convert_1bpp_4bpp_tiles
 +
 
 .convert_1bpp_4bpp_loop_bottom:
@@ -1834,7 +1702,8 @@ add  r5,#0x40
 ldrb r0,[r5,#8]
 cmp  r0,#0
 beq  +
-bl   .convert_1bpp_4bpp_double_tile
+mov  r0,#2
+bl   convert_1bpp_4bpp_tiles
 +
 
 .convert_1bpp_4bpp_loop_end:
@@ -2189,10 +2058,12 @@ ldr  r1,[sp,#{letter_stk}]
 ldrb r0,[r1,#0]
 add  r0,#1
 strb r0,[r1,#0]
-bl   sprite_text_weld.get_sprite_total
+bl   sprite_text_weld.save_letters_width
+bl   sprite_text_weld.add_width         // took out some code after here
+ldr  r0,[sp,#{wbuf_stk}]                // get the sprite total
+ldrb r0,[r0,#0x4]
 cmp  r0,#0x5F
 bhi  .mr_exit
-bl   sprite_text_weld.add_width         // took out some code after here
 
 .mr_nextletter:
 ldr  r0,[sp,#0x14]

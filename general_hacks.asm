@@ -228,6 +228,95 @@ b    -                       // loop back
 mov  r0,r1                   // r0 has the return value
 pop  {r1-r7,pc}
 
+//============================================================================================
+// This routine converts tiles from 1bpp to 4bpp.
+// We want to go VERY FAST.
+// r5 is the tile's address, r6 is the conversion table's address and
+// r0 is the amount of tiles to convert
+//============================================================================================
+convert_1bpp_4bpp_tiles:
+push {r4-r5}
+mov  r4,r0
+ldrb r0,[r5,#9]              // Get the colour
+lsl  r0,r0,#0x10
+lsr  r0,r0,#0x6
+add  r3,r6,r0                // Get the conversion table
+
+-
+
+ldr  r1,[r5,#0]
+ldr  r2,[r5,#4]              // Load the tile
+
+// FIRST ROW
+lsl  r0,r1,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r3,r0]              // r0 now has the converted 4bpp version
+str  r0,[r5,#0]              // store to the buffer
+
+// SECOND ROW
+lsl  r0,r1,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r3,r0]              // r0 now has the converted 4bpp version
+str  r0,[r5,#4]              // store to the buffer
+
+// THIRD ROW
+lsl  r0,r1,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r3,r0]              // r0 now has the converted 4bpp version
+str  r0,[r5,#8]              // store to the buffer
+
+// FOURTH ROW
+lsr  r0,r1,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r3,r0]              // r0 now has the converted 4bpp version
+str  r0,[r5,#0xC]            // store to the buffer
+
+// FIFTH ROW
+lsl  r0,r2,#0x18             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r3,r0]              // r0 now has the converted 4bpp version
+str  r0,[r5,#0x10]           // store to the buffer
+
+// SIXTH ROW
+lsl  r0,r2,#0x10             // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r3,r0]              // r0 now has the converted 4bpp version
+str  r0,[r5,#0x14]           // store to the buffer
+
+// SEVENTH ROW
+lsl  r0,r2,#0x8              // Get only one byte
+lsr  r0,r0,#0x18
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r3,r0]              // r0 now has the converted 4bpp version
+str  r0,[r5,#0x18]           // store to the buffer
+
+// EIGHT ROW
+lsr  r0,r2,#0x18             // Get only one byte
+
+lsl  r0,r0,#2                // now multiply by four
+ldr  r0,[r3,r0]              // r0 now has the converted 4bpp version
+str  r0,[r5,#0x1C]           // store to the buffer
+
+add  r5,#0x20
+
+sub  r4,#1                   // have we done all the tiles?
+cmp  r4,#0
+bgt  -
+
+pop  {r4-r5}
+bx   lr
 
 //===========================================================================================
 //This checks if the address in r0 points to a special 8- or 9-letter custom name.

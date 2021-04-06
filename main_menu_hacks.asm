@@ -227,19 +227,22 @@ ldr  r0,[sp,#0x20+0x14]      // Is this the first?
 cmp  r0,#0
 beq  +
 
-ldr  r0,[r4,#0]
-mov  r1,#8
-add  r1,r4,r1
-mov  r2,#0x10
-swi  #0xB                    // Copy the top part of the buffer from VRAM
-ldr  r0,[r4,#0]
-mov  r1,#4
-lsl  r1,r1,#8
-add  r0,r0,r1
-mov  r1,#0x68
-add  r1,r4,r1
-mov  r2,#0x10
-swi  #0xB                    // Copy the bottom part of the buffer from VRAM
+ldr  r0,=#0x2013040
+mov  r1,r4
+add  r1,#8
+ldr  r2,[r0,#8]
+str  r2,[r1,#0]
+ldr  r2,[r0,#0xC]
+str  r2,[r1,#4]
+ldr  r2,[r0,#0x10]
+str  r2,[r1,#8]              // Restore the old top tile buffer we saved here
+add  r1,#0x60
+ldr  r2,[r0,#0x14]
+str  r2,[r1,#0]
+ldr  r2,[r0,#0x18]
+str  r2,[r1,#4]
+ldr  r2,[r0,#0x1C]
+str  r2,[r1,#8]              // Restore the old bottom tile buffer we saved here
 
 mov  r0,#0
 push {r0}
@@ -482,13 +485,60 @@ mov  r1,#7                   // clobbered code
 pop  {r2-r3}
 bx   lr
 
+//============================================================================================
+// This routine converts the VRAM entries from 1bpp to 4bpp.
+// We want to go VERY FAST.
+//============================================================================================
+.convert_1bpp_4bpp:
+push {r2,r4-r6,lr}
+cmp  r1,#0
+beq  .convert_1bpp_4bpp_end
+
+ldr  r6,=#0x8CDF9F8
+mov  r2,#0xAA
+lsl  r2,r2,#3
+add  r5,r2,r4
+add  r5,#8                // Starting tiles
+mov  r4,r1
+
+.convert_1bpp_4bpp_loop_start:
+
+ldrb r0,[r5,#8]
+cmp  r0,#0
+beq  +
+mov  r0,#3
+bl   convert_1bpp_4bpp_tiles
++
+
+.convert_1bpp_4bpp_loop_bottom:
+
+add  r5,#0x60
+ldrb r0,[r5,#8]
+cmp  r0,#0
+beq  +
+mov  r0,#3
+bl   convert_1bpp_4bpp_tiles
++
+
+.convert_1bpp_4bpp_loop_end:
+sub  r4,#1                // One entry is done
+cmp  r4,#0
+ble  .convert_1bpp_4bpp_end
+add  r5,#0x6C
+b    .convert_1bpp_4bpp_loop_start
+
+.convert_1bpp_4bpp_end:
+pop  {r2,r4-r6,pc}
 
 //=============================================================================================
 
-//Writes a Glyph stored in r0 to the buffer in r1. r2 is the X and r3 is the letter's number
-.write_Glyph:
+// THIS CODE AND THE ONE IN text_weld INSIDE sprite_text_hacks ARE BASICALLY THE SAME!
+// THEY'RE SEPARATED IN ORDER TO MAXIMIZE PERFORMANCES, BUT IF A BUG IS IN ONE OF THEM,
+// IT'S PROBABLY IN THE OTHER ONE AS WELL
+
+//Writes a Glyph stored in r0 to the buffer in r1. r2 is the X and r3 is the letter's info
+.write_Glyph_1bpp:
 push {r4-r7,lr}              // This is an efficient version of the printing routine
-add  sp,#-4
 mov  r5,r1
 mov  r6,r1
 add  r6,#0x20
@@ -497,11 +547,12 @@ mov  r7,r2
 
 lsl  r2,r3,#0x10
 lsr  r2,r2,#0x1C
-lsl  r2,r2,#0xA
-ldr  r0,=#0x8CDF9F8
-add  r2,r2,r0
 
-ldr  r3,[sp,#0x38]           // The current letter's width
+mov  r0,#1
+strb r0,[r5,#8]              // This tile is used
+strb r2,[r5,#9]              // Store the palette
+
+ldr  r3,[sp,#0x14+0x20]      // The current letter's width
 
 cmp  r7,#8
 blt  +
@@ -513,235 +564,109 @@ sub  r7,#0x10
 mov  r5,r6
 mov  r0,#0x8C
 add  r6,r6,r0
-+
-str  r6,[sp,#0]              //The tile to the right of the current one
-
-add  r3,#7                   //If this isn't a multiple of 8, it will go over a multiple of 8 now
-lsr  r6,r3,#3                //Get total tiles number
-cmp  r6,#2
-ble  +
-mov  r6,#2                   //Prevent bad stuff
+add  r0,r7,r3                // Does this cross to the other tile?
+cmp  r0,#8
+blt  +
+mov  r0,#1
+strb r0,[r6,#8]              // This tile is used
+strb r2,[r6,#9]              // Store the palette
 +
 
-mov  r3,#0
-
+add  r2,r3,#7                // If this isn't a multiple of 8, it will go over a multiple of 8 now
+lsr  r2,r2,#3                // Get total tiles number
+cmp  r2,#2
+blt  +
+mov  r2,#2                   // Prevent bad stuff
++
 
 //---------------------------------------------------------------------------------------------
 
 mov  r0,r8
 push {r0}
-mov  r8,r6
+mov  r8,r2
+mov  r2,#0xFF                // If we had access to the stack, using a precompiled
+mov  r0,#7
+and  r0,r7
+lsr  r2,r0                   // array would be faster... Probably
+lsl  r0,r2,#8
+orr  r2,r0
+lsl  r0,r2,#0x10
+orr  r2,r0
 
 .loop_start:
-push {r3-r4,r7}
-push {r2}
-lsl  r7,r7,#0x1D
-lsr  r7,r7,#0x1D
+push {r3,r7}
+mov  r0,#7                   // Only consider part of the tile
+and  r7,r0
 
-mov  r3,#0xFF
-lsr  r3,r7                   //Get the valid left-tile positions
-lsl  r3,r3,#0x18
-lsr  r6,r3,#8
-orr  r3,r6
-lsr  r6,r3,#0x10
-orr  r3,r6
-mvn  r6,r3                   //Get the inverted version
-ldr  r2,[r4,#0]              //Load the first 4 rows
-mov  r1,r2
-lsr  r2,r7                   //Shift them by curr_x
+ldr  r3,[r4,#0]              // Load the first 4 rows
+mov  r1,r3
+lsr  r3,r7                   // Shift them by curr_x
 mov  r0,#8
-sub  r0,r7,r0
-neg  r0,r0
+sub  r0,r0,r7
 lsl  r1,r0
-and  r2,r3                   //Left side
-and  r1,r6                   //Right side
-ldr  r4,[r4,#4]              //Load the other 4 rows
-mov  r0,r4
-lsr  r4,r7                   //Shift them by curr_x
-sub  r7,r7,#4
-sub  r7,r7,#4
-neg  r7,r7
-lsl  r0,r7
-and  r4,r3                   //r4 = Left side, last 4 rows
-and  r0,r6                   //Right side
-mov  r3,r2                   //r3 = Left side, first 4 rows
-mov  r6,r1                   //r6 = Right side, first 4 rows
-mov  r7,r0                   //r7 = Right side, last 4 rows
+and  r3,r2                   // Left side
+mvn  r2,r2                   // Get the inverted version
+and  r1,r2                   // Right side
 
-pop  {r2}
+// TOP FOUR - LEFT
+ldr  r0,[r5,#0]              // load what's in the current row
+orr  r0,r3                   // OR them together
+str  r0,[r5,#0]              // and now store it back
 
-// ONE - LEFT
-lsl  r0,r3,#0x18             // Get only one byte
-lsr  r0,r0,#0x18
+// TOP FOUR - RIGHT
+str  r1,[r6,#0]              // and now store it back
 
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0]              // load what's in the current row
-orr  r1,r0                   // OR them together
-str  r1,[r5,#0]              // and now store it back
+// Now we do the bottom four!
 
-// TWO - LEFT
-lsl  r0,r3,#0x10             // Get only one byte
-lsr  r0,r0,#0x18
+ldr  r3,[r4,#4]              // Load the last 4 rows
+mov  r1,r3
+lsr  r3,r7                   // Shift them by curr_x
+mov  r0,#8
+sub  r0,r0,r7
+lsl  r1,r0
+and  r1,r2                   // Right side
+mvn  r2,r2                   // Get the inverted version
+and  r3,r2                   // Left side
 
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-ldr  r1,[r5,#4]              // load what's in the current row
-orr  r1,r0                   // OR them together
-str  r1,[r5,#4]              // and now store it back
+// BOTTOM FOUR - LEFT
+ldr  r0,[r5,#4]              // load what's in the current row
+orr  r0,r3                   // OR them together
+str  r0,[r5,#4]              // and now store it back
 
-// THREE - LEFT
-lsl  r0,r3,#0x8              // Get only one byte
-lsr  r0,r0,#0x18
+// BOTTOM FOUR - RIGHT
+str  r1,[r6,#4]              // and now store it back
 
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-ldr  r1,[r5,#8]              // load what's in the current row
-orr  r1,r0                   // OR them together
-str  r1,[r5,#8]              // and now store it back
+pop  {r3,r7}
 
-// FOUR - LEFT
-lsr  r0,r3,#0x18             // Get only one byte
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x0C]           // load what's in the current row
-orr  r1,r0                   // OR them together
-str  r1,[r5,#0x0C]           // and now store it back
-
-// FIVE - LEFT
-lsl  r0,r4,#0x18             // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x10]           // load what's in the current row
-orr  r1,r0                   // OR them together
-str  r1,[r5,#0x10]           // and now store it back
-
-// SIX - LEFT
-lsl  r0,r4,#0x10             // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x14]           // load what's in the current row
-orr  r1,r0                   // OR them together
-str  r1,[r5,#0x14]           // and now store it back
-
-// SEVEN - LEFT
-lsl  r0,r4,#0x8              // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x18]           // load what's in the current row
-orr  r1,r0                   // OR them together
-str  r1,[r5,#0x18]           // and now store it back
-
-// EIGHT - LEFT
-lsr  r0,r4,#0x18             // Get only one byte
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-ldr  r1,[r5,#0x1C]           // load what's in the current row
-orr  r1,r0                   // OR them together
-str  r1,[r5,#0x1C]           // and now store it back
-
-
-
-// Now we do the right side!
-ldr  r4,[sp,#0x10]
-
-
-// ONE - RIGHT
-lsl  r0,r6,#0x18             // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-str  r0,[r4,#0x00]           // store it now
-
-// TWO - RIGHT
-lsl  r0,r6,#0x10             // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-str  r0,[r4,#0x04]           // store it now
-
-// THREE - RIGHT
-lsl  r0,r6,#0x8              // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-str  r0,[r4,#0x08]           // store it now
-
-// FOUR - RIGHT
-lsr  r0,r6,#0x18             // Get only one byte
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-str  r0,[r4,#0x0C]           // store it now
-
-// FIVE - RIGHT
-lsl  r0,r7,#0x18             // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-str  r0,[r4,#0x10]           // store it now
-
-// SIX - RIGHT
-lsl  r0,r7,#0x10             // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-str  r0,[r4,#0x14]           // store it now
-
-// SEVEN - RIGHT
-lsl  r0,r7,#0x8              // Get only one byte
-lsr  r0,r0,#0x18
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-str  r0,[r4,#0x18]           // store it now
-
-// EIGHT - RIGHT
-lsr  r0,r7,#0x18             // Get only one byte
-
-lsl  r0,r0,#2                // now multiply by four
-ldr  r0,[r2,r0]              // r0 now has the converted 4bpp version
-str  r0,[r4,#0x1C]           // store it now
-
-
-
-pop  {r3-r4,r7}
-
-add  r3,#1                   // increment counter
-cmp  r3,r8                   // see if we're still under the # of bytes we need to convert
-bge  .routine_end
-ldr  r0,[sp,#4]
-mov  r5,r0
+mov  r0,r8                   // increment counter
+cmp  r0,#1                   // see if we're still under the # of tiles we need to process
+ble  .routine_end
+sub  r0,#1
+mov  r8,r0
 add  r7,#8
-add  r0,#0x20                // check if we must cross over the next "triple tile" buffer
+mov  r0,r5
+mov  r5,r6
+add  r6,#0x20
 cmp  r7,#0x10
 blt  +
-add  r0,#0x6C
-sub  r7,#0x10
+add  r6,#0x6C
+sub  r3,#8
+add  r1,r7,r3
+cmp  r1,#8
+blt  +
+sub  r0,#0x20
+ldrb r1,[r0,#9]              // Grab the colour
+mov  r0,#1
+strb r0,[r6,#8]              // This tile is used
+strb r1,[r6,#9]              // Store the palette
 +
-str  r0,[sp,#4]
 add  r4,#8
 b    .loop_start
-
 //---------------------------------------------------------------------------------------------
 .routine_end:
 pop  {r0}
 
 mov  r8,r0
-add  sp,#4
 pop  {r4-r7,pc}
 
 //=============================================================================================
@@ -774,7 +699,7 @@ mov  r1,r6
 add  r1,#8
 mov  r2,r4
 mov  r3,r7
-bl   .write_Glyph
+bl   .write_Glyph_1bpp
 
 +
 cmp  r5,#0                   // is there something to print at the bottom?
@@ -785,7 +710,7 @@ mov  r1,r6
 add  r1,#0x68
 mov  r2,r4
 mov  r3,r7
-bl   .write_Glyph
+bl   .write_Glyph_1bpp
 
 .print_letter_end:
 ldr  r0,[sp,#0x20]
@@ -824,30 +749,91 @@ pop  {r4,pc}
 //============================================================================================
 
 .fast_prepare_main_font:
-ldr  r2,=#{main_font}     // we already know we're loading main font
+ldr  r2,=#{main_font}        // we already know we're loading main font
 lsl  r0,r7,#0x14
 lsr  r0,r0,#0x14
 lsl  r0,r0,#5
-add  r0,r2,r0             // get the address
+add  r0,r2,r0                // get the address
 mov  r5,r0
 mov  r1,sp
 mov  r2,#8
-swi  #0xB                 // CpuSet for 0x10 bytes
+swi  #0xB                    // CpuSet for 0x10 bytes
 mov  r0,r5
 add  r0,#0x10
 add  r1,sp,#0x10
 mov  r2,#8
-swi  #0xB                 // CpuSet for 0x10 bytes
+swi  #0xB                    // CpuSet for 0x10 bytes
 ldr  r0,=#{main_font_usage}
 lsl  r1,r7,#0x14
 lsr  r1,r1,#0x14
 add  r0,r0,r1
-ldrb r0,[r0,#0]           // Load tile usage for the letter
+ldrb r0,[r0,#0]              // Load tile usage for the letter
+bx   lr
+
+//============================================================================================
+// This section of code stores the last tile in a buffer, so it can be reloaded
+// later when doing the rest of the strings.
+// r1 is the number of used triple tiles buffers.
+//============================================================================================
+
+.save_next_tile:
+push {r1}
+cmp  r1,#0
+ble  .save_next_tile_end
+ldr  r2,[sp,#4+0x2C]
+ldrb r2,[r2,#4]              // Is there a partially incomplete string?
+cmp  r2,#0
+beq  .save_next_tile_end
+
+ldr  r2,[sp,#4+0x14]
+ldr  r0,[sp,#4+0x18]
+sub  r2,r2,r0                // Get the currently not fully used buffers
+sub  r1,r1,r2                // Get the proper buffer the last tile is in
+mov  r0,#0xCC
+mul  r1,r0
+ldr  r2,[sp,#4+0x24]         // Load the X and Y coords
+ldrh r2,[r2,#8]              // Final X
+ldr  r0,[sp,#4+8]            // Last X
+sub  r0,r2,r0                // X in the final triple tile
+mov  r2,#0xAA
+lsl  r2,r2,#3
+add  r2,r2,r4                // Buffers
+add  r2,r2,r1                // Get into the final buffer
+add  r2,#8                   // Enter the actual buffer
+lsr  r3,r0,#3
+lsl  r3,r3,#3
+cmp  r0,r3
+beq  .save_next_tile_end     // If it's 8-pixels aligned, it won't use this info
+lsr  r0,r0,#3
+lsl  r0,r0,#5                // Get where the tile is in the buffer
+ldr  r1,[sp,#4+0x28]         // Load where to temp store this data
+ldr  r3,[r2,#8]              // Load the colour and whether it's used or not - Top Tile
+str  r3,[r1,#0x10]
+add  r0,r2,r0                // Get to the top tile
+ldr  r3,[r0,#0]
+str  r3,[r1,#8]
+ldr  r3,[r0,#4]
+str  r3,[r1,#0xC]            // Store the top tile
+
+add  r2,#0x60                // Process the bottom tile
+
+ldr  r3,[r2,#8]              // Load the colour and whether it's used or not - Bottom Tile
+str  r3,[r1,#0x1C]
+add  r0,#0x60                // Get to the bottom tile
+ldr  r3,[r0,#0]
+str  r3,[r1,#0x14]
+ldr  r3,[r0,#4]
+str  r3,[r1,#0x18]           // Store the bottom tile
+
+.save_next_tile_end:
+pop  {r1}
 bx   lr
 
 //=============================================================================================
 // This hack is called in order to change how everything is printed in VRAM. Based on 0x8048CE4
 //=============================================================================================
+define max_tiles $28
+
 .print_vram:
 push {r4-r7,lr}
 mov  r7,r10                            // Base code
@@ -856,7 +842,7 @@ mov  r5,r8
 push {r5-r7}
 add  sp,#-0x44
 mov  r4,r0
-mov  r0,#40                            // 40 buffers max
+mov  r0,#{max_tiles}                   // max_tiles = buffer max
 str  r0,[sp,#0x10]
 str  r1,[sp,#0x34]                     // Save type of arrangements loading to r1
 cmp  r1,#0
@@ -1002,11 +988,16 @@ ldr  r0,[sp,#8]
 sub  r2,r2,r0                          // Get the "Three tile" X coord
 cmp  r2,#0x18
 blt  +
+.print_vram_handle_long_char:
+ldr  r0,[sp,#8]
 add  r0,#0x18
 str  r0,[sp,#8]
 ldr  r0,[sp,#0x18]
 add  r0,#1                             // Increase the number of fully used buffers
 str  r0,[sp,#0x18]
+sub  r2,#0x18
+cmp  r2,#0x18
+bge  .print_vram_handle_long_char
 +
 .print_vram_end_of_str_loop:
 add  r6,#4
@@ -1041,9 +1032,11 @@ strh r2,[r0,#0xA]
 ldr  r0,=#0x76D7
 add  r2,r4,r0
 ldr  r0,[sp,#0x10]
-mov  r1,#40                            // Get how many buffers were used
+mov  r1,#{max_tiles}                   // Get how many buffers were used
 sub  r1,r1,r0
 strb r1,[r2,#0]                        // Save the number so the game can use them
+bl   .save_next_tile
+bl   .convert_1bpp_4bpp
 add  sp,#0x44
 pop  {r3-r5}
 mov  r8,r3
