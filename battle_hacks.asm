@@ -3517,15 +3517,15 @@ bge  .end                         //The target is invalid. Just future-proof thi
 ldr  r2,=#{target_num_table}
 ldrb r1,[r2,r1]                   //Get number of hits
 
-mov  r2,#0x10
-and  r2,r1
-cmp  r2,#0                        //If this targets not-alive characters, skip this entirely, even though at 0x60 there seems to be the "playable characters" counter.
-bne  .end                         //The number of playable characters shouldn't change mid-battle anyways.
-
 mov  r3,#0
 lsr  r2,r1,#5                     //Check if it's a special case (party-wide hit)
 cmp  r2,#0
 beq  .got_total_hits
+
+mov  r2,#0x10
+and  r2,r1                        //Prevent the num-of-targets check only for the party-wide targets (Healing Omega, basically).
+cmp  r2,#0                        //If this targets not-alive characters, skip this entirely, even though at 0x60 there seems to be the "playable characters" counter.
+bne  .end                         //The number of playable characters shouldn't change mid-battle anyways.
 
 mov  r2,#1
 and  r2,r1
@@ -3555,6 +3555,8 @@ add  r3,r3,r2
 mov  r1,r3                        //Put proper hit count
 
 .got_total_hits:
+mov  r3,#0xF
+and  r1,r3                        //Ignore bit for "dead targeting"
 
 ldr  r2,[r0,#4]                   //Load in ram hits counter and check whether the normal hits counter is bigger
 cmp  r1,r2
