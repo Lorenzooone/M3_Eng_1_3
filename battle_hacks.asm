@@ -3516,6 +3516,12 @@ bge  .end                         //The target is invalid. Just future-proof thi
 
 ldr  r2,=#{target_num_table}
 ldrb r1,[r2,r1]                   //Get number of hits
+
+mov  r2,#0x10
+and  r2,r1
+cmp  r2,#0                        //If this targets not-alive characters, skip this entirely, even though at 0x60 there seems to be the "playable characters" counter.
+bne  .end                         //The number of playable characters shouldn't change mid-battle anyways.
+
 mov  r3,#0
 lsr  r2,r1,#5                     //Check if it's a special case (party-wide hit)
 cmp  r2,#0
