@@ -175,7 +175,11 @@ and  r5,r4
 cmp  r5,#0
 beq  .cursorfix_end        // Return only if no arrow keys are pressed whatsoever
 lsr  r5,r5,#5              // {10, 20, 40, 80} is now {0, 1, 2, 4}
-cmp  r5,#4
+cmp  r5,#3                 // Check for up + left
+bne  +
+mov  r5,#2                 // Convert it to up before down is converted
++
+cmp  r5,#4                 // Check for down + whatever
 blt  +
 mov  r5,#3                 // {0, 1, 2, 4} is now {0, 1, 2, 3}
 +                          // r5 = arrow direction (0 = right, 1 = left, 2 = up, 3 = down)
